@@ -1,4 +1,5 @@
 #include "native_port/settings_store.hpp"
+#include "native_port/video_codec.hpp"
 
 #include <algorithm>
 #include <array>
@@ -90,6 +91,10 @@ void validate_setting(const SettingUpdate& update) {
         !update.value.at("width").is_number_integer() || !update.value.at("height").is_number_integer()) {
       throw std::invalid_argument("Resolution requires integer width and height");
     }
+  }
+  if (update.key == "Codec" &&
+      (!update.value.is_string() || !parse_video_codec(update.value.get<std::string>()))) {
+    throw std::invalid_argument("Codec must be one of the recovered H264, H265 or AV1 values");
   }
   if (update.key == "Hotkeys" && !update.value.is_object()) {
     throw std::invalid_argument("Hotkeys must preserve its nested object shape");

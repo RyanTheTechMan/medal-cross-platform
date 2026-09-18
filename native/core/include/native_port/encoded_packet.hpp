@@ -13,6 +13,7 @@ namespace native_port {
 enum class Codec {
   h264,
   hevc,
+  av1,
   aac,
 };
 
@@ -48,6 +49,8 @@ struct EncodedPacket final {
       return "h264";
     case Codec::hevc:
       return "hevc";
+    case Codec::av1:
+      return "av1";
     case Codec::aac:
       return "aac";
   }

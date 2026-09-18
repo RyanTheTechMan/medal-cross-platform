@@ -1,12 +1,14 @@
 #import <AVFoundation/AVFoundation.h>
 #import <CoreAudio/CoreAudio.h>
 #import <CoreGraphics/CoreGraphics.h>
+#import <Metal/Metal.h>
 #import <ScreenCaptureKit/ScreenCaptureKit.h>
 #import <VideoToolbox/VideoToolbox.h>
 
 #include "native_port/platform_adapter.hpp"
 
 #include <array>
+#include <set>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -79,6 +81,40 @@ AudioObjectID default_device(AudioObjectPropertySelector selector) {
     return kAudioObjectUnknown;
   }
   return device;
+}
+
+std::set<CMVideoCodecType> hardware_encoder_codecs() {
+  CFArrayRef encoders = nullptr;
+  if (VTCopyVideoEncoderList(nullptr, &encoders) != noErr || encoders == nullptr) {
+    return {};
+  }
+  std::set<CMVideoCodecType> result;
+  const auto count = CFArrayGetCount(encoders);
+  for (CFIndex index = 0; index < count; ++index) {
+    auto* entry = static_cast<CFDictionaryRef>(const_cast<void*>(CFArrayGetValueAtIndex(encoders, index)));
+    if (CFDictionaryGetValue(entry, kVTVideoEncoderList_IsHardwareAccelerated) != kCFBooleanTrue) {
+      continue;
+    }
+    auto* codec_number = static_cast<CFNumberRef>(
+        const_cast<void*>(CFDictionaryGetValue(entry, kVTVideoEncoderList_CodecType)));
+    std::int32_t codec = 0;
+    if (codec_number != nullptr && CFNumberGetValue(codec_number, kCFNumberSInt32Type, &codec)) {
+      result.insert(static_cast<CMVideoCodecType>(codec));
+    }
+  }
+  CFRelease(encoders);
+  return result;
+}
+
+std::string gpu_device_name() {
+  @autoreleasepool {
+    id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+    if (device == nil || device.name.length == 0) {
+      return "Apple VideoToolbox";
+    }
+    const char* name = device.name.UTF8String;
+    return name != nullptr ? name : "Apple VideoToolbox";
+  }
 }
 
 class MacPlatformAdapter final : public PlatformAdapter {
@@ -162,15 +198,43 @@ class MacPlatformAdapter final : public PlatformAdapter {
     }
   }
 
+  std::vector<std::string> gpu_devices() const override {
+    return {gpu_device_name()};
+  }
+
+  nlohmann::json gpu_codecs() const override {
+    const auto codecs = hardware_encoder_codecs();
+    nlohmann::json available = nlohmann::json::array();
+    if (codecs.contains(kCMVideoCodecType_H264)) {
+      available.push_back("H264");
+    }
+    if (codecs.contains(kCMVideoCodecType_HEVC)) {
+      available.push_back("H265");
+    }
+    if (codecs.contains(kCMVideoCodecType_AV1)) {
+      available.push_back("AV1");
+    }
+    return {{gpu_device_name(), std::move(available)}};
+  }
+
+  std::vector<std::string> encoder_options() const override {
+    return {"GPU"};
+  }
+
   nlohmann::json capabilities() const override {
+    const auto codecs = hardware_encoder_codecs();
     return {
         {"platform", "macos"},
         {"screenCaptureKit", NSClassFromString(@"SCStream") != Nil},
         {"systemAudio", true},
         {"microphone", true},
         {"processAudioTap", NSClassFromString(@"CATapDescription") != Nil},
-        {"h264Hardware", VTIsHardwareDecodeSupported(kCMVideoCodecType_H264) != false},
-        {"hevcHardware", VTIsHardwareDecodeSupported(kCMVideoCodecType_HEVC) != false},
+        {"h264HardwareEncode", codecs.contains(kCMVideoCodecType_H264)},
+        {"hevcHardwareEncode", codecs.contains(kCMVideoCodecType_HEVC)},
+        {"av1HardwareEncode", codecs.contains(kCMVideoCodecType_AV1)},
+        {"h264HardwareDecode", VTIsHardwareDecodeSupported(kCMVideoCodecType_H264) != false},
+        {"hevcHardwareDecode", VTIsHardwareDecodeSupported(kCMVideoCodecType_HEVC) != false},
+        {"av1HardwareDecode", VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1) != false},
         {"captureState", "not_started"},
     };
   }

@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "status": "failed",
+  "kind": "display",
+  "videoCodec": "H265",
+  "bitrateMegabitsPerSecond": 10,
+  "startedAt": "2026-09-18T19:28:35.068Z",
+  "completedAt": "2026-09-18T19:28:38.084Z",
+  "diagnosticStatus": {
+    "bitrateBitsPerSecond": 10000000,
+    "encodeFailures": 0,
+    "framesEncoded": 0,
+    "framesPerSecond": 60,
+    "framesReceived": 0,
+    "hardwareEncoder": false,
+    "height": 0,
+    "idleFrames": 0,
+    "inactiveFrames": 0,
+    "lastError": "VideoToolbox property failed with OSStatus -12900",
+    "lastEvent": {
+      "bitrateBitsPerSecond": 10000000,
+      "encodeFailures": 0,
+      "framesEncoded": 0,
+      "framesPerSecond": 60,
+      "framesReceived": 0,
+      "hardwareEncoder": false,
+      "height": 0,
+      "idleFrames": 0,
+      "inactiveFrames": 0,
+      "lastError": "VideoToolbox property failed with OSStatus -12900",
+      "nativeVideoCodec": "hevc",
+      "qualityPreset": "not_started",
+      "reason": "encoder_unavailable",
+      "schemaVersion": 1,
+      "sourceEnumeration": {
+        "applicationCount": 50,
+        "displayCount": 3,
+        "lastError": "",
+        "state": "complete",
+        "windowCount": 342
+      },
+      "sourceKind": "none",
+      "state": "failed",
+      "videoCodec": "H265",
+      "width": 0
+    },
+    "nativeVideoCodec": "hevc",
+    "qualityPreset": "not_started",
+    "replay": {
+      "decodableSnapshot": {
+        "available": false
+      },
+      "occupiedBytes": 0,
+      "packetCount": 0,
+      "retainedNanoseconds": 0
+    },
+    "schemaVersion": 1,
+    "sourceEnumeration": {
+      "applicationCount": 50,
+      "displayCount": 3,
+      "lastError": "",
+      "state": "complete",
+      "windowCount": 342
+    },
+    "sourceKind": "none",
+    "state": "failed",
+    "videoCodec": "H265",
+    "width": 0
+  },
+  "error": "Error: picker selection and first encoded frame failed: VideoToolbox property failed with OSStatus -12900     at waitFor (/Users/ryan/Developer/medal-cross-platform/artifacts/macos-development-app/versions/2637.461.1-development-m3.3-0726d463de9aaceb/Medal.app/Contents/Resources/app/native-port/capture-selftest-preload.cjs:15:13)     at async /Users/ryan/Developer/medal-cross-platform/artifacts/macos-development-app/versions/2637.461.1-development-m3.3-0726d463de9aaceb/Medal.app/Contents/Resources/app/native-port/capture-selftest-preload.cjs:70:23"
+}

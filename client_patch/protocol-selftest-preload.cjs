@@ -34,6 +34,25 @@ window.addEventListener('DOMContentLoaded', async () => {
       hasSessionId: Boolean(readyState?.sessionState?.currentSessionId)
     })
 
+    const videoCapabilities = await request('nativePort.videoEncoderCapabilities')
+    const gpuCodecs = videoCapabilities?.gpuCodecs
+    assert(gpuCodecs && typeof gpuCodecs === 'object' && !Array.isArray(gpuCodecs),
+      'gpuCodecs must be an object keyed by GPU device')
+    const availableCodecs = [...new Set(Object.values(gpuCodecs).flat())]
+    assert(availableCodecs.includes('H264'), 'hardware H264 must be published to AvailableGPUCodecs')
+    assert(availableCodecs.every(codec => ['H264', 'H265', 'AV1'].includes(codec)),
+      'only recovered Medal codec names may be published')
+    assert(Array.isArray(videoCapabilities?.gpuDevices), 'gpuDevices must be an array')
+    assert(Array.isArray(videoCapabilities?.encoderOptions), 'encoderOptions must be an array')
+    checks.push({
+      name: 'native-video-codec-capabilities',
+      passed: true,
+      gpuDevices: videoCapabilities.gpuDevices,
+      gpuCodecs,
+      encoderOptions: videoCapabilities.encoderOptions,
+      av1HardwareEncode: videoCapabilities.capabilities?.av1HardwareEncode === true
+    })
+
     const ping = await request('ping')
     assert(ping === null, 'ping must return JSON-RPC null for Task')
     checks.push({ name: 'ping-null-result', passed: true })

@@ -132,6 +132,10 @@ if (captureSelfTestReport) {
   if (!['display', 'window', 'application'].includes(process.env.NATIVE_PORT_CAPTURE_SELFTEST_KIND)) {
     fail('NATIVE_PORT_CAPTURE_SELFTEST_KIND must be display, window or application')
   }
+  if (process.env.NATIVE_PORT_CAPTURE_SELFTEST_CODEC &&
+      !['H264', 'H265', 'AV1'].includes(process.env.NATIVE_PORT_CAPTURE_SELFTEST_CODEC)) {
+    fail('NATIVE_PORT_CAPTURE_SELFTEST_CODEC must be H264, H265 or AV1')
+  }
   ipcMain.once('native-port:capture-selftest-result', (_event, result) => {
     fs.mkdirSync(path.dirname(captureSelfTestReport), { recursive: true, mode: 0o700 })
     const temporary = `${captureSelfTestReport}.${process.pid}.tmp`

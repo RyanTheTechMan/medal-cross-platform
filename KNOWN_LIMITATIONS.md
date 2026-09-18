@@ -9,7 +9,7 @@ This file records observed limits, not excuses for successful no-op behavior.
 
 ## Current implementation state
 
-- The real native Electron GUI, imported SQLite worker and native C++ helper now run together in isolated development profiles and as a hardened, team-signed local development app. No TCC-authorized capture or media roundtrip has passed yet.
+- The real native Electron GUI, imported SQLite worker and native C++ helper run together in isolated profiles and as a hardened, team-signed local development app. TCC-authorized ScreenCaptureKit display/window video passes; microphone, camera and input-monitoring permission have not been requested.
 - The original Windows better_sqlite3 and Velopack `.node` files are PE x86-64 and unusable on arm64 macOS.
 - The inherited 12-test suite uses adapted dependencies and proves only its documented protocol/library subset.
 - The current development client still tries one Windows registry-based external-clip discovery command on macOS; A04 remains open until that path has an explicit platform adapter.
@@ -19,7 +19,9 @@ This file records observed limits, not excuses for successful no-op behavior.
 - The original client's renderer IPC wrapper resolves an explicit recorder wire error as `null` after logging it. Wire error `-32601` is verified, but renderer capability controls must prevent unsupported calls rather than depend on Promise rejection.
 - Device enumeration returns correct recovered outward shapes, but persistent stable-ID mapping, duplicate-name selection and hotplug behavior are not implemented.
 - The prepared tree and Apple-Development-signed app are ignored under `artifacts/`; they are not Developer-ID signed, notarized, redistributable, or release candidates.
-- ScreenCaptureKit display and individual-window capture plus hardware-required VideoToolbox H.264 pass short real runs. Source disappearance, geometry/scale/color attachments, minimized/offscreen behavior and long-duration performance remain unverified. Audio outputs are configured but not yet consumed or AAC-encoded; no H.264/AAC recording exists.
+- ScreenCaptureKit display and individual-window H.264 capture plus display HEVC capture pass short real runs through hardware-required VideoToolbox. Source disappearance, geometry/scale/color attachments, minimized/offscreen behavior and long-duration performance remain unverified. Audio outputs are configured but not yet consumed or AAC-encoded; no muxed recording exists.
+- This Apple M5 Max exposes hardware H.264/HEVC encoders but no registered VideoToolbox AV1 encoder; a hardware-required AV1 session fails with OSStatus `-12908`. AV1 is honestly hidden on this host. This is host-specific evidence, not a global Apple-silicon claim.
+- Hardware HEVC SDR packet capture passes, but HDR metadata/colors, container muxing, playback, thumbnail, editor/export and Medal service compatibility are unverified. H.264 remains the compatibility default.
 - The temporary namespaced M3 controls run through the actual imported client's generic recorder IPC and WebSocket path. A normal renderer source-selection/status UI and recovered captureStarted/captureStopped event integration remain open.
 
 ## Recovered-contract unknowns

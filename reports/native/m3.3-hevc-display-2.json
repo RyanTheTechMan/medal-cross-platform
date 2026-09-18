@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "status": "failed",
+  "kind": "display",
+  "videoCodec": "H265",
+  "bitrateMegabitsPerSecond": 10,
+  "startedAt": "2026-09-18T19:27:20.743Z",
+  "completedAt": "2026-09-18T19:27:30.997Z",
+  "diagnosticStatus": {
+    "bitrateBitsPerSecond": 10000000,
+    "encodeFailures": 0,
+    "framesEncoded": 1,
+    "framesPerSecond": 60,
+    "framesReceived": 7,
+    "hardwareEncoder": true,
+    "height": 802,
+    "idleFrames": 0,
+    "inactiveFrames": 0,
+    "lastError": "",
+    "lastEvent": {
+      "bitrateBitsPerSecond": 10000000,
+      "encodeFailures": 0,
+      "framesEncoded": 0,
+      "framesPerSecond": 60,
+      "framesReceived": 1,
+      "hardwareEncoder": true,
+      "height": 802,
+      "idleFrames": 0,
+      "inactiveFrames": 0,
+      "lastError": "",
+      "nativeVideoCodec": "hevc",
+      "qualityPreset": "high_quality",
+      "reason": "capture_started",
+      "schemaVersion": 1,
+      "sourceEnumeration": {
+        "applicationCount": 50,
+        "displayCount": 3,
+        "lastError": "",
+        "state": "complete",
+        "windowCount": 342
+      },
+      "sourceKind": "display",
+      "state": "capturing",
+      "videoCodec": "H265",
+      "width": 1920
+    },
+    "nativeVideoCodec": "hevc",
+    "qualityPreset": "high_quality",
+    "replay": {
+      "decodableSnapshot": {
+        "available": true,
+        "codec": "hevc",
+        "configurationGeneration": 1,
+        "configuredKeyframeCount": 1,
+        "endMonotonicNanoseconds": 69251973783666,
+        "keyframeCount": 1,
+        "limitation": "requested interval predates the first retained keyframe in the active codec generation",
+        "packetCount": 1,
+        "startMonotonicNanoseconds": 69251973783666,
+        "videoPacketCount": 1
+      },
+      "occupiedBytes": 133716,
+      "packetCount": 1,
+      "retainedNanoseconds": 0
+    },
+    "schemaVersion": 1,
+    "sourceEnumeration": {
+      "applicationCount": 50,
+      "displayCount": 3,
+      "lastError": "",
+      "state": "complete",
+      "windowCount": 342
+    },
+    "sourceKind": "display",
+    "state": "capturing",
+    "videoCodec": "H265",
+    "width": 1920
+  },
+  "error": "Error: capture did not feed encoded frames into the replay store     at /Users/ryan/Developer/medal-cross-platform/artifacts/macos-development-app/versions/2637.461.1-development-m3.3-c55de260b7817913/Medal.app/Contents/Resources/app/native-port/capture-selftest-preload.cjs:83:13"
+}

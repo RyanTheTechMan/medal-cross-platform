@@ -225,6 +225,11 @@ class HelperSession final {
     result.height = params.value("height", result.height);
     result.frames_per_second = params.value("framesPerSecond", result.frames_per_second);
     result.bitrate_bits_per_second = params.value("bitrateBitsPerSecond", result.bitrate_bits_per_second);
+    const auto codec = native_port::parse_video_codec(params.value("videoCodec", std::string("H264")));
+    if (!codec) {
+      throw std::invalid_argument("videoCodec must be H264, H265 or AV1");
+    }
+    result.video_codec = *codec;
     result.show_cursor = params.value("showCursor", result.show_cursor);
     result.capture_system_audio = params.value("captureSystemAudio", result.capture_system_audio);
     result.capture_microphone = params.value("captureMicrophone", result.capture_microphone);
@@ -237,6 +242,39 @@ class HelperSession final {
     result["replay"] = {{"packetCount", replay_.packet_count()},
                         {"occupiedBytes", replay_.occupied_bytes()},
                         {"retainedNanoseconds", replay_.retained_duration().count()}};
+    if (const auto snapshot = replay_.snapshot(std::chrono::seconds(120)); snapshot) {
+      std::size_t video_packets = 0;
+      std::size_t keyframes = 0;
+      std::size_t configured_keyframes = 0;
+      std::string codec = "unknown";
+      for (const auto& packet : snapshot->packets) {
+        if (packet->track != native_port::TrackKind::video) {
+          continue;
+        }
+        ++video_packets;
+        codec = native_port::codec_name(packet->codec);
+        if (packet->keyframe) {
+          ++keyframes;
+          if (packet->codec_configuration && !packet->codec_configuration->empty()) {
+            ++configured_keyframes;
+          }
+        }
+      }
+      result["replay"]["decodableSnapshot"] = {
+          {"available", true},
+          {"codec", codec},
+          {"packetCount", snapshot->packets.size()},
+          {"videoPacketCount", video_packets},
+          {"keyframeCount", keyframes},
+          {"configuredKeyframeCount", configured_keyframes},
+          {"configurationGeneration", snapshot->configuration_generation},
+          {"startMonotonicNanoseconds", snapshot->start_monotonic_nanoseconds},
+          {"endMonotonicNanoseconds", snapshot->end_monotonic_nanoseconds},
+          {"limitation", snapshot->limitation},
+      };
+    } else {
+      result["replay"]["decodableSnapshot"] = {{"available", false}};
+    }
     {
       std::scoped_lock lock(capture_event_mutex_);
       result["lastEvent"] = last_capture_event_;
@@ -297,6 +335,12 @@ class HelperSession final {
     send_request("native-port:displays", "setKV", {{"key", "activeDisplays"}, {"value", adapter_->active_displays(false)}});
     send_request("native-port:mics", "setKV", {{"key", "micDevices"}, {"value", adapter_->microphone_devices()}});
     send_request("native-port:audio", "setKV", {{"key", "gameDevices"}, {"value", adapter_->audio_output_devices()}});
+    send_request("native-port:gpu-devices", "setKV",
+                 {{"key", "gpuDevices"}, {"value", adapter_->gpu_devices()}});
+    send_request("native-port:gpu-codecs", "setKV",
+                 {{"key", "gpuCodecs"}, {"value", adapter_->gpu_codecs()}});
+    send_request("native-port:encoder-options", "setKV",
+                 {{"key", "encoderOptions"}, {"value", adapter_->encoder_options()}});
     send_request("native-port:capabilities", "setKV",
                  {{"key", "nativePort.capabilities"}, {"value", adapter_->capabilities()}});
     return true;
@@ -348,6 +392,11 @@ class HelperSession final {
         respond(request, {{"accepted", true}});
       } else if (request.method == "nativePort.captureStatus") {
         respond(request, capture_status());
+      } else if (request.method == "nativePort.videoEncoderCapabilities") {
+        respond(request, {{"gpuDevices", adapter_->gpu_devices()},
+                          {"gpuCodecs", adapter_->gpu_codecs()},
+                          {"encoderOptions", adapter_->encoder_options()},
+                          {"capabilities", adapter_->capabilities()}});
       } else if (request.method == "getTargetedProcesses" || request.method == "getActiveProcesses" ||
                  request.method == "audioProcesses") {
         respond(request, nlohmann::json::array());

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "native_port/encoded_packet.hpp"
+#include "native_port/video_codec.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -17,6 +18,7 @@ struct CaptureConfiguration final {
   std::size_t height{1080};
   std::uint32_t frames_per_second{60};
   std::uint64_t bitrate_bits_per_second{20'000'000};
+  VideoCodec video_codec{VideoCodec::h264};
   bool show_cursor{true};
   bool capture_system_audio{false};
   bool capture_microphone{false};

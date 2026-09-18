@@ -2,6 +2,7 @@
 #include "native_port/media_time.hpp"
 #include "native_port/replay_store.hpp"
 #include "native_port/settings_store.hpp"
+#include "native_port/video_codec.hpp"
 
 #include <chrono>
 #include <cstddef>
@@ -118,6 +119,7 @@ void test_settings() {
   settings.apply({
       {.key = "Bitrate", .value = 15, .category_id = std::nullopt},
       {.key = "Resolution", .value = {{"width", 1920}, {"height", 1080}}, .category_id = std::nullopt},
+      {.key = "Codec", .value = "H265", .category_id = std::nullopt},
       {.key = "Hotkeys", .value = {{"saveClip", "F8"}}, .category_id = std::nullopt},
       {.key = "Bitrate", .value = 27.5, .category_id = "game-42"},
   });
@@ -130,6 +132,8 @@ void test_settings() {
          "per-game reads must fall back to globals");
   expect(settings.snapshot().at("perGame").at("game-42").at("Bitrate") == 27.5,
          "settings snapshot must preserve recovered key casing");
+  expect(settings.global("Codec") == nlohmann::json("H265"),
+         "the recovered Medal codec value must be preserved exactly");
 
   settings.delete_custom_game_settings("game-42", {"Bitrate"});
   expect(settings.effective("Bitrate", "game-42") == nlohmann::json(15),
@@ -148,6 +152,16 @@ void test_settings() {
   expect_throws<std::invalid_argument>([&settings] {
     settings.apply({{.key = "Bitrate", .value = "15 Mbps", .category_id = std::nullopt}});
   }, "bitrate must preserve the recovered numeric DTO shape");
+  expect_throws<std::invalid_argument>([&settings] {
+    settings.apply({{.key = "Codec", .value = "VP9", .category_id = std::nullopt}});
+  }, "unknown codecs must not be accepted as successful settings");
+
+  expect(native_port::parse_video_codec("H264") == native_port::VideoCodec::h264,
+         "H264 must map from the recovered Medal spelling");
+  expect(native_port::parse_video_codec("H265") == native_port::VideoCodec::hevc,
+         "H265 must map to the HEVC native codec");
+  expect(native_port::parse_video_codec("AV1") == native_port::VideoCodec::av1,
+         "AV1 must map from the recovered Medal spelling");
 }
 
 void test_replay_store() {

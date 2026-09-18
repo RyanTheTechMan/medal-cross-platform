@@ -4310,6 +4310,7 @@
         "status": "implemented_unverified",
         "implementation_files": [
           "native/core/include/native_port/platform_adapter.hpp",
+          "native/core/include/native_port/video_codec.hpp",
           "native/backends/macos/platform_adapter.mm",
           "native/helper/main.cpp"
         ],
@@ -4319,10 +4320,11 @@
         ],
         "report_paths": [
           "reports/native/m2.6-protocol-selftest.json",
-          "reports/native/ctest-m2.6-xcode-27.2-beta.log"
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m3.3-codec-protocol-selftest.json"
         ],
         "limitations": [
-          "Recovered outward DTO shapes and typed settings transport passed; persistent stable-ID mapping, duplicate-label selection, hotplug and live capture reconfiguration remain."
+          "Recovered outward DTO shapes, typed settings transport and H264/H265 AvailableGPUCodecs publication passed; persistent stable-ID mapping, duplicate-label selection, hotplug and live capture reconfiguration remain."
         ]
       },
       "linux": {
@@ -4347,6 +4349,7 @@
         "status": "implemented_unverified",
         "implementation_files": [
           "native/core/include/native_port/capture_session.hpp",
+          "native/core/include/native_port/video_codec.hpp",
           "native/backends/macos/screen_capture_session.mm",
           "native/helper/main.cpp",
           "client_patch/capture-selftest-preload.cjs"
@@ -4361,10 +4364,12 @@
           "reports/native/m3.2-tcc-prerequisite.md",
           "reports/native/m3.2-capture-display.json",
           "reports/native/m3.2-capture-window.json",
-          "reports/native/m3.2-video-capture-result.md"
+          "reports/native/m3.2-video-capture-result.md",
+          "reports/native/m3.3-hevc-display-passed.json",
+          "reports/native/m3.3-codec-result.md"
         ],
         "limitations": [
-          "Real display and individual-window capture pass; source disappearance, application selection, geometry changes, minimized/offscreen behavior and extended runs remain unverified.",
+          "Real H.264 display/window and HEVC display capture pass; source disappearance, application selection, geometry changes, minimized/offscreen behavior and extended runs remain unverified.",
           "The namespaced actual-client control surface is a test integration; the normal renderer source-selection UI is not implemented yet."
         ]
       },
@@ -4534,7 +4539,9 @@
         "status": "implemented_unverified",
         "implementation_files": [
           "native/backends/macos/screen_capture_session.mm",
-          "native/core/include/native_port/encoded_packet.hpp"
+          "native/backends/macos/encoder_probe.mm",
+          "native/core/include/native_port/encoded_packet.hpp",
+          "native/core/include/native_port/video_codec.hpp"
         ],
         "test_ids": [
           "M03",
@@ -4544,10 +4551,14 @@
           "reports/native/build-m3.0-xcode-27.2-beta.log",
           "reports/native/m3.2-capture-display.json",
           "reports/native/m3.2-capture-window.json",
-          "reports/native/m3.2-video-capture-result.md"
+          "reports/native/m3.2-video-capture-result.md",
+          "reports/native/m3.3-videotoolbox-encoder-probe.json",
+          "reports/native/m3.3-hevc-display-passed.json",
+          "reports/native/m3.3-codec-result.md"
         ],
         "limitations": [
-          "Hardware-required H.264 encoded real display/window frames and reported UsingHardwareAcceleratedVideoEncoder=true; additional resolutions, load/thermal behavior and fallback-disabled UI remain unverified.",
+          "Hardware-required H.264 and HEVC encoded real frames and reported UsingHardwareAcceleratedVideoEncoder=true; additional resolutions, load/thermal behavior and fallback-disabled UI remain unverified.",
+          "AV1 encode is blocked on this Apple M5 Max: VideoToolbox registers no AV1 encoder and rejects hardware-required session creation with OSStatus -12908. AV1 is omitted from AvailableGPUCodecs on this host; this is not a global unsupported claim.",
           "AAC is not implemented yet, so no real H.264/AAC file is claimed."
         ]
       },
@@ -4585,10 +4596,13 @@
           "R05"
         ],
         "report_paths": [
-          "reports/native/ctest-xcode-27.2-beta.log"
+          "reports/native/ctest-xcode-27.2-beta.log",
+          "reports/native/m3.2-capture-display.json",
+          "reports/native/m3.2-capture-window.json",
+          "reports/native/m3.3-hevc-display-passed.json"
         ],
         "limitations": [
-          "Bounded generation-aware encoded packet storage is unit-tested; no real encoder packets or container export have been connected."
+          "Bounded generation-aware encoded packet storage is unit-tested and retains real H.264/HEVC packets with keyframe and codec configuration metadata; clip action, duration slicing and container export are not implemented."
         ]
       },
       "linux": {
@@ -4799,11 +4813,25 @@
       "source": "CODEX_MASTER_PROMPT.md",
       "contract_status": "proposed_product_requirement",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/video_codec.hpp",
+          "native/core/include/native_port/encoded_packet.hpp",
+          "native/backends/macos/platform_adapter.mm",
+          "native/backends/macos/screen_capture_session.mm"
+        ],
+        "test_ids": [
+          "M11",
+          "E07"
+        ],
+        "report_paths": [
+          "reports/native/m3.3-videotoolbox-encoder-probe.json",
+          "reports/native/m3.3-hevc-display-passed.json",
+          "reports/native/m3.3-codec-result.md"
+        ],
+        "limitations": [
+          "Hardware HEVC SDR capture and hvcC/keyframe retention pass; HDR metadata/color, MP4 muxing, playback, editor/export and service compatibility remain unverified."
+        ]
       },
       "linux": {
         "status": "not_started",

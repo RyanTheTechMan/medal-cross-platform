@@ -385,7 +385,7 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
     manifest = {
         'schemaVersion': 1,
         'clientVersion': version,
-        'portBuild': 'development-m3.2',
+        'portBuild': 'development-m3.3',
         'target': 'darwin-arm64',
         'electron': {'version': '43.2.0', 'modulesAbi': '148'},
         'sourceAudit': source_audit,
@@ -474,8 +474,6 @@ def prepare(args: argparse.Namespace) -> dict[str, object]:
     try:
         source_audit = audit_copy_source(source_app)
         version, source_hashes = verify_supported_build(source_app)
-        version_name = f'{version}-native-port-m3.2'
-        final_version = versions / version_name
         shutil.copytree(source_app, stage, symlinks=False)
         manifest = apply_client_patch(
             stage,
@@ -488,6 +486,11 @@ def prepare(args: argparse.Namespace) -> dict[str, object]:
             version,
             source_audit,
         )
+        manifest_digest = hashlib.sha256(
+            json.dumps(manifest, sort_keys=True, separators=(',', ':')).encode('utf-8')
+        ).hexdigest()[:12]
+        version_name = f'{version}-native-port-m3.3-{manifest_digest}'
+        final_version = versions / version_name
         if final_version.exists():
             existing_manifest_path = final_version / 'native-port' / 'patch-manifest.json'
             if not existing_manifest_path.is_file() or json.loads(existing_manifest_path.read_text()) != manifest:

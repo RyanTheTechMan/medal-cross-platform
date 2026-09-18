@@ -3,6 +3,7 @@ find_library(AUDIOTOOLBOX_FRAMEWORK AudioToolbox REQUIRED)
 find_library(AVFOUNDATION_FRAMEWORK AVFoundation REQUIRED)
 find_library(COREAUDIO_FRAMEWORK CoreAudio REQUIRED)
 find_library(COREMEDIA_FRAMEWORK CoreMedia REQUIRED)
+find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)
 find_library(METAL_FRAMEWORK Metal REQUIRED)
 find_library(SCREENCAPTUREKIT_FRAMEWORK ScreenCaptureKit REQUIRED)
 find_library(VIDEOTOOLBOX_FRAMEWORK VideoToolbox REQUIRED)
@@ -22,6 +23,7 @@ target_link_libraries(native_port_macos_adapter PUBLIC
   ${COREAUDIO_FRAMEWORK}
   ${COREMEDIA_FRAMEWORK}
   ${COREVIDEO_FRAMEWORK}
+  ${METAL_FRAMEWORK}
   ${SCREENCAPTUREKIT_FRAMEWORK}
   ${VIDEOTOOLBOX_FRAMEWORK}
 )
@@ -46,6 +48,18 @@ target_link_libraries(native_port_macos_api_probe PRIVATE
 target_compile_features(native_port_macos_api_probe PRIVATE cxx_std_20)
 target_compile_options(native_port_macos_api_probe PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
 
+add_executable(native_port_macos_encoder_probe encoder_probe.mm)
+target_link_libraries(native_port_macos_encoder_probe PRIVATE
+  nlohmann_json::nlohmann_json
+  ${COREMEDIA_FRAMEWORK}
+  ${COREVIDEO_FRAMEWORK}
+  ${FOUNDATION_FRAMEWORK}
+  ${VIDEOTOOLBOX_FRAMEWORK}
+)
+target_compile_features(native_port_macos_encoder_probe PRIVATE cxx_std_20)
+target_compile_options(native_port_macos_encoder_probe PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+
 if(BUILD_TESTING)
   add_test(NAME native_port_macos_api_probe COMMAND native_port_macos_api_probe)
+  add_test(NAME native_port_macos_encoder_probe COMMAND native_port_macos_encoder_probe)
 endif()

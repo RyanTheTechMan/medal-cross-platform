@@ -12,6 +12,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <limits>
 #include <memory>
 #include <mutex>
@@ -41,10 +42,11 @@ namespace {
 }
 
 [[nodiscard]] bool set_encoder_property(VTCompressionSessionRef encoder, CFStringRef key, CFTypeRef value,
-                                        std::string& error) {
+                                        const char* property_name, std::string& error) {
   const auto status = VTSessionSetProperty(encoder, key, value);
   if (status != noErr) {
-    error = "VideoToolbox property failed with OSStatus " + std::to_string(status);
+    error = "VideoToolbox property " + std::string(property_name) + " failed with OSStatus " +
+            std::to_string(status);
     return false;
   }
   return true;
@@ -62,49 +64,81 @@ namespace {
   return bytes;
 }
 
-void append_u16(std::vector<std::byte>& target, std::size_t value) {
-  target.push_back(static_cast<std::byte>((value >> 8U) & 0xffU));
-  target.push_back(static_cast<std::byte>(value & 0xffU));
+[[nodiscard]] CMVideoCodecType video_toolbox_codec_type(VideoCodec codec) {
+  switch (codec) {
+    case VideoCodec::h264:
+      return kCMVideoCodecType_H264;
+    case VideoCodec::hevc:
+      return kCMVideoCodecType_HEVC;
+    case VideoCodec::av1:
+      return kCMVideoCodecType_AV1;
+  }
+  return kCMVideoCodecType_H264;
 }
 
-[[nodiscard]] std::shared_ptr<const std::vector<std::byte>> h264_decoder_configuration(
-    CMFormatDescriptionRef description) {
-  if (description == nullptr || CMFormatDescriptionGetMediaSubType(description) != kCMVideoCodecType_H264) {
-    return nullptr;
+[[nodiscard]] CFStringRef video_profile(VideoCodec codec) {
+  switch (codec) {
+    case VideoCodec::h264:
+      return kVTProfileLevel_H264_High_AutoLevel;
+    case VideoCodec::hevc:
+      return kVTProfileLevel_HEVC_Main_AutoLevel;
+    case VideoCodec::av1:
+      return nullptr;
   }
-  const std::uint8_t* sps = nullptr;
-  const std::uint8_t* pps = nullptr;
-  std::size_t sps_size = 0;
-  std::size_t pps_size = 0;
-  std::size_t parameter_count = 0;
-  int nal_length = 0;
-  if (CMVideoFormatDescriptionGetH264ParameterSetAtIndex(description, 0, &sps, &sps_size, &parameter_count,
-                                                         &nal_length) != noErr ||
-      CMVideoFormatDescriptionGetH264ParameterSetAtIndex(description, 1, &pps, &pps_size, nullptr, nullptr) !=
-          noErr ||
-      sps == nullptr || pps == nullptr || sps_size < 4 || sps_size > std::numeric_limits<std::uint16_t>::max() ||
-      pps_size > std::numeric_limits<std::uint16_t>::max() || nal_length < 1 || nal_length > 4) {
-    return nullptr;
-  }
+  return nullptr;
+}
 
-  auto result = std::make_shared<std::vector<std::byte>>();
-  result->reserve(11U + sps_size + pps_size);
-  result->push_back(std::byte{1});
-  result->push_back(static_cast<std::byte>(sps[1]));
-  result->push_back(static_cast<std::byte>(sps[2]));
-  result->push_back(static_cast<std::byte>(sps[3]));
-  result->push_back(static_cast<std::byte>(0xfcU | static_cast<unsigned int>(nal_length - 1)));
-  result->push_back(std::byte{0xe1});
-  append_u16(*result, sps_size);
-  for (std::size_t index = 0; index < sps_size; ++index) {
-    result->push_back(static_cast<std::byte>(sps[index]));
+[[nodiscard]] CFStringRef codec_configuration_atom(VideoCodec codec) {
+  switch (codec) {
+    case VideoCodec::h264:
+      return CFSTR("avcC");
+    case VideoCodec::hevc:
+      return CFSTR("hvcC");
+    case VideoCodec::av1:
+      return CFSTR("av1C");
   }
-  result->push_back(std::byte{1});
-  append_u16(*result, pps_size);
-  for (std::size_t index = 0; index < pps_size; ++index) {
-    result->push_back(static_cast<std::byte>(pps[index]));
+  return nullptr;
+}
+
+[[nodiscard]] std::shared_ptr<const std::vector<std::byte>> codec_configuration(
+    CMFormatDescriptionRef description, VideoCodec codec) {
+  if (description == nullptr || CMFormatDescriptionGetMediaSubType(description) != video_toolbox_codec_type(codec)) {
+    return nullptr;
   }
+  CFDictionaryRef extensions = CMFormatDescriptionGetExtensions(description);
+  if (extensions == nullptr) {
+    return nullptr;
+  }
+  auto* atoms = static_cast<CFDictionaryRef>(const_cast<void*>(
+      CFDictionaryGetValue(extensions, kCMFormatDescriptionExtension_SampleDescriptionExtensionAtoms)));
+  const auto atom_key = codec_configuration_atom(codec);
+  if (atoms == nullptr || atom_key == nullptr) {
+    return nullptr;
+  }
+  CFTypeRef value = CFDictionaryGetValue(atoms, atom_key);
+  CFDataRef data = nullptr;
+  if (value != nullptr && CFGetTypeID(value) == CFDataGetTypeID()) {
+    data = static_cast<CFDataRef>(value);
+  } else if (value != nullptr && CFGetTypeID(value) == CFArrayGetTypeID()) {
+    auto* values = static_cast<CFArrayRef>(value);
+    if (CFArrayGetCount(values) > 0) {
+      CFTypeRef first = CFArrayGetValueAtIndex(values, 0);
+      if (first != nullptr && CFGetTypeID(first) == CFDataGetTypeID()) {
+        data = static_cast<CFDataRef>(first);
+      }
+    }
+  }
+  if (data == nullptr || CFDataGetLength(data) <= 0) {
+    return nullptr;
+  }
+  const auto length = static_cast<std::size_t>(CFDataGetLength(data));
+  auto result = std::make_shared<std::vector<std::byte>>(length);
+  std::memcpy(result->data(), CFDataGetBytePtr(data), length);
   return result;
+}
+
+[[nodiscard]] bool supports_encoder_property(CFDictionaryRef properties, CFStringRef key) {
+  return properties != nullptr && CFDictionaryContainsKey(properties, key);
 }
 
 [[nodiscard]] MediaTime media_time(CMTime time, std::int32_t fallback_timescale, std::int64_t fallback_value) {
@@ -473,6 +507,8 @@ class MacCaptureSession final : public CaptureSession {
   [[nodiscard]] bool create_encoder(std::size_t width, std::size_t height,
                                     const CaptureConfiguration& configuration, std::string& error) {
     destroy_encoder();
+    const auto codec_type = video_toolbox_codec_type(configuration.video_codec);
+    const auto medal_codec = std::string(medal_video_codec_name(configuration.video_codec));
     const void* keys[] = {kVTVideoEncoderSpecification_RequireHardwareAcceleratedVideoEncoder};
     const void* values[] = {kCFBooleanTrue};
     CFDictionaryRef specification =
@@ -481,13 +517,28 @@ class MacCaptureSession final : public CaptureSession {
     VTCompressionSessionRef new_encoder = nullptr;
     const auto create_status = VTCompressionSessionCreate(
         kCFAllocatorDefault, static_cast<std::int32_t>(width), static_cast<std::int32_t>(height),
-        kCMVideoCodecType_H264, specification, nullptr, nullptr, &MacCaptureSession::encoder_output, this,
+        codec_type, specification, nullptr, nullptr, &MacCaptureSession::encoder_output, this,
         &new_encoder);
     CFRelease(specification);
     if (create_status != noErr || new_encoder == nullptr) {
-      error = "hardware H.264 encoder creation failed with OSStatus " + std::to_string(create_status);
+      error = "hardware " + medal_codec + " encoder creation failed with OSStatus " +
+              std::to_string(create_status);
       return false;
     }
+
+    const auto discard_encoder = [&] {
+      VTCompressionSessionInvalidate(new_encoder);
+      CFRelease(new_encoder);
+    };
+    CFDictionaryRef supported_properties = nullptr;
+    const auto supported_status = VTSessionCopySupportedPropertyDictionary(new_encoder, &supported_properties);
+    if (supported_status != noErr || supported_properties == nullptr) {
+      error = "VideoToolbox supported-property query failed with OSStatus " + std::to_string(supported_status);
+      discard_encoder();
+      return false;
+    }
+
+    const std::string quality_preset = "realtime_quality_priority";
 
     std::int32_t frame_rate = static_cast<std::int32_t>(configuration.frames_per_second);
     std::int32_t bitrate = static_cast<std::int32_t>(
@@ -497,30 +548,47 @@ class MacCaptureSession final : public CaptureSession {
     CFNumberRef frame_rate_number = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &frame_rate);
     CFNumberRef bitrate_number = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &bitrate);
     CFNumberRef keyframe_number = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &keyframe_seconds);
-    bool properties_ok = set_encoder_property(new_encoder, kVTCompressionPropertyKey_RealTime, kCFBooleanTrue, error) &&
-                         set_encoder_property(new_encoder, kVTCompressionPropertyKey_AllowFrameReordering,
-                                              kCFBooleanFalse, error) &&
-                         set_encoder_property(new_encoder, kVTCompressionPropertyKey_ProfileLevel,
-                                              kVTProfileLevel_H264_High_AutoLevel, error) &&
-                         set_encoder_property(new_encoder, kVTCompressionPropertyKey_ExpectedFrameRate,
-                                              frame_rate_number, error) &&
-                         set_encoder_property(new_encoder, kVTCompressionPropertyKey_AverageBitRate, bitrate_number,
-                                              error) &&
-                         set_encoder_property(new_encoder, kVTCompressionPropertyKey_MaxKeyFrameIntervalDuration,
-                                              keyframe_number, error);
+    const auto set_required = [&](CFStringRef key, CFTypeRef value, const char* property_name) {
+      if (!supports_encoder_property(supported_properties, key)) {
+        error = "VideoToolbox " + medal_codec + " encoder lacks required property " + property_name;
+        return false;
+      }
+      return set_encoder_property(new_encoder, key, value, property_name, error);
+    };
+    bool properties_ok =
+        set_required(kVTCompressionPropertyKey_RealTime, kCFBooleanTrue, "RealTime") &&
+        set_required(kVTCompressionPropertyKey_AllowFrameReordering, kCFBooleanFalse,
+                     "AllowFrameReordering");
+    const auto profile = video_profile(configuration.video_codec);
+    if (properties_ok && profile != nullptr) {
+      properties_ok = set_required(kVTCompressionPropertyKey_ProfileLevel, profile, "ProfileLevel");
+    }
+    properties_ok = properties_ok &&
+                    set_required(kVTCompressionPropertyKey_ExpectedFrameRate, frame_rate_number,
+                                 "ExpectedFrameRate") &&
+                    set_required(kVTCompressionPropertyKey_AverageBitRate, bitrate_number,
+                                 "AverageBitRate") &&
+                    set_required(kVTCompressionPropertyKey_MaxKeyFrameIntervalDuration,
+                                 keyframe_number, "MaxKeyFrameIntervalDuration");
+    if (properties_ok &&
+        supports_encoder_property(supported_properties,
+                                  kVTCompressionPropertyKey_PrioritizeEncodingSpeedOverQuality)) {
+      properties_ok = set_encoder_property(new_encoder,
+                                           kVTCompressionPropertyKey_PrioritizeEncodingSpeedOverQuality,
+                                           kCFBooleanFalse, "PrioritizeEncodingSpeedOverQuality", error);
+    }
     CFRelease(frame_rate_number);
     CFRelease(bitrate_number);
     CFRelease(keyframe_number);
+    CFRelease(supported_properties);
     if (!properties_ok) {
-      VTCompressionSessionInvalidate(new_encoder);
-      CFRelease(new_encoder);
+      discard_encoder();
       return false;
     }
     const auto prepare_status = VTCompressionSessionPrepareToEncodeFrames(new_encoder);
     if (prepare_status != noErr) {
       error = "VideoToolbox encoder preparation failed with OSStatus " + std::to_string(prepare_status);
-      VTCompressionSessionInvalidate(new_encoder);
-      CFRelease(new_encoder);
+      discard_encoder();
       return false;
     }
     CFTypeRef hardware_value = nullptr;
@@ -533,8 +601,7 @@ class MacCaptureSession final : public CaptureSession {
     }
     if (!hardware_encoder) {
       error = "VideoToolbox did not confirm hardware encoder use";
-      VTCompressionSessionInvalidate(new_encoder);
-      CFRelease(new_encoder);
+      discard_encoder();
       return false;
     }
     {
@@ -544,7 +611,9 @@ class MacCaptureSession final : public CaptureSession {
     {
       std::scoped_lock lock(mutex_);
       hardware_encoder_ = true;
+      quality_preset_ = quality_preset;
     }
+    active_video_codec_.store(configuration.video_codec, std::memory_order_relaxed);
     configuration_generation_.fetch_add(1, std::memory_order_relaxed);
     return true;
   }
@@ -583,7 +652,8 @@ class MacCaptureSession final : public CaptureSession {
       return;
     }
     auto packet = std::make_shared<EncodedPacket>();
-    packet->codec = Codec::h264;
+    const auto video_codec = active_video_codec_.load(std::memory_order_relaxed);
+    packet->codec = encoded_packet_codec(video_codec);
     packet->track = TrackKind::video;
     packet->track_id = 1;
     packet->configuration_generation = configuration_generation_.load(std::memory_order_relaxed);
@@ -598,7 +668,7 @@ class MacCaptureSession final : public CaptureSession {
     packet->depends_on_others = !keyframe;
     packet->data = std::move(payload);
     if (keyframe) {
-      packet->codec_configuration = h264_decoder_configuration(CMSampleBufferGetFormatDescription(sample));
+      packet->codec_configuration = codec_configuration(CMSampleBufferGetFormatDescription(sample), video_codec);
       if (!packet->codec_configuration || packet->codec_configuration->empty()) {
         encode_failures_.fetch_add(1, std::memory_order_relaxed);
         return;
@@ -653,6 +723,9 @@ class MacCaptureSession final : public CaptureSession {
         {"sourceKind", source_kind_},
         {"framesPerSecond", configuration_.frames_per_second},
         {"bitrateBitsPerSecond", configuration_.bitrate_bits_per_second},
+        {"videoCodec", medal_video_codec_name(configuration_.video_codec)},
+        {"nativeVideoCodec", video_codec_name(configuration_.video_codec)},
+        {"qualityPreset", quality_preset_},
         {"hardwareEncoder", hardware_encoder_},
         {"framesReceived", frames_received_.load(std::memory_order_relaxed)},
         {"framesEncoded", frames_encoded_.load(std::memory_order_relaxed)},
@@ -681,6 +754,7 @@ class MacCaptureSession final : public CaptureSession {
   std::size_t capture_height_{0};
   std::string source_kind_{"none"};
   std::atomic<std::uint64_t> configuration_generation_{0};
+  std::atomic<VideoCodec> active_video_codec_{VideoCodec::h264};
   std::atomic<std::uint64_t> frames_received_{0};
   std::atomic<std::uint64_t> frames_encoded_{0};
   std::atomic<std::uint64_t> encode_failures_{0};
@@ -693,6 +767,7 @@ class MacCaptureSession final : public CaptureSession {
   std::size_t window_count_{0};
   std::size_t application_count_{0};
   bool hardware_encoder_{false};
+  std::string quality_preset_{"not_started"};
   SCContentSharingPicker* picker_{nil};
   NativePortCaptureDelegate* delegate_{nil};
   SCStream* stream_{nil};
