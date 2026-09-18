@@ -65,3 +65,14 @@
 - Security/privacy/packaging impact: retained reports contain no observed personal device labels, feature-context token or session secret.
 - Tests required and actual results: actual M2.6 log retained handshake/readiness/method/error/shutdown evidence, and repository report scans found none of the observed labels/context markers.
 - Source references: repository privacy rules; `ACCEPTANCE_TESTS.md` B03/B04.
+
+## Decision D007 — Freeze team-backed development identities before the first TCC call
+
+- Date / commit: 2026-09-18 / pending M3.1 checkpoint.
+- Problem and evidence: macOS privacy grants belong to the responsible signed code requirement; the earlier bare helper and ad-hoc Electron identity would vary or be attributed ambiguously across rebuilds.
+- Selected approach: present the host as `Medal.app`, reuse the imported Windows client's exact recovered AppUserModelID `com.squirrel.medal.medal`, use `com.squirrel.medal.medal.recorder` for the distinct capture helper, derive stable child-helper IDs, and sign with Apple Development identity fingerprint `32396A31EA92D7AB513FC0B8EFB8F22E3CC83320`. Generate the app icon from the imported `MedalApp.png`, sign nested Electron code inside-out with hardened runtime, retain an atomically versioned local app, and verify designated requirements before any ScreenCaptureKit enumeration. The recorder owns capture; the Electron host does not transport raw frames.
+- Alternatives and tradeoffs: ad-hoc signing was rejected because it does not provide a stable team-backed TCC requirement; Developer ID/release signing was not used because this is a local development gate and notarization is neither available nor implied. TCC reset/database edits and security disablement are prohibited.
+- Affected interfaces: development packaging and the namespaced `nativePort.*` capture-test methods only. Recovered Medal method envelopes remain unchanged.
+- Security/privacy/packaging impact: imported payload remains ignored/local; usage descriptions cover microphone, camera and audio capture while screen consent is exercised through the real ScreenCaptureKit picker. This does not grant consent or produce a redistributable package.
+- Tests required and actual results: strict/deep signature verification, the actual signed-client/helper protocol route, upstream-ID check and imported-icon hash check pass. Manual Screen Recording grant/deny/cancel/revoke/regrant tests remain pending under `reports/native/m3.2-tcc-prerequisite.md`.
+- Source references: `CODEX_MASTER_PROMPT.md` sections 7.1 and 10; `PLATFORM_CROSSCHECK.md` sections 3 and 6; `ACCEPTANCE_TESTS.md` M10.

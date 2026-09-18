@@ -1,0 +1,47 @@
+COMMAND: codesign -dvvv native recorder bundle
+Executable=/Users/ryan/Developer/medal-cross-platform/build-macos/native/helper/native_medal_recorder.app/Contents/MacOS/native_medal_recorder
+Identifier=io.github.native-medal.development.recorder
+Format=app bundle with Mach-O thin (arm64)
+CodeDirectory v=20500 size=2199 flags=0x10000(runtime) hashes=61+3 location=embedded
+Hash type=sha256 size=32
+CandidateCDHash sha256=f6a45dfe33f93317b81d918dac00ca7a200833ea
+CandidateCDHashFull sha256=f6a45dfe33f93317b81d918dac00ca7a200833eaa26898d389073a71fdccb4a1
+Hash choices=sha256
+CMSDigest=f6a45dfe33f93317b81d918dac00ca7a200833eaa26898d389073a71fdccb4a1
+CMSDigestType=2
+CDHash=f6a45dfe33f93317b81d918dac00ca7a200833ea
+Signature size=4779
+Authority=Apple Development: Ryan Ernest (D56WR683CZ)
+Authority=Apple Worldwide Developer Relations Certification Authority
+Authority=Apple Root CA
+Signed Time=Sep 18, 2026 at 2:46:49 PM
+Info.plist entries=14
+TeamIdentifier=XDB9K8JX58
+Runtime Version=27.2.0
+Sealed Resources version=2 rules=13 files=0
+Internal requirements count=1 size=204
+Total signatures=1
+Chosen signature=1
+COMMAND: codesign -d --requirements - native recorder bundle
+Executable=/Users/ryan/Developer/medal-cross-platform/build-macos/native/helper/native_medal_recorder.app/Contents/MacOS/native_medal_recorder
+designated => identifier "io.github.native-medal.development.recorder" and anchor apple generic and certificate leaf[subject.CN] = "Apple Development: Ryan Ernest (D56WR683CZ)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */
+COMMAND: codesign --verify --strict --verbose=4 native recorder bundle
+build-macos/native/helper/native_medal_recorder.app: valid on disk
+build-macos/native/helper/native_medal_recorder.app: satisfies its Designated Requirement
+COMMAND: plutil -p native recorder Info.plist
+{
+  "CFBundleDevelopmentRegion" => "en"
+  "CFBundleExecutable" => "native_medal_recorder"
+  "CFBundleIdentifier" => "io.github.native-medal.development.recorder"
+  "CFBundleInfoDictionaryVersion" => "6.0"
+  "CFBundleName" => "Native Medal Recorder"
+  "CFBundlePackageType" => "APPL"
+  "CFBundleShortVersionString" => "0.1.0"
+  "CFBundleVersion" => "0.1.0"
+  "LSMinimumSystemVersion" => "27.0"
+  "LSUIElement" => true
+  "NSAudioCaptureUsageDescription" => "Native Medal Recorder captures the audio selected in the system sharing picker for a recording or replay clip."
+  "NSCameraUsageDescription" => "Native Medal Recorder uses a camera only when you enable a camera overlay."
+  "NSMicrophoneUsageDescription" => "Native Medal Recorder captures your selected microphone only when microphone recording is enabled."
+  "NSPrincipalClass" => "NSApplication"
+}

@@ -4338,17 +4338,32 @@
         "B10"
       ]
     },
-    {
+  {
       "id": "workflow:native_video_capture",
       "name": "native_video_capture",
       "source": "CODEX_MASTER_PROMPT.md",
       "contract_status": "proposed_product_requirement",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/capture_session.hpp",
+          "native/backends/macos/screen_capture_session.mm",
+          "native/helper/main.cpp",
+          "client_patch/capture-selftest-preload.cjs"
+        ],
+        "test_ids": [
+          "M02",
+          "M03",
+          "M04"
+        ],
+        "report_paths": [
+          "reports/native/build-m3.0-xcode-27.2-beta.log",
+          "reports/native/m3.2-tcc-prerequisite.md"
+        ],
+        "limitations": [
+          "ScreenCaptureKit source enumeration, picker and direct VideoToolbox feed compile, but no TCC-authorized display/window/application capture has run yet.",
+          "The namespaced actual-client control surface is a test integration; the normal renderer source-selection UI is not implemented yet."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -4464,17 +4479,33 @@
         "L08"
       ]
     },
-    {
+  {
       "id": "workflow:permissions_and_privacy",
       "name": "permissions_and_privacy",
       "source": "CODEX_MASTER_PROMPT.md",
       "contract_status": "proposed_product_requirement",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/helper/Info.plist.in",
+          "native/helper/CMakeLists.txt",
+          "packaging/macos/electron-development.entitlements.plist",
+          "tools/build_macos_development_app.py"
+        ],
+        "test_ids": [
+          "M10"
+        ],
+        "report_paths": [
+          "reports/native/m3.0-recorder-signing.txt",
+          "reports/native/m3.2-development-app-build.json",
+          "reports/native/m3.2-medal-identity.txt",
+          "reports/native/m3.2-signed-protocol-selftest.json",
+          "reports/native/m3.2-tcc-prerequisite.md"
+        ],
+        "limitations": [
+          "Stable team-backed Medal/recorder development identities, the imported Medal icon and usage descriptions are verified; no TCC prompt, denial, revocation or regrant test has run yet.",
+          "This is local Apple Development signing, not Developer ID distribution, notarization or release packaging."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -4490,17 +4521,28 @@
         "B04"
       ]
     },
-    {
+  {
       "id": "workflow:hardware_encoding",
       "name": "hardware_encoding",
       "source": "CODEX_MASTER_PROMPT.md",
       "contract_status": "proposed_product_requirement",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/backends/macos/screen_capture_session.mm",
+          "native/core/include/native_port/encoded_packet.hpp"
+        ],
+        "test_ids": [
+          "M03",
+          "P01"
+        ],
+        "report_paths": [
+          "reports/native/build-m3.0-xcode-27.2-beta.log"
+        ],
+        "limitations": [
+          "The backend requires hardware H.264 creation and verifies UsingHardwareAcceleratedVideoEncoder, but has not encoded a TCC-authorized real frame yet.",
+          "AAC is not implemented yet, so no real H.264/AAC file is claimed."
+        ]
       },
       "linux": {
         "status": "not_started",

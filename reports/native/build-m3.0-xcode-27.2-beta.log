@@ -1,0 +1,39 @@
+[1/3] Building OBJCXX object native/backends/macos/CMakeFiles/native_port_macos_adapter.dir/screen_capture_session.mm.o
+FAILED: [code=1] native/backends/macos/CMakeFiles/native_port_macos_adapter.dir/screen_capture_session.mm.o 
+/usr/bin/clang++  -I/Users/ryan/Developer/medal-cross-platform/native/core/include -F/Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /opt/homebrew/include -x objective-c++ -O2 -g -DNDEBUG -std=c++2a -arch arm64 -mmacosx-version-min=27.0 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -MD -MT native/backends/macos/CMakeFiles/native_port_macos_adapter.dir/screen_capture_session.mm.o -MF native/backends/macos/CMakeFiles/native_port_macos_adapter.dir/screen_capture_session.mm.o.d -o native/backends/macos/CMakeFiles/native_port_macos_adapter.dir/screen_capture_session.mm.o -c /Users/ryan/Developer/medal-cross-platform/native/backends/macos/screen_capture_session.mm
+/Users/ryan/Developer/medal-cross-platform/native/backends/macos/screen_capture_session.mm:28:12: error: Objective-C declarations may only appear in global scope
+   28 | @interface NativePortCaptureDelegate
+      |            ^
+/Users/ryan/Developer/medal-cross-platform/native/backends/macos/screen_capture_session.mm:571:17: error: Objective-C declarations may only appear in global scope
+  571 | @implementation NativePortCaptureDelegate
+      |                 ^
+2 errors generated.
+ninja: build stopped: subcommand failed.
+[1/3] Building OBJCXX object native/backends/macos/CMakeFiles/native_port_macos_adapter.dir/screen_capture_session.mm.o
+[2/3] Linking OBJCXX static library native/backends/macos/libnative_port_macos_adapter.a
+[3/3] Linking CXX executable native/helper/native_medal_recorder.app/Contents/MacOS/native_medal_recorder; Signing the stable Native Medal Recorder development identity
+/Users/ryan/Developer/medal-cross-platform/build-macos/native/helper/native_medal_recorder.app: replacing existing signature
+/Users/ryan/Developer/medal-cross-platform/build-macos/native/helper/native_medal_recorder.app: valid on disk
+/Users/ryan/Developer/medal-cross-platform/build-macos/native/helper/native_medal_recorder.app: satisfies its Designated Requirement
+[1/3] Building OBJCXX object native/backends/macos/CMakeFiles/native_port_macos_adapter.dir/screen_capture_session.mm.o
+FAILED: [code=1] native/backends/macos/CMakeFiles/native_port_macos_adapter.dir/screen_capture_session.mm.o 
+/usr/bin/clang++  -I/Users/ryan/Developer/medal-cross-platform/native/core/include -F/Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /opt/homebrew/include -x objective-c++ -O2 -g -DNDEBUG -std=c++2a -arch arm64 -mmacosx-version-min=27.0 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -MD -MT native/backends/macos/CMakeFiles/native_port_macos_adapter.dir/screen_capture_session.mm.o -MF native/backends/macos/CMakeFiles/native_port_macos_adapter.dir/screen_capture_session.mm.o.d -o native/backends/macos/CMakeFiles/native_port_macos_adapter.dir/screen_capture_session.mm.o -c /Users/ryan/Developer/medal-cross-platform/native/backends/macos/screen_capture_session.mm
+/Users/ryan/Developer/medal-cross-platform/native/backends/macos/screen_capture_session.mm:305:29: error: no matching function for call to 'CFDictionaryGetValue'
+  305 |           const_cast<void*>(CFDictionaryGetValue(dictionary, SCStreamFrameInfoStatus)));
+      |                             ^~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/CoreFoundation.framework/Headers/CFDictionary.h:514:13: note: candidate function not viable: cannot implicitly convert argument of type 'const SCStreamFrameInfo  _Nonnull __strong' (aka 'NSString *const __strong') to 'const void *' for 2nd argument under ARC
+  514 | const void *CFDictionaryGetValue(CFDictionaryRef theDict, const void *key);
+      |             ^                                             ~~~~~~~~~~~~~~~
+1 error generated.
+ninja: build stopped: subcommand failed.
+[1/3] Building OBJCXX object native/backends/macos/CMakeFiles/native_port_macos_adapter.dir/screen_capture_session.mm.o
+[2/3] Linking OBJCXX static library native/backends/macos/libnative_port_macos_adapter.a
+[3/3] Linking CXX executable native/helper/native_medal_recorder.app/Contents/MacOS/native_medal_recorder; Signing the stable Native Medal Recorder development identity
+/Users/ryan/Developer/medal-cross-platform/build-macos/native/helper/native_medal_recorder.app: replacing existing signature
+/Users/ryan/Developer/medal-cross-platform/build-macos/native/helper/native_medal_recorder.app: valid on disk
+/Users/ryan/Developer/medal-cross-platform/build-macos/native/helper/native_medal_recorder.app: satisfies its Designated Requirement
+[1/2] Building CXX object native/helper/CMakeFiles/native_medal_recorder.dir/main.cpp.o
+[2/2] Linking CXX executable native/helper/native_medal_recorder.app/Contents/MacOS/native_medal_recorder; Signing the stable Native Medal Recorder development identity
+/Users/ryan/Developer/medal-cross-platform/build-macos/native/helper/native_medal_recorder.app: replacing existing signature
+/Users/ryan/Developer/medal-cross-platform/build-macos/native/helper/native_medal_recorder.app: valid on disk
+/Users/ryan/Developer/medal-cross-platform/build-macos/native/helper/native_medal_recorder.app: satisfies its Designated Requirement

@@ -1,0 +1,27 @@
+[0/1] Re-running CMake...
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/ryan/Developer/medal-cross-platform/build-macos
+ninja: no work to do.
+[1/1] Cleaning all built files...
+Cleaning... 13 files.
+[1/9] Building CXX object native/core/CMakeFiles/native_port_core.dir/src/replay_store.cpp.o
+[2/9] Building CXX object native/core/CMakeFiles/native_port_core.dir/src/settings_store.cpp.o
+[3/9] Building CXX object native/core/CMakeFiles/native_port_core.dir/src/json_rpc.cpp.o
+[4/9] Building OBJCXX object native/backends/macos/CMakeFiles/native_port_macos_adapter.dir/platform_adapter.mm.o
+[5/9] Linking CXX static library native/core/libnative_port_core.a
+[6/9] Building OBJCXX object native/backends/macos/CMakeFiles/native_port_macos_adapter.dir/screen_capture_session.mm.o
+[7/9] Linking OBJCXX static library native/backends/macos/libnative_port_macos_adapter.a
+[8/9] Building CXX object native/helper/CMakeFiles/native_medal_recorder.dir/main.cpp.o
+[9/9] Linking CXX executable native/helper/native_medal_recorder.app/Contents/MacOS/native_medal_recorder; Signing the stable Native Medal Recorder development identity
+/Users/ryan/Developer/medal-cross-platform/build-macos/native/helper/native_medal_recorder.app: replacing existing signature
+/Users/ryan/Developer/medal-cross-platform/build-macos/native/helper/native_medal_recorder.app: valid on disk
+/Users/ryan/Developer/medal-cross-platform/build-macos/native/helper/native_medal_recorder.app: satisfies its Designated Requirement
+[0/1] Re-running CMake...
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/ryan/Developer/medal-cross-platform/build-macos
+[1/5] Building OBJCXX object native/backends/macos/CMakeFiles/native_port_macos_api_probe.dir/api_surface_probe.mm.o
+[2/5] Linking CXX executable native/backends/macos/native_port_macos_api_probe
+[3/5] Building CXX object native/tests/CMakeFiles/native_port_core_tests.dir/core_tests.cpp.o
+[4/5] Linking CXX executable native/tests/native_port_core_tests

@@ -1,0 +1,8 @@
+Medal
+com.squirrel.medal.medal
+Medal.icns
+Executable=/Users/ryan/Developer/medal-cross-platform/artifacts/macos-development-app/versions/2637.461.1-development-m3.2-d74f0019972726ca/Medal.app/Contents/MacOS/Electron
+designated => identifier "com.squirrel.medal.medal" and anchor apple generic and certificate leaf[subject.CN] = "Apple Development: Ryan Ernest (D56WR683CZ)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */
+artifacts/macos-development-app/current/Contents/Resources/Medal.icns: Mac OS X icon, 882589 bytes, "ic12" type
+70e478d514f6519cc38081a0c28bb22869f3b815e4a661079b7179d5b6274bf9  artifacts/macos-development-app/current/Contents/Resources/app/src/assets/icon/MedalApp.png
+6e587f48c3447b08f39a89cd46f2ce418e083ea1647970d33efb62b64eac474c  artifacts/macos-development-app/current/Contents/Resources/Medal.icns

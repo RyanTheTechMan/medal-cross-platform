@@ -4,11 +4,11 @@ Status: **not ready for transfer**. This file is live and must not be interprete
 
 ## Build identity
 
-- Commit / dirty-tree changes: `9082bbe` (M0) and `861023f` (shared core/M1); M2 helper integration is pending its checkpoint commit.
+- Commit / dirty-tree changes: `9082bbe` (M0), `861023f` (shared core/M1) and `e91b60d` (actual-client/helper M2); deterministic signing and early M3 capture are pending their checkpoint commit.
 - Input hashes: installer `e6477e89f968593fe4b8335f09fc25f81889dd412c28ff85522a0a37415decdb`; recorder ZIP `d33c6e3c0506c1f6b71e6158716fda3a9866bfacc41060f2ec29c4d792ca1312`.
 - macOS / chip: macOS 27.2 build 26B5086k; arm64 Apple M5 Max.
 - Toolchain: stable Xcode 27 unavailable; Xcode 27.2 beta build 27B5019j with SDK 27.2 and Apple clang 21.0.0 is used for development only.
-- Electron/addon/signing/package: actual Electron 43.2.0 / ABI 148 and locally built better-sqlite3 12.12.0 run arm64-native. No signed/notarized/package artifact exists.
+- Electron/addon/signing/package: actual Electron 43.2.0 / ABI 148 and locally built better-sqlite3 12.12.0 run arm64-native. `Medal.app` uses recovered upstream ID `com.squirrel.medal.medal` and the imported Medal icon; its `.recorder` helper has a separate fixed identity. Both are Apple-Development signed for repeatable local TCC tests. There is no Developer-ID/notarized/release package.
 - Dependency lock / protocol: `DEPENDENCIES.lock.json`; recovered protocol version 1 unchanged.
 
 ## What actually works
@@ -16,7 +16,7 @@ Status: **not ready for transfer**. This file is live and must not be interprete
 - Pinned read-only extraction and 12/12 inherited isolated protocol/library tests pass on this Mac.
 - The actual imported native Electron client and actual C++ helper complete authenticated version-1 WebSocket handshake/readiness, device/settings queries and clean shutdown on the selected loopback port.
 - Shared C++ JSON-RPC, settings/timestamp/replay data structures and the macOS platform-adapter interface compile/test. CoreGraphics/CoreAudio/AVFoundation enumeration is active.
-- No capture, hardware encoder, replay export, editor, permission, recovery, account, packaging, or performance gate has yet passed.
+- ScreenCaptureKit source enumeration/picker/frame-state code and direct hardware-required VideoToolbox H.264 submission compile but have not crossed TCC or encoded an authorized real frame. No capture, audio, replay export, editor, permission lifecycle, recovery, account, release-packaging or performance gate has yet passed.
 
 ## Exact build/test/run commands
 
@@ -31,7 +31,7 @@ See `PROGRESS.md`, `reports/m0/` and `reports/native/`. Current native regressio
 
 ## Remaining macOS work
 
-M1 recovery/external-source cleanup, the remainder of M2 resilience/inventory, all M3–M6 capture/media/permission/package work and stable-Xcode-27 reruns remain.
+M1 recovery/external-source cleanup, the remainder of M2 resilience/inventory, runtime verification and completion of M3, all M4–M6 media/workflow/package work and stable-Xcode-27 reruns remain.
 
 ## Linux starting point
 

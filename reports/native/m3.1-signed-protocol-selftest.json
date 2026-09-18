@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "checks": [
+    {
+      "name": "ready",
+      "passed": true,
+      "recorderStatus": "not-exposed",
+      "hasSessionId": false
+    },
+    {
+      "name": "ping-null-result",
+      "passed": true
+    },
+    {
+      "name": "display-dto",
+      "passed": true,
+      "count": 3
+    },
+    {
+      "name": "audio-device-dtos",
+      "passed": true,
+      "outputCount": 14,
+      "microphoneCount": 12,
+      "hasDefaultInput": true,
+      "hasDefaultOutput": true
+    },
+    {
+      "name": "webcam-dto",
+      "passed": true,
+      "count": 4
+    },
+    {
+      "name": "scoped-settings-and-deletion",
+      "passed": true
+    },
+    {
+      "name": "unknown-method-wire-error-requested",
+      "passed": true,
+      "clientRejected": false,
+      "clientReturnedUndefinedAfterWireError": false,
+      "clientReturnedNullAfterWireError": true,
+      "errorObserved": false
+    }
+  ],
+  "completedAt": "2026-09-18T18:54:57.100Z"
+}

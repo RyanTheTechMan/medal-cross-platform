@@ -11,6 +11,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 option(NATIVE_PORT_BUILD_TESTS "Build native unit tests" ON)
 option(NATIVE_PORT_BUILD_MACOS "Build the macOS backend and probes" ${APPLE})
 option(NATIVE_PORT_BUILD_HELPER "Build the native recorder helper" ON)
+set(NATIVE_PORT_MACOS_DEVELOPMENT_SIGNING_IDENTITY "" CACHE STRING
+    "Apple Development certificate fingerprint used to sign repeatable local TCC identities")
 
 find_package(nlohmann_json 3.11 CONFIG REQUIRED)
 find_package(Boost 1.90 REQUIRED)

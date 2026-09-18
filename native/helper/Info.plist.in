@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleDevelopmentRegion</key>
+  <string>en</string>
+  <key>CFBundleExecutable</key>
+  <string>native_medal_recorder</string>
+  <key>CFBundleIdentifier</key>
+  <string>com.squirrel.medal.medal.recorder</string>
+  <key>CFBundleInfoDictionaryVersion</key>
+  <string>6.0</string>
+  <key>CFBundleName</key>
+  <string>Native Medal Recorder</string>
+  <key>CFBundlePackageType</key>
+  <string>APPL</string>
+  <key>CFBundleShortVersionString</key>
+  <string>@PROJECT_VERSION@</string>
+  <key>CFBundleVersion</key>
+  <string>@PROJECT_VERSION@</string>
+  <key>LSMinimumSystemVersion</key>
+  <string>27.0</string>
+  <key>LSUIElement</key>
+  <true/>
+  <key>NSAudioCaptureUsageDescription</key>
+  <string>Native Medal Recorder captures the audio selected in the system sharing picker for a recording or replay clip.</string>
+  <key>NSCameraUsageDescription</key>
+  <string>Native Medal Recorder uses a camera only when you enable a camera overlay.</string>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>Native Medal Recorder captures your selected microphone only when microphone recording is enabled.</string>
+  <key>NSPrincipalClass</key>
+  <string>NSApplication</string>
+</dict>
+</plist>

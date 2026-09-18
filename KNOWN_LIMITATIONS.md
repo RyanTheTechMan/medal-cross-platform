@@ -5,11 +5,11 @@ This file records observed limits, not excuses for successful no-op behavior.
 ## Environment
 
 - Stable Xcode 27 with the macOS 27 SDK is not installed. The user authorized Xcode 27.2 beta build 27B5019j / SDK 27.2 for implementation; beta-built artifacts remain development-only and release evidence still requires the specified stable-toolchain rerun.
-- No Developer ID Application identity, notarization credentials, or release provisioning evidence has been supplied or requested yet. Development/ad-hoc signing is not notarization.
+- A valid Apple Development identity now signs the stable `com.squirrel.medal.medal` host and `.recorder` helper IDs. `Medal.app` uses the imported Medal icon. No Developer ID Application/notarization evidence is claimed; Apple Development signing is not distribution signing or notarization.
 
 ## Current implementation state
 
-- The real native Electron GUI, imported SQLite worker and native C++ helper now run together in isolated development profiles. Capture, media roundtrip and packaged artifact do not yet pass their gates.
+- The real native Electron GUI, imported SQLite worker and native C++ helper now run together in isolated development profiles and as a hardened, team-signed local development app. No TCC-authorized capture or media roundtrip has passed yet.
 - The original Windows better_sqlite3 and Velopack `.node` files are PE x86-64 and unusable on arm64 macOS.
 - The inherited 12-test suite uses adapted dependencies and proves only its documented protocol/library subset.
 - The current development client still tries one Windows registry-based external-clip discovery command on macOS; A04 remains open until that path has an explicit platform adapter.
@@ -18,7 +18,9 @@ This file records observed limits, not excuses for successful no-op behavior.
 - `getTargetedProcesses`, `getActiveProcesses` and `audioProcesses` currently return explicit empty arrays because no native process mapper exists yet. This is not evidence that process/game capture is supported.
 - The original client's renderer IPC wrapper resolves an explicit recorder wire error as `null` after logging it. Wire error `-32601` is verified, but renderer capability controls must prevent unsupported calls rather than depend on Promise rejection.
 - Device enumeration returns correct recovered outward shapes, but persistent stable-ID mapping, duplicate-name selection and hotplug behavior are not implemented.
-- The prepared development tree is ignored under `artifacts/`; it is not signed, notarized, redistributable, or a release candidate.
+- The prepared tree and Apple-Development-signed app are ignored under `artifacts/`; they are not Developer-ID signed, notarized, redistributable, or release candidates.
+- ScreenCaptureKit source enumeration/picker/frame-state handling and hardware-required VideoToolbox H.264 encode are compiled but untested against an authorized real source. Audio outputs are configured but not yet consumed or AAC-encoded; no H.264/AAC recording exists.
+- The temporary namespaced M3 controls run through the actual imported client's generic recorder IPC and WebSocket path. A normal renderer source-selection/status UI and recovered captureStarted/captureStopped event integration remain open.
 
 ## Recovered-contract unknowns
 

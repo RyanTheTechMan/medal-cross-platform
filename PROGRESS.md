@@ -2,9 +2,9 @@
 
 ## Current gate and next runnable task
 
-- Gate: M2 native client/helper integration is implemented and its focused macOS evidence passes. M1 remains partially open for the Windows-only external-recorder discovery path and deliberate SQLite recovery. M2 remains partially open for heartbeat/reconnect/malformed-frame coverage and the unimplemented method inventory. Native capture has not started and no TCC gate has passed.
-- Next command/change: implement the Objective-C++ ScreenCaptureKit source-selection/capture session and VideoToolbox H.264 writer behind the shared C++ capture interface, then compile it with the installed macOS 27.2 beta SDK before requesting Screen Recording consent.
-- Expected observation: source cancellation/denial does not emit captureStarted; an authorized synthetic moving window yields hardware VideoToolbox H.264 frames without any raw-frame Electron IPC.
+- Gate: deterministic team-backed `Medal.app` / recorder identities now precede all TCC work. The host uses the imported Windows client ID `com.squirrel.medal.medal`, normal Medal naming and the imported Medal icon; the signed actual client/helper communication test passes. The first M3 ScreenCaptureKit enumeration/picker/direct-VideoToolbox path compiles but remains `implemented_unverified`; no Screen Recording, microphone, system-audio, camera or other TCC prompt has been requested and no capture gate is marked passed.
+- Next runnable task: with the user present, launch the isolated signed M3.1 capture self-test, approve only Screen & System Audio Recording if macOS requests it, select the requested display, and retain the resulting status/encoder evidence. Repeat separately for window and application selection after the display path is sound.
+- Expected observation: source enumeration completes, the system picker owns authorization, actual complete/started frames go directly from ScreenCaptureKit CVPixelBuffers to a hardware-required VideoToolbox H.264 session, idle/blank/suspended/stopped states are distinguished, and encoded packets enter the C++ replay store without raw-frame IPC.
 
 ## Implemented changes
 
@@ -21,8 +21,12 @@
 - Implemented the recovered `ping`, all-settings apply, scoped setting deletion, display/audio/mic/default/webcam queries, process-list placeholders with explicit empty semantics, and clean shutdown. Unknown methods return JSON-RPC `-32601`; unimplemented features are not acknowledged as success.
 - Patched the pinned client's recorder transport logs to retain method/id/error shapes while redacting device/settings payloads, and redacted per-profile feature-service context URLs/keys.
 - Verified selected-port propagation with 10603 deliberately occupied, loopback-only server binding on 10604, arm64 Electron/helper processes, missing/incorrect-secret HTTP 401 rejection, clean code-1000 `shutdown`, port release, and helper termination after forced parent death.
+- Added fixed development bundle identities for the Electron host, all Electron child helpers and the native recorder; the host uses the recovered upstream Windows AppUserModelID `com.squirrel.medal.medal`, is presented as `Medal.app`, and uses an `.icns` generated from the archive's own `MedalApp.png`. Client and recorder are signed by the same Apple Development team with hardened runtime and stable designated requirements. Added the required microphone/camera/audio-capture descriptions without inventing a screen-recording usage key.
+- Added an atomically versioned local development-app builder that signs nested Mach-O/framework boundaries inside-out (including Electron's `libffmpeg.dylib`), retains old versions, and labels the output development-only/not notarized.
+- Added a shared capture-session interface and Objective-C++ ScreenCaptureKit backend for explicit source enumeration, system display/window/application picker selection, stopped/idle/blank/suspended handling, and direct CVPixelBuffer submission to a hardware-required H.264 VideoToolbox encoder. Keyframes carry AVC decoder configuration into the existing encoded replay store.
+- Added namespaced `nativePort.enumerateSources`, `nativePort.presentSourcePicker`, `nativePort.captureStatus` and `nativePort.stopCapture` test controls through the actual imported client's existing IPC/WebSocket path. They return explicit accepted/status data; no unsupported original RPC is acknowledged as success.
 - Added on-disk M0 environment, dependency, unknown-contract, progress, decision, limitation, and handoff records.
-- Commits: `9082bbe` establishes M0; `861023f` establishes the native core and M1 Electron bootstrap. The M2 work is pending its checkpoint commit.
+- Commits: `9082bbe` establishes M0; `861023f` establishes the native core and M1 Electron bootstrap; `e91b60d` establishes authenticated actual-client/helper M2 integration. The deterministic-signing/M3.1 capture checkpoint is pending.
 
 ## Tests run
 
@@ -39,6 +43,9 @@
 - Actual bidirectional protocol: the hidden sandboxed test renderer used the imported client's real IPC handler and WebSocket server to call the real C++ helper; ping, recovered DTOs, scoped settings/deletion and explicit unknown-method wire error passed. See `reports/native/m2.6-protocol-selftest.json` and `electron-m2.6-protocol.log`.
 - M2 authentication/network/process: missing and incorrect secrets returned 401; 10603 occupation selected 10604; the listener was loopback-only; both main/helper files were Mach-O arm64; no secret appeared in argv. See `reports/native/m2.6-websocket-auth.json` and `m2.6-process-evidence.txt`.
 - Lifecycle: actual app quit sent `shutdown`, observed close code 1000/reason `shutdown`, both processes exited and port 10604 released in 761 ms. Forced parent death terminated the helper and released its port in 20 ms. See `reports/native/m2.6-clean-shutdown.txt` and `m2-parent-death-result.txt`.
+- M3.1 compile/core: the ScreenCaptureKit/VideoToolbox backend and signed recorder build with Xcode 27.2 beta; 2/2 CTests and 6/6 importer tests pass. See `build-m3.0-xcode-27.2-beta.log`, `ctest-m3.1-xcode-27.2-beta.log` and `importer-tests-m3.1.log`.
+- Development signing/presentation: current `Medal.app` and recorder have fixed identifiers, Apple Development authority, team `XDB9K8JX58`, stable designated requirements and strict/deep verification. The imported icon hashes match the packaged evidence and the signed actual client protocol self-test passed. See `m3.2-development-app-build.json`, `m3.2-medal-identity.txt` and `m3.2-signed-protocol-selftest.json`.
+- Manual/user interaction required next: Screen & System Audio Recording approval if macOS prompts, followed by an explicit system-picker display choice. The prerequisite and prohibited bypasses are recorded in `m3.2-tcc-prerequisite.md`. Microphone/camera/input-monitoring permission and Medal login are not requested at this gate.
 
 ## Failed or blocked gates
 
@@ -49,7 +56,7 @@
 - B05 is incomplete: JSON-RPC heartbeat timeout, bounded reconnect, oversized/malformed frames, duplicate in-flight IDs and slow-handler behavior still need actual-process tests.
 - B08/B09 are incomplete: enumeration wire shapes passed, but stable internal device mappings, hotplug/disappearance and dispositions for every method/setting are not complete. Process methods currently return explicit empty arrays; capture/control methods return `-32601`.
 - The original client's IPC wrapper converts a recorder wire error into `null` for its caller after logging the error. The actual wire response carries `-32601`; capability/UI disabling must avoid relying on a rejected renderer promise.
-- All native capture, TCC, encoder, captured audio, editor, account and packaging gates remain untested.
+- The M3 capture path is compiled only: no TCC-authorized frame, hardware-use runtime result, source-disappearance runtime result, captured audio, H.264/AAC file, editor, account or release-package gate has passed.
 
 ## Contracts and unknowns
 
@@ -58,7 +65,7 @@
 
 ## Artifacts
 
-- Development/release status: a local ignored prepared development tree exists under `artifacts/native-client`; it is not distributable, signed, notarized or a release candidate.
+- Development/release status: ignored local prepared payload and signed Apple Development app versions exist under `artifacts/`; they are not redistributable, Developer-ID signed, notarized or release candidates.
 - M0 reports: `reports/m0/`.
 - Native/M1 reports: `reports/native/`.
 - Extracted proprietary payload and generated media remain ignored and local.

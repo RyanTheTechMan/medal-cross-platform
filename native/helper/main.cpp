@@ -1,5 +1,7 @@
 #include "native_port/json_rpc.hpp"
+#include "native_port/capture_session.hpp"
 #include "native_port/platform_adapter.hpp"
+#include "native_port/replay_store.hpp"
 #include "native_port/settings_store.hpp"
 
 #include <boost/asio/connect.hpp>
@@ -13,7 +15,11 @@
 #include <chrono>
 #include <csignal>
 #include <cstdlib>
+#include <deque>
+#include <exception>
+#include <functional>
 #include <iostream>
+#include <mutex>
 #include <optional>
 #include <set>
 #include <stdexcept>
@@ -88,9 +94,61 @@ nlohmann::json id_json(const native_port::JsonRpcId& id) {
 class HelperSession final {
  public:
   explicit HelperSession(Options options)
-      : options_(std::move(options)), adapter_(native_port::make_platform_adapter()), codec_(kMaximumFrameBytes) {}
+      : options_(std::move(options)),
+        adapter_(native_port::make_platform_adapter()),
+        codec_(kMaximumFrameBytes),
+        replay_(native_port::ReplayLimits{.maximum_duration = std::chrono::seconds(120),
+                                         .maximum_bytes = 512U * 1024U * 1024U}) {
+    capture_ = native_port::make_capture_session(
+        [this](nlohmann::json event) {
+          std::scoped_lock lock(capture_event_mutex_);
+          last_capture_event_ = std::move(event);
+        },
+        [this](std::shared_ptr<const native_port::EncodedPacket> packet) {
+          try {
+            replay_.push(std::move(packet));
+          } catch (const std::exception& error) {
+            std::scoped_lock lock(capture_event_mutex_);
+            last_capture_event_ = {{"schemaVersion", 1},
+                                   {"state", "failed"},
+                                   {"reason", "replay_buffer_rejected_packet"},
+                                   {"lastError", error.what()}};
+          }
+        });
+  }
 
   int run() {
+    std::jthread network([this] {
+      try {
+        network_run();
+      } catch (...) {
+        {
+          std::scoped_lock lock(network_error_mutex_);
+          network_error_ = std::current_exception();
+        }
+        running_.store(false, std::memory_order_release);
+      }
+    });
+    while (running_.load(std::memory_order_acquire)) {
+      drain_main_actions();
+      capture_->pump_events();
+      std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    }
+    drain_main_actions();
+    network.join();
+    std::exception_ptr error;
+    {
+      std::scoped_lock lock(network_error_mutex_);
+      error = network_error_;
+    }
+    if (error) {
+      std::rethrow_exception(error);
+    }
+    return 0;
+  }
+
+ private:
+  void network_run() {
     const char* secret = std::getenv("NATIVE_PORT_SESSION_SECRET");
     if (secret == nullptr || std::string_view(secret).size() < 32U) {
       throw std::runtime_error("missing per-launch native port session secret");
@@ -134,10 +192,58 @@ class HelperSession final {
     }
     parent_monitor.request_stop();
     socket_ = nullptr;
-    return 0;
+    running_.store(false, std::memory_order_release);
   }
 
- private:
+  void dispatch_to_main(std::function<void()> action) {
+    std::scoped_lock lock(main_actions_mutex_);
+    main_actions_.push_back(std::move(action));
+  }
+
+  void drain_main_actions() {
+    std::deque<std::function<void()>> actions;
+    {
+      std::scoped_lock lock(main_actions_mutex_);
+      actions.swap(main_actions_);
+    }
+    for (auto& action : actions) {
+      try {
+        action();
+      } catch (const std::exception& error) {
+        std::scoped_lock lock(capture_event_mutex_);
+        last_capture_event_ = {{"schemaVersion", 1},
+                               {"state", "failed"},
+                               {"reason", "main_thread_capture_action_failed"},
+                               {"lastError", error.what()}};
+      }
+    }
+  }
+
+  [[nodiscard]] native_port::CaptureConfiguration capture_configuration(const nlohmann::json& params) const {
+    native_port::CaptureConfiguration result;
+    result.width = params.value("width", result.width);
+    result.height = params.value("height", result.height);
+    result.frames_per_second = params.value("framesPerSecond", result.frames_per_second);
+    result.bitrate_bits_per_second = params.value("bitrateBitsPerSecond", result.bitrate_bits_per_second);
+    result.show_cursor = params.value("showCursor", result.show_cursor);
+    result.capture_system_audio = params.value("captureSystemAudio", result.capture_system_audio);
+    result.capture_microphone = params.value("captureMicrophone", result.capture_microphone);
+    result.preferred_source_kind = params.value("preferredSourceKind", result.preferred_source_kind);
+    return result;
+  }
+
+  [[nodiscard]] nlohmann::json capture_status() const {
+    auto result = capture_->status();
+    result["replay"] = {{"packetCount", replay_.packet_count()},
+                        {"occupiedBytes", replay_.occupied_bytes()},
+                        {"retainedNanoseconds", replay_.retained_duration().count()}};
+    {
+      std::scoped_lock lock(capture_event_mutex_);
+      result["lastEvent"] = last_capture_event_;
+    }
+    return result;
+  }
+
   void send_json(const nlohmann::json& value) {
     const auto encoded = value.dump();
     if (encoded.size() > kMaximumFrameBytes) {
@@ -230,10 +336,23 @@ class HelperSession final {
         respond(request, defaults.value("input", ""));
       } else if (request.method == "webcamDevices") {
         respond(request, adapter_->webcam_devices(request.params.value("includeVirtualDevices", false)));
+      } else if (request.method == "nativePort.enumerateSources") {
+        dispatch_to_main([this] { capture_->enumerate_shareable_content(); });
+        respond(request, {{"accepted", true}});
+      } else if (request.method == "nativePort.presentSourcePicker") {
+        const auto configuration = capture_configuration(request.params);
+        dispatch_to_main([this, configuration] { capture_->present_source_picker(configuration); });
+        respond(request, {{"accepted", true}});
+      } else if (request.method == "nativePort.stopCapture") {
+        dispatch_to_main([this] { capture_->stop(); });
+        respond(request, {{"accepted", true}});
+      } else if (request.method == "nativePort.captureStatus") {
+        respond(request, capture_status());
       } else if (request.method == "getTargetedProcesses" || request.method == "getActiveProcesses" ||
                  request.method == "audioProcesses") {
         respond(request, nlohmann::json::array());
       } else if (request.method == "shutdown") {
+        dispatch_to_main([this] { capture_->stop(); });
         respond(request, nullptr);
         websocket::close_reason reason(websocket::close_code::normal);
         reason.reason = "shutdown";
@@ -287,7 +406,16 @@ class HelperSession final {
   std::unique_ptr<native_port::PlatformAdapter> adapter_;
   native_port::SettingsStore settings_;
   native_port::JsonRpcCodec codec_;
+  native_port::ReplayStore replay_;
+  std::unique_ptr<native_port::CaptureSession> capture_;
   websocket::stream<tcp::socket>* socket_{nullptr};
+  std::atomic<bool> running_{true};
+  mutable std::mutex capture_event_mutex_;
+  nlohmann::json last_capture_event_{{"schemaVersion", 1}, {"state", "idle"}, {"reason", "initialized"}};
+  std::mutex main_actions_mutex_;
+  std::deque<std::function<void()>> main_actions_;
+  std::mutex network_error_mutex_;
+  std::exception_ptr network_error_;
   bool handshake_complete_{false};
 };
 

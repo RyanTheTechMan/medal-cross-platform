@@ -24,6 +24,16 @@
       "releaseEligible": false
     }
   ],
+  "developmentCodeSigning": {
+    "status": "local_development_only_not_notarized",
+    "identityFingerprint": "32396A31EA92D7AB513FC0B8EFB8F22E3CC83320",
+    "identityCommonName": "Apple Development: Ryan Ernest (D56WR683CZ)",
+    "observedTeamIdentifier": "XDB9K8JX58",
+    "clientBundleIdentifier": "com.squirrel.medal.medal",
+    "recorderBundleIdentifier": "com.squirrel.medal.medal.recorder",
+    "clientIdentifierSource": "Recovered imported Windows APP_ID / AppUserModelID",
+    "evidence": "reports/native/m3.2-development-app-build.json"
+  },
   "upstreamInputs": {
     "clientVersion": "2637.461.1",
     "recorderVersion": "2638.2751.1",

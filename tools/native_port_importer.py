@@ -12,6 +12,7 @@ import argparse
 import hashlib
 import json
 import os
+import plistlib
 import shutil
 import stat
 import subprocess
@@ -27,8 +28,10 @@ EXTRACTOR_PATH = ROOT / 'research' / 'tools' / 'extract_medal.py'
 BOOTSTRAP_PATH = ROOT / 'client_patch' / 'native-port-bootstrap.cjs'
 DB_SELFTEST_PATH = ROOT / 'client_patch' / 'db-selftest-preload.cjs'
 PROTOCOL_SELFTEST_PATH = ROOT / 'client_patch' / 'protocol-selftest-preload.cjs'
+CAPTURE_SELFTEST_PATH = ROOT / 'client_patch' / 'capture-selftest-preload.cjs'
 UPDATE_ADAPTER_PATH = ROOT / 'client_patch' / 'velopack-manual-adapter.js'
 MAX_COPY_BYTES = 2 * 1024**3
+NATIVE_HELPER_BUNDLE_ID = 'com.squirrel.medal.medal.recorder'
 
 
 class ImportFailure(RuntimeError):
@@ -136,6 +139,111 @@ def copy_executable(source: Path, destination: Path) -> dict[str, object]:
         'sourceSha256': sha256(source),
         'destination': destination.relative_to(destination.parents[2]).as_posix(),
         'installedSha256': sha256(destination),
+    }
+
+
+def bundle_tree_sha256(bundle: Path) -> str:
+    digest = hashlib.sha256()
+    for target in sorted(bundle.rglob('*'), key=lambda item: item.relative_to(bundle).as_posix()):
+        relative = target.relative_to(bundle).as_posix().encode()
+        digest.update(len(relative).to_bytes(8, 'big'))
+        digest.update(relative)
+        mode = target.lstat().st_mode
+        if stat.S_ISLNK(mode):
+            link = os.readlink(target).encode()
+            digest.update(b'L')
+            digest.update(len(link).to_bytes(8, 'big'))
+            digest.update(link)
+        elif stat.S_ISDIR(mode):
+            digest.update(b'D')
+        elif stat.S_ISREG(mode):
+            digest.update(b'F')
+            digest.update(bytes.fromhex(sha256(target)))
+        else:
+            raise ImportFailure(f'unsupported native helper bundle entry: {relative.decode()}')
+    return digest.hexdigest()
+
+
+def code_signature_metadata(bundle: Path, expected_identifier: str) -> dict[str, str]:
+    try:
+        subprocess.run(
+            ['/usr/bin/codesign', '--verify', '--strict', '--verbose=2', str(bundle)],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        details = subprocess.run(
+            ['/usr/bin/codesign', '-dvvv', str(bundle)],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stderr
+        requirement_result = subprocess.run(
+            ['/usr/bin/codesign', '-d', '--requirements', '-', str(bundle)],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        requirements = requirement_result.stdout + requirement_result.stderr
+    except subprocess.CalledProcessError as error:
+        detail = (error.stderr or error.stdout or str(error)).strip()
+        raise ImportFailure(f'native helper bundle signature is invalid: {detail}') from error
+    fields: dict[str, str] = {}
+    for line in details.splitlines():
+        if '=' in line:
+            key, value = line.split('=', 1)
+            fields[key] = value
+    if fields.get('Identifier') != expected_identifier:
+        raise ImportFailure(
+            f'native helper bundle identifier must be {expected_identifier}, got {fields.get("Identifier")}'
+        )
+    if not fields.get('TeamIdentifier') or fields['TeamIdentifier'] == 'not set':
+        raise ImportFailure('native helper must use a team-backed Apple Development signature before TCC testing')
+    designated = next(
+        (line.removeprefix('designated => ') for line in requirements.splitlines() if line.startswith('designated => ')),
+        '',
+    )
+    if not designated:
+        raise ImportFailure('native helper signature has no designated requirement')
+    return {
+        'identifier': fields['Identifier'],
+        'teamIdentifier': fields['TeamIdentifier'],
+        'authority': fields.get('Authority', ''),
+        'designatedRequirement': designated,
+    }
+
+
+def copy_signed_helper_bundle(source: Path, destination: Path) -> dict[str, object]:
+    source = source.resolve(strict=True)
+    if not source.is_dir() or source.suffix != '.app':
+        raise ImportFailure(f'native helper must be a signed .app bundle: {source}')
+    info_path = source / 'Contents' / 'Info.plist'
+    try:
+        info = plistlib.loads(info_path.read_bytes())
+    except (OSError, plistlib.InvalidFileException) as error:
+        raise ImportFailure(f'native helper has an invalid Info.plist: {error}') from error
+    if info.get('CFBundleIdentifier') != NATIVE_HELPER_BUNDLE_ID:
+        raise ImportFailure(f'native helper Info.plist identifier must be {NATIVE_HELPER_BUNDLE_ID}')
+    executable_name = info.get('CFBundleExecutable')
+    executable = source / 'Contents' / 'MacOS' / str(executable_name)
+    if not executable.is_file() or not os.access(executable, os.X_OK):
+        raise ImportFailure(f'native helper bundle executable is missing: {executable}')
+    signature = code_signature_metadata(source, NATIVE_HELPER_BUNDLE_ID)
+    source_hash = bundle_tree_sha256(source)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(source, destination, symlinks=True)
+    installed_signature = code_signature_metadata(destination, NATIVE_HELPER_BUNDLE_ID)
+    if installed_signature != signature:
+        raise ImportFailure('native helper signature metadata changed while copying into the prepared client')
+    installed_hash = bundle_tree_sha256(destination)
+    if installed_hash != source_hash:
+        raise ImportFailure('native helper bundle changed while copying into the prepared client')
+    return {
+        'source': str(source),
+        'sourceTreeSha256': source_hash,
+        'destination': destination.relative_to(destination.parents[2]).as_posix(),
+        'installedTreeSha256': installed_hash,
+        'signature': signature,
     }
 
 
@@ -247,6 +355,7 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
     shutil.copy2(BOOTSTRAP_PATH, bootstrap_destination)
     shutil.copy2(DB_SELFTEST_PATH, stage_app / 'native-port' / 'db-selftest-preload.cjs')
     shutil.copy2(PROTOCOL_SELFTEST_PATH, stage_app / 'native-port' / 'protocol-selftest-preload.cjs')
+    shutil.copy2(CAPTURE_SELFTEST_PATH, stage_app / 'native-port' / 'capture-selftest-preload.cjs')
     adapter_destination = stage_app / 'node_modules' / 'velopack' / 'lib' / 'index.js'
     adapter_pre = sha256(adapter_destination)
     shutil.copy2(UPDATE_ADAPTER_PATH, adapter_destination)
@@ -262,7 +371,10 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
     addon_destination = stage_app / 'lib' / 'binding' / 'node-v148-darwin-arm64' / 'better_sqlite3.node'
     addon_destination.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(addon, addon_destination)
-    helper = copy_executable(native_helper, stage_app / 'native-port' / 'bin' / 'native-medal-recorder')
+    helper = copy_signed_helper_bundle(
+        native_helper,
+        stage_app / 'native-port' / 'bin' / 'NativeMedalRecorder.app',
+    )
     tools_destination = stage_app / 'native-port' / 'tools'
     tools = [
         copy_executable(sqlite3, tools_destination / 'sqlite3'),
@@ -273,7 +385,7 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
     manifest = {
         'schemaVersion': 1,
         'clientVersion': version,
-        'portBuild': 'development-m2.6',
+        'portBuild': 'development-m3.2',
         'target': 'darwin-arm64',
         'electron': {'version': '43.2.0', 'modulesAbi': '148'},
         'sourceAudit': source_audit,
@@ -290,6 +402,9 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
             'native-port/db-selftest-preload.cjs': sha256(stage_app / 'native-port' / 'db-selftest-preload.cjs'),
             'native-port/protocol-selftest-preload.cjs': sha256(
                 stage_app / 'native-port' / 'protocol-selftest-preload.cjs'
+            ),
+            'native-port/capture-selftest-preload.cjs': sha256(
+                stage_app / 'native-port' / 'capture-selftest-preload.cjs'
             ),
         },
         'tools': tools,
@@ -359,7 +474,7 @@ def prepare(args: argparse.Namespace) -> dict[str, object]:
     try:
         source_audit = audit_copy_source(source_app)
         version, source_hashes = verify_supported_build(source_app)
-        version_name = f'{version}-native-port-m2.6'
+        version_name = f'{version}-native-port-m3.2'
         final_version = versions / version_name
         shutil.copytree(source_app, stage, symlinks=False)
         manifest = apply_client_patch(
