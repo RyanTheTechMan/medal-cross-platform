@@ -35,11 +35,20 @@ struct EncodedPacket final {
   std::int64_t monotonic_nanoseconds{0};
   bool keyframe{false};
   bool depends_on_others{true};
+  std::uint32_t video_width{0};
+  std::uint32_t video_height{0};
+  std::uint32_t sample_rate{0};
+  std::uint32_t channel_count{0};
+  std::uint32_t bitrate_bits_per_second{0};
+  std::uint32_t encoder_delay_frames{0};
+  std::uint32_t discard_padding_frames{0};
   std::shared_ptr<const std::vector<std::byte>> data;
   std::shared_ptr<const std::vector<std::byte>> codec_configuration;
+  std::shared_ptr<const std::vector<std::byte>> platform_codec_cookie;
 
   [[nodiscard]] std::size_t occupied_bytes() const noexcept {
-    return (data ? data->size() : 0U) + (codec_configuration ? codec_configuration->size() : 0U);
+    return (data ? data->size() : 0U) + (codec_configuration ? codec_configuration->size() : 0U) +
+           (platform_codec_cookie ? platform_codec_cookie->size() : 0U);
   }
 };
 

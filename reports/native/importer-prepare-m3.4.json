@@ -1,0 +1,26 @@
+{
+  "status": "prepared",
+  "idempotent": true,
+  "sourceExtraction": {
+    "installer_sha256": "e6477e89f968593fe4b8335f09fc25f81889dd412c28ff85522a0a37415decdb",
+    "known_build": true,
+    "packed_integrity_verified": 999,
+    "unpacked_integrity_mismatches": [
+      "Medal.exe",
+      "elevate.exe",
+      "lib/binding/node-v148-win32-x64/better_sqlite3.node",
+      "lib/sqlite3.exe",
+      "node_modules/velopack/lib/native/velopack_nodeffi_win_x64_msvc.node"
+    ],
+    "files": 1582,
+    "archive_entries": 666,
+    "electron_version": "43.2.0",
+    "main_sha256": "5a2a6dd5d1370a15577b0c09bc2d021059e2f9e7dba6a2e40cc41b4685e0c8ff"
+  },
+  "versionDirectory": "/Users/ryan/Developer/medal-cross-platform/artifacts/native-client/versions/2637.461.1-native-port-m3.4-2683fb228408",
+  "manifest": "/Users/ryan/Developer/medal-cross-platform/artifacts/native-client/versions/2637.461.1-native-port-m3.4-2683fb228408/native-port/patch-manifest.json",
+  "activation": {
+    "current": "versions/2637.461.1-native-port-m3.4-2683fb228408",
+    "previous": null
+  }
+}

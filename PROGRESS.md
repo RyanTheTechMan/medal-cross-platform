@@ -2,9 +2,9 @@
 
 ## Current gate and next runnable task
 
-- Gate: the actual imported client now receives its existing codec choices from native hardware capability publication. Signed ScreenCaptureKit → hardware VideoToolbox → replay-store runs pass for H.264 display/window and HEVC display capture; the final HEVC run encoded 441/441 frames with zero failures and retained five configured keyframes. This Apple M5 Max has no registered VideoToolbox AV1 encoder, so AV1 is omitted rather than falsely advertised. Native video remains `implemented_unverified` overall because application/source-disappearance/geometry/soak and normal renderer capture-state integration are open. No microphone/camera/input-monitoring consent or Medal login has been requested.
-- Next runnable task: implement separate ScreenCaptureKit system-audio and microphone stream outputs, native AudioToolbox AAC encoders and shared timestamp/drift metrics. Exercise system audio first using the already-authorized picker without microphone permission; request microphone permission only when the separate mic path is ready. Then mux a real H.264/AAC MP4 through the shared export layer and validate it independently.
-- Expected observation: video snapshots start with a keyframe carrying AVC configuration; audio tracks remain independently identifiable, monotonic on one timeline and within the A/V drift gate; the first MP4 decodes/probes without transcoding.
+- Gate: the signed imported client now captures display video and system audio into one encoded replay timeline. A real short run produced 461/461 hardware H.264 frames and 378 stereo 48 kHz AAC packets with zero encode failures/discontinuities. A synthetic native integration probe passes real VideoToolbox H.264 + AudioToolbox AAC → shared replay → AVAssetWriter MP4 → AVAssetReader readback without transcoding. The post-fix real captured MP4 is still pending because the final-source picker retry ran while the Mac was locked, enumerated zero displays and ended `user_cancelled` with no captured frames. No microphone/camera/input-monitoring consent or Medal login has been requested.
+- Next runnable task: rebuild the signed imported app with the final AAC cookie/mux fix, then rerun the display + system-audio picker test with export enabled and independently validate its MP4 with ffprobe and decode. After that succeeds, request microphone permission for the already-implemented separate microphone encoder, run the 30-minute drift/soak gate, then connect the recovered `clip;length=N` action and real content registration.
+- Expected observation: the real exported MP4 starts on a configured keyframe, contains H.264 and AAC-LC tracks with correct codec configuration/priming, decodes without errors, and is atomically present after the app restarts.
 
 ## Implemented changes
 
@@ -30,8 +30,12 @@
 - Added a VideoToolbox encoder-list and real synthetic-frame probe. Hardware-required H.264 and HEVC sessions both confirm hardware use, produce four frames without flushing, and carry `avcC`/`hvcC`; AV1 has no registered encoder and session creation fails explicitly with OSStatus `-12908`.
 - Generalized the native ScreenCaptureKit encoder path and replay packets for H.264/HEVC/AV1 configuration atoms while preserving direct native frame delivery. The final real signed-client HEVC run encoded 441/441 frames at 1920×802/60 requested fps/10 Mbps, zero failures, five configured keyframes and 8.03 seconds of replay retention.
 - Kept the real-time quality-priority encoder configuration after retained evidence showed Apple's advertised High Quality preset held static-source frames for look-ahead and rejected forced zero/one-frame delay caps. H.264 remains the compatibility default until mux/player/editor/service tests pass.
+- Added separate ScreenCaptureKit system-audio and microphone outputs backed by independent AudioToolbox AAC-LC encoders. Packets retain track identity, portable AudioSpecificConfig, Apple compression cookie, priming/padding, configuration generation and one monotonic timeline; replay insertion now tolerates bounded cross-track callback reordering while rejecting stale packets.
+- Ran the signed actual-client system-audio path with an isolated profile and explicit display choice: 461/461 hardware H.264 frames plus 378 stereo 48 kHz AAC packets, zero failures/discontinuities, and 839 encoded replay packets. Microphone remained disabled.
+- Added a shared encoded-snapshot MP4 export contract and macOS AVAssetWriter passthrough adapter. Test paths are confined to the isolated profile and activated by atomic rename. The hardened recorder links only Apple/system frameworks; an invalid ad-hoc Homebrew libav dependency was detected by a real loader check and removed without disabling library validation.
+- Added a synthetic full media probe that generates hardware H.264 and AudioToolbox AAC, stores them in the replay buffer, writes 60 video/93 audio packets to MP4 without transcoding and reads both tracks through AVAssetReader.
 - Added on-disk M0 environment, dependency, unknown-contract, progress, decision, limitation, and handoff records.
-- Commits: `9082bbe` establishes M0; `861023f` establishes the native core and M1 Electron bootstrap; `e91b60d` establishes authenticated actual-client/helper M2 integration; `d270af4` establishes deterministic signing and the initial M3 capture path; `9cb628e` establishes real hardware H.264 capture. The codec/HEVC checkpoint follows it.
+- Commits: `9082bbe` establishes M0; `861023f` establishes the native core and M1 Electron bootstrap; `e91b60d` establishes authenticated actual-client/helper M2 integration; `d270af4` establishes deterministic signing and the initial M3 capture path; `9cb628e` establishes real hardware H.264 capture; `39c26be` establishes codec capability publication and real HEVC. The M3.4 audio/mux checkpoint follows it.
 
 ## Tests run
 
@@ -56,6 +60,11 @@
 - M3.3 encoder probe: hardware-required H.264/HEVC four-frame real-time encodes pass with hardware confirmation and codec configuration; AV1 creation fails `-12908` with no registered encoder. See `m3.3-videotoolbox-encoder-probe.json`.
 - M3.3 real HEVC interaction: the user chose one display in the system picker. The signed actual-client route encoded 441/441 hardware HEVC frames with zero failures; see `m3.3-hevc-display-passed.json` and `m3.3-codec-result.md`.
 - M3.3 regressions: `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer cmake --build build-macos -j 4`, matching verbose `ctest`, and `python3 -m unittest -v tests/test_importer.py` all exit 0; 3/3 CTests and 6/6 importer tests pass.
+- M3.4 AAC probe: 48,000 stereo 48 kHz PCM frames produced 46 configured AAC-LC packets with zero failures/discontinuities; see `m3.4-audio-encoder-probe.json`.
+- M3.4 real system audio: the user chose one display; the signed actual-client run produced 461 hardware H.264 frames and 378 AAC packets with zero encode failures and no microphone data. See `m3.4-system-audio-capture.json` and `m3.4-audio-mux-result.md`.
+- M3.4 mux probe: real synthetic VideoToolbox/AudioToolbox packets survived the shared replay store, AVAssetWriter passthrough MP4 export and AVAssetReader readback; see `m3.4-mp4-writer-probe.json`. Final verbose CTest result is 5/5 passed.
+- M3.4 final-source packaging: importer/build IDs are `2637.461.1-native-port-m3.4-2683fb228408` and `2637.461.1-development-m3.4-1bb85bc5558c11e0`; deterministic IDs/signatures/icon are retained. See `importer-prepare-m3.4.json` and `m3.4-development-app-build.json`.
+- M3.4 real export retry: the Mac was locked, ScreenCaptureKit enumerated zero displays, the picker timed out as `user_cancelled`, and no media or permission prompt occurred. This is a failed manual prerequisite, not a pass; see `m3.4-real-export-picker-timeout.json`.
 
 ## Failed or blocked gates
 
@@ -66,7 +75,7 @@
 - B05 is incomplete: JSON-RPC heartbeat timeout, bounded reconnect, oversized/malformed frames, duplicate in-flight IDs and slow-handler behavior still need actual-process tests.
 - B08/B09 are incomplete: enumeration wire shapes passed, but stable internal device mappings, hotplug/disappearance and dispositions for every method/setting are not complete. Process methods currently return explicit empty arrays; capture/control methods return `-32601`.
 - The original client's IPC wrapper converts a recorder wire error into `null` for its caller after logging the error. The actual wire response carries `-32601`; capability/UI disabling must avoid relying on a rejected renderer promise.
-- Basic authorized H.264 display/window and HEVC display frames plus hardware-use runtime checks pass. Source-disappearance, complete frame-attachment/geometry tests, captured audio, muxed media, editor, account and release-package gates remain open.
+- Basic authorized H.264 display/window and HEVC display frames plus hardware-use runtime checks pass. Short real system-audio capture and synthetic native MP4 mux/readback pass. Source-disappearance, complete frame-attachment/geometry tests, real captured MP4 validation, microphone, 30-minute drift, editor, account and release-package gates remain open.
 - AV1 encode is blocked on the current target: VideoToolbox lists no AV1 encoder and rejects a hardware-required session. The code retains an explicit AV1 path for a future host that reports a real encoder; the current client capability list omits it.
 
 ## Contracts and unknowns

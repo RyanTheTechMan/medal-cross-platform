@@ -239,8 +239,8 @@ def build(args: argparse.Namespace) -> dict[str, object]:
         manifest = json.loads(manifest_path.read_text())
     except (OSError, json.JSONDecodeError) as error:
         raise BuildFailure(f'prepared client manifest is missing or invalid: {error}') from error
-    if manifest.get('portBuild') != 'development-m3.3' or manifest.get('target') != 'darwin-arm64':
-        raise BuildFailure('development app requires a development-m3.3 darwin-arm64 prepared client')
+    if manifest.get('portBuild') != 'development-m3.4' or manifest.get('target') != 'darwin-arm64':
+        raise BuildFailure('development app requires a development-m3.4 darwin-arm64 prepared client')
 
     fingerprint = hashlib.sha256()
     for target in (manifest_path, electron / 'Contents' / 'MacOS' / 'Electron', Path(__file__), ENTITLEMENTS):

@@ -26,6 +26,9 @@ ReplayStore::ReplayStore(ReplayLimits limits) : limits_(limits) {
   if (limits_.maximum_bytes == 0U) {
     throw std::invalid_argument("replay byte limit must be positive");
   }
+  if (limits_.maximum_reorder_duration < std::chrono::nanoseconds::zero()) {
+    throw std::invalid_argument("replay reorder duration must not be negative");
+  }
 }
 
 void ReplayStore::push(std::shared_ptr<const EncodedPacket> packet) {
@@ -41,13 +44,20 @@ void ReplayStore::push(std::shared_ptr<const EncodedPacket> packet) {
   }
 
   std::scoped_lock lock(mutex_);
-  if (has_timestamp_ && packet->monotonic_nanoseconds < last_monotonic_nanoseconds_) {
-    throw std::invalid_argument("packets must be pushed in monotonic order");
+  if (has_timestamp_ &&
+      packet->monotonic_nanoseconds <
+          newest_monotonic_nanoseconds_ - limits_.maximum_reorder_duration.count()) {
+    throw std::invalid_argument("packet arrived outside the replay reorder window");
   }
   has_timestamp_ = true;
-  last_monotonic_nanoseconds_ = packet->monotonic_nanoseconds;
+  newest_monotonic_nanoseconds_ = std::max(newest_monotonic_nanoseconds_, packet->monotonic_nanoseconds);
   occupied_bytes_ += packet->occupied_bytes();
-  packets_.push_back(std::move(packet));
+  const auto insertion = std::upper_bound(
+      packets_.begin(), packets_.end(), packet->monotonic_nanoseconds,
+      [](std::int64_t timestamp, const std::shared_ptr<const EncodedPacket>& existing) {
+        return timestamp < existing->monotonic_nanoseconds;
+      });
+  packets_.insert(insertion, std::move(packet));
   enforce_limits_locked();
 }
 
@@ -119,7 +129,7 @@ void ReplayStore::clear() {
   std::scoped_lock lock(mutex_);
   packets_.clear();
   occupied_bytes_ = 0;
-  last_monotonic_nanoseconds_ = 0;
+  newest_monotonic_nanoseconds_ = 0;
   has_timestamp_ = false;
 }
 

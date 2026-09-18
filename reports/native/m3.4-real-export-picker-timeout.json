@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "status": "failed_prerequisite",
+  "date": "2026-09-18",
+  "appBuild": "2637.461.1-development-m3.4-1bb85bc5558c11e0",
+  "capture": {
+    "kind": "display",
+    "videoCodec": "H264",
+    "bitrateMegabitsPerSecond": 15,
+    "captureSystemAudio": true,
+    "captureMicrophone": false,
+    "exportMp4": true
+  },
+  "sourceEnumeration": {
+    "displayCount": 0,
+    "applicationCount": 57,
+    "windowCount": 415,
+    "state": "complete"
+  },
+  "terminalState": "cancelled",
+  "terminalReason": "user_cancelled",
+  "framesReceived": 0,
+  "framesEncoded": 0,
+  "systemAudioPacketsEncoded": 0,
+  "exportResult": null,
+  "manualPrerequisite": "The Mac was locked. Unlock the Mac and choose one display in the ScreenCaptureKit source picker.",
+  "securityChanges": [],
+  "permissionsRequested": [],
+  "resultInterpretation": "This is a failed manual prerequisite, not a capture or export pass."
+}

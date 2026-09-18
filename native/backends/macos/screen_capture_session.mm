@@ -6,6 +6,8 @@
 
 #include "native_port/capture_session.hpp"
 
+#include "audio_encoder.hpp"
+
 #include <algorithm>
 #include <atomic>
 #include <chrono>
@@ -183,6 +185,7 @@ class MacCaptureSession final : public CaptureSession {
         [stream_ stopCaptureWithCompletionHandler:nil];
       }
       destroy_encoder();
+      destroy_audio_encoders();
       stream_ = nil;
       delegate_ = nil;
     }
@@ -292,8 +295,15 @@ class MacCaptureSession final : public CaptureSession {
   }
 
   [[nodiscard]] nlohmann::json status() const override {
+    std::shared_ptr<AacEncoder> system_audio;
+    std::shared_ptr<AacEncoder> microphone;
+    {
+      std::scoped_lock audio_lock(audio_encoder_mutex_);
+      system_audio = system_audio_encoder_;
+      microphone = microphone_encoder_;
+    }
     std::scoped_lock lock(mutex_);
-    return status_locked();
+    return status_locked(system_audio, microphone);
   }
 
   void picker_cancelled() {
@@ -333,6 +343,10 @@ class MacCaptureSession final : public CaptureSession {
   }
 
   void did_output_sample(CMSampleBufferRef sample, SCStreamOutputType type) {
+    if (type == SCStreamOutputTypeAudio || type == SCStreamOutputTypeMicrophone) {
+      did_output_audio(sample, type);
+      return;
+    }
     if (type != SCStreamOutputTypeScreen || sample == nullptr || !CMSampleBufferIsValid(sample) ||
         !CMSampleBufferDataIsReady(sample)) {
       return;
@@ -406,6 +420,22 @@ class MacCaptureSession final : public CaptureSession {
   }
 
  private:
+  void did_output_audio(CMSampleBufferRef sample, SCStreamOutputType type) {
+    std::shared_ptr<AacEncoder> audio_encoder;
+    {
+      std::scoped_lock lock(audio_encoder_mutex_);
+      audio_encoder = type == SCStreamOutputTypeMicrophone ? microphone_encoder_ : system_audio_encoder_;
+    }
+    if (!audio_encoder) {
+      return;
+    }
+    std::string error;
+    if (!audio_encoder->encode(sample, configuration_generation_.load(std::memory_order_relaxed), error)) {
+      fail(type == SCStreamOutputTypeMicrophone ? "microphone_encoder_failed" : "system_audio_encoder_failed",
+           std::move(error));
+    }
+  }
+
   static void encoder_output(void* output_callback_refcon, void* source_frame_refcon, OSStatus status,
                              VTEncodeInfoFlags info_flags, CMSampleBufferRef sample_buffer) {
     auto* owner = static_cast<MacCaptureSession*>(output_callback_refcon);
@@ -469,6 +499,7 @@ class MacCaptureSession final : public CaptureSession {
         fail("encoder_unavailable", encoder_error);
         return;
       }
+      create_audio_encoders(configuration);
 
       SCStream* new_stream = [[SCStream alloc] initWithFilter:filter
                                                 configuration:stream_configuration
@@ -480,6 +511,26 @@ class MacCaptureSession final : public CaptureSession {
                                  error:&add_error]) {
         destroy_encoder();
         fail("stream_output_failed", error_text(add_error));
+        return;
+      }
+      if (configuration.capture_system_audio &&
+          ![new_stream addStreamOutput:delegate_
+                                  type:SCStreamOutputTypeAudio
+                    sampleHandlerQueue:dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0)
+                                 error:&add_error]) {
+        destroy_encoder();
+        destroy_audio_encoders();
+        fail("system_audio_output_failed", error_text(add_error));
+        return;
+      }
+      if (configuration.capture_microphone &&
+          ![new_stream addStreamOutput:delegate_
+                                  type:SCStreamOutputTypeMicrophone
+                    sampleHandlerQueue:dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0)
+                                 error:&add_error]) {
+        destroy_encoder();
+        destroy_audio_encoders();
+        fail("microphone_output_failed", error_text(add_error));
         return;
       }
       {
@@ -507,6 +558,14 @@ class MacCaptureSession final : public CaptureSession {
   [[nodiscard]] bool create_encoder(std::size_t width, std::size_t height,
                                     const CaptureConfiguration& configuration, std::string& error) {
     destroy_encoder();
+    first_video_packet_nanoseconds_.store(-1, std::memory_order_relaxed);
+    last_video_packet_end_nanoseconds_.store(-1, std::memory_order_relaxed);
+    encoded_width_.store(static_cast<std::uint32_t>(width), std::memory_order_relaxed);
+    encoded_height_.store(static_cast<std::uint32_t>(height), std::memory_order_relaxed);
+    encoded_bitrate_.store(static_cast<std::uint32_t>(std::min<std::uint64_t>(
+                               configuration.bitrate_bits_per_second,
+                               std::numeric_limits<std::uint32_t>::max())),
+                           std::memory_order_relaxed);
     const auto codec_type = video_toolbox_codec_type(configuration.video_codec);
     const auto medal_codec = std::string(medal_video_codec_name(configuration.video_codec));
     const void* keys[] = {kVTVideoEncoderSpecification_RequireHardwareAcceleratedVideoEncoder};
@@ -636,6 +695,38 @@ class MacCaptureSession final : public CaptureSession {
     }
   }
 
+  void create_audio_encoders(const CaptureConfiguration& configuration) {
+    std::scoped_lock lock(audio_encoder_mutex_);
+    system_audio_encoder_.reset();
+    microphone_encoder_.reset();
+    if (configuration.capture_system_audio) {
+      system_audio_encoder_ = std::make_shared<AacEncoder>(
+          TrackKind::game_audio, 1, 160'000,
+          [this](std::shared_ptr<const EncodedPacket> packet) { packet_callback_(std::move(packet)); });
+    }
+    if (configuration.capture_microphone) {
+      microphone_encoder_ = std::make_shared<AacEncoder>(
+          TrackKind::microphone_audio, 2, 96'000,
+          [this](std::shared_ptr<const EncodedPacket> packet) { packet_callback_(std::move(packet)); });
+    }
+  }
+
+  void destroy_audio_encoders() {
+    std::shared_ptr<AacEncoder> system_audio;
+    std::shared_ptr<AacEncoder> microphone;
+    {
+      std::scoped_lock lock(audio_encoder_mutex_);
+      system_audio = system_audio_encoder_;
+      microphone = microphone_encoder_;
+    }
+    if (system_audio) {
+      system_audio->reset();
+    }
+    if (microphone) {
+      microphone->reset();
+    }
+  }
+
   void did_encode(OSStatus status, VTEncodeInfoFlags info_flags, CMSampleBufferRef sample) {
     if (status != noErr || (info_flags & kVTEncodeInfo_FrameDropped) != 0 || sample == nullptr ||
         !CMSampleBufferDataIsReady(sample)) {
@@ -666,6 +757,9 @@ class MacCaptureSession final : public CaptureSession {
     packet->monotonic_nanoseconds = std::max<std::int64_t>(0, monotonic);
     packet->keyframe = keyframe;
     packet->depends_on_others = !keyframe;
+    packet->video_width = encoded_width_.load(std::memory_order_relaxed);
+    packet->video_height = encoded_height_.load(std::memory_order_relaxed);
+    packet->bitrate_bits_per_second = encoded_bitrate_.load(std::memory_order_relaxed);
     packet->data = std::move(payload);
     if (keyframe) {
       packet->codec_configuration = codec_configuration(CMSampleBufferGetFormatDescription(sample), video_codec);
@@ -675,6 +769,12 @@ class MacCaptureSession final : public CaptureSession {
       }
     }
     frames_encoded_.fetch_add(1, std::memory_order_relaxed);
+    const auto packet_end = packet->monotonic_nanoseconds +
+                            rescale(packet->duration, Rational{1, 1'000'000'000});
+    std::int64_t unset = -1;
+    first_video_packet_nanoseconds_.compare_exchange_strong(
+        unset, packet->monotonic_nanoseconds, std::memory_order_relaxed);
+    last_video_packet_end_nanoseconds_.store(packet_end, std::memory_order_relaxed);
     packet_callback_(std::move(packet));
   }
 
@@ -684,6 +784,7 @@ class MacCaptureSession final : public CaptureSession {
       return;
     }
     destroy_encoder();
+    destroy_audio_encoders();
     {
       std::scoped_lock lock(mutex_);
       stream_ = nil;
@@ -714,7 +815,32 @@ class MacCaptureSession final : public CaptureSession {
     return state_;
   }
 
-  [[nodiscard]] nlohmann::json status_locked() const {
+  [[nodiscard]] nlohmann::json audio_status(const std::shared_ptr<AacEncoder>& encoder,
+                                            bool enabled) const {
+    nlohmann::json result = {
+        {"enabled", enabled},
+        {"inputSampleCount", encoder ? encoder->input_sample_count() : 0},
+        {"packetsEncoded", encoder ? encoder->packet_count() : 0},
+        {"encodeFailures", encoder ? encoder->failure_count() : 0},
+        {"discontinuities", encoder ? encoder->discontinuity_count() : 0},
+        {"sampleRate", encoder ? encoder->sample_rate() : 0},
+        {"channelCount", encoder ? encoder->channel_count() : 0},
+        {"firstPacketNanoseconds", encoder ? encoder->first_packet_nanoseconds() : -1},
+        {"lastPacketEndNanoseconds", encoder ? encoder->last_packet_end_nanoseconds() : -1},
+    };
+    const auto video_end = last_video_packet_end_nanoseconds_.load(std::memory_order_relaxed);
+    const auto audio_end = encoder ? encoder->last_packet_end_nanoseconds() : -1;
+    result["endToVideoDriftNanoseconds"] =
+        video_end >= 0 && audio_end >= 0 ? nlohmann::json(audio_end - video_end) : nlohmann::json(nullptr);
+    const auto video_start = first_video_packet_nanoseconds_.load(std::memory_order_relaxed);
+    const auto audio_start = encoder ? encoder->first_packet_nanoseconds() : -1;
+    result["startToVideoOffsetNanoseconds"] =
+        video_start >= 0 && audio_start >= 0 ? nlohmann::json(audio_start - video_start) : nlohmann::json(nullptr);
+    return result;
+  }
+
+  [[nodiscard]] nlohmann::json status_locked(const std::shared_ptr<AacEncoder>& system_audio,
+                                              const std::shared_ptr<AacEncoder>& microphone) const {
     return {
         {"schemaVersion", 1},
         {"state", state_},
@@ -732,6 +858,9 @@ class MacCaptureSession final : public CaptureSession {
         {"encodeFailures", encode_failures_.load(std::memory_order_relaxed)},
         {"idleFrames", idle_frames_.load(std::memory_order_relaxed)},
         {"inactiveFrames", inactive_frames_.load(std::memory_order_relaxed)},
+        {"audio",
+         {{"system", audio_status(system_audio, configuration_.capture_system_audio)},
+          {"microphone", audio_status(microphone, configuration_.capture_microphone)}}},
         {"sourceEnumeration",
          {{"state", enumeration_state_},
           {"displayCount", display_count_},
@@ -746,6 +875,7 @@ class MacCaptureSession final : public CaptureSession {
   EncodedPacketCallback packet_callback_;
   mutable std::mutex mutex_;
   std::mutex encoder_mutex_;
+  mutable std::mutex audio_encoder_mutex_;
   CaptureConfiguration configuration_;
   std::string state_{"idle"};
   std::string state_before_picker_{"idle"};
@@ -760,6 +890,11 @@ class MacCaptureSession final : public CaptureSession {
   std::atomic<std::uint64_t> encode_failures_{0};
   std::atomic<std::uint64_t> idle_frames_{0};
   std::atomic<std::uint64_t> inactive_frames_{0};
+  std::atomic<std::int64_t> first_video_packet_nanoseconds_{-1};
+  std::atomic<std::int64_t> last_video_packet_end_nanoseconds_{-1};
+  std::atomic<std::uint32_t> encoded_width_{0};
+  std::atomic<std::uint32_t> encoded_height_{0};
+  std::atomic<std::uint32_t> encoded_bitrate_{0};
   std::atomic<SCFrameStatus> last_frame_status_{SCFrameStatusStopped};
   std::string enumeration_state_{"not_requested"};
   std::string enumeration_error_;
@@ -772,6 +907,8 @@ class MacCaptureSession final : public CaptureSession {
   NativePortCaptureDelegate* delegate_{nil};
   SCStream* stream_{nil};
   VTCompressionSessionRef encoder_{nullptr};
+  std::shared_ptr<AacEncoder> system_audio_encoder_;
+  std::shared_ptr<AacEncoder> microphone_encoder_;
 };
 
 }  // namespace native_port

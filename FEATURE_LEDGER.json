@@ -4200,11 +4200,27 @@
       "source": "CODEX_MASTER_PROMPT.md",
       "contract_status": "proposed_product_requirement",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/backends/macos/audio_encoder.hpp",
+          "native/backends/macos/audio_encoder.mm",
+          "native/backends/macos/screen_capture_session.mm",
+          "native/core/include/native_port/encoded_packet.hpp"
+        ],
+        "test_ids": [
+          "M05",
+          "M07"
+        ],
+        "report_paths": [
+          "reports/native/m3.4-system-audio-tcc-prerequisite.md",
+          "reports/native/m3.4-audio-encoder-probe.json",
+          "reports/native/m3.4-system-audio-capture.json",
+          "reports/native/m3.4-audio-mux-result.md"
+        ],
+        "limitations": [
+          "A short signed-client system-audio run passed with 378 stereo 48 kHz AAC packets and zero failures/discontinuities; the 30-minute A/V drift gate remains open.",
+          "The microphone has a separate native output and encoder but microphone permission/capture has not been requested or tested."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -4509,10 +4525,12 @@
           "reports/native/m3.2-medal-identity.txt",
           "reports/native/m3.2-signed-protocol-selftest.json",
           "reports/native/m3.2-tcc-prerequisite.md",
-          "reports/native/m3.2-video-capture-result.md"
+          "reports/native/m3.2-video-capture-result.md",
+          "reports/native/m3.4-system-audio-tcc-prerequisite.md",
+          "reports/native/m3.4-system-audio-capture.json"
         ],
         "limitations": [
-          "Stable identities and an authorized real ScreenCaptureKit picker flow pass; denial, cancellation, revocation, regrant and clean-account attribution remain unverified.",
+          "Stable identities and an authorized real ScreenCaptureKit display/window picker flow pass. A separate short system-audio run passed without requesting microphone permission; denial, cancellation, revocation, regrant and clean-account attribution remain unverified.",
           "This is local Apple Development signing, not Developer ID distribution, notarization or release packaging."
         ]
       },
@@ -4540,6 +4558,8 @@
         "implementation_files": [
           "native/backends/macos/screen_capture_session.mm",
           "native/backends/macos/encoder_probe.mm",
+          "native/backends/macos/audio_encoder.hpp",
+          "native/backends/macos/audio_encoder.mm",
           "native/core/include/native_port/encoded_packet.hpp",
           "native/core/include/native_port/video_codec.hpp"
         ],
@@ -4554,12 +4574,14 @@
           "reports/native/m3.2-video-capture-result.md",
           "reports/native/m3.3-videotoolbox-encoder-probe.json",
           "reports/native/m3.3-hevc-display-passed.json",
-          "reports/native/m3.3-codec-result.md"
+          "reports/native/m3.3-codec-result.md",
+          "reports/native/m3.4-audio-encoder-probe.json",
+          "reports/native/m3.4-system-audio-capture.json"
         ],
         "limitations": [
           "Hardware-required H.264 and HEVC encoded real frames and reported UsingHardwareAcceleratedVideoEncoder=true; additional resolutions, load/thermal behavior and fallback-disabled UI remain unverified.",
           "AV1 encode is blocked on this Apple M5 Max: VideoToolbox registers no AV1 encoder and rejects hardware-required session creation with OSStatus -12908. AV1 is omitted from AvailableGPUCodecs on this host; this is not a global unsupported claim.",
-          "AAC is not implemented yet, so no real H.264/AAC file is claimed."
+          "AudioToolbox AAC-LC encoding passes a synthetic probe and a short real system-audio run. A post-fix real H.264/AAC file is not yet claimed."
         ]
       },
       "linux": {
@@ -4586,7 +4608,10 @@
         "implementation_files": [
           "native/core/include/native_port/replay_store.hpp",
           "native/core/src/replay_store.cpp",
-          "native/core/include/native_port/encoded_packet.hpp"
+          "native/core/include/native_port/encoded_packet.hpp",
+          "native/core/include/native_port/mp4_writer.hpp",
+          "native/backends/macos/mp4_writer.mm",
+          "native/helper/main.cpp"
         ],
         "test_ids": [
           "R01",
@@ -4599,10 +4624,15 @@
           "reports/native/ctest-xcode-27.2-beta.log",
           "reports/native/m3.2-capture-display.json",
           "reports/native/m3.2-capture-window.json",
-          "reports/native/m3.3-hevc-display-passed.json"
+          "reports/native/m3.3-hevc-display-passed.json",
+          "reports/native/m3.4-system-audio-capture.json",
+          "reports/native/m3.4-mp4-writer-probe.json",
+          "reports/native/m3.4-audio-mux-result.md",
+          "reports/native/m3.4-real-export-picker-timeout.json"
         ],
         "limitations": [
-          "Bounded generation-aware encoded packet storage is unit-tested and retains real H.264/HEVC packets with keyframe and codec configuration metadata; clip action, duration slicing and container export are not implemented."
+          "Bounded generation-aware multi-track packet storage and keyframe-aligned slicing are unit-tested; real H.264/HEVC video and AAC packets retain codec configuration and timestamps.",
+          "A synthetic encoded snapshot passes AVAssetWriter MP4 export and AVAssetReader readback without transcoding. The post-fix real captured MP4, clip;length=N action, restart/recovery, playback and thumbnail gates remain open."
         ]
       },
       "linux": {

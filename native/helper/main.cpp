@@ -1,5 +1,6 @@
 #include "native_port/json_rpc.hpp"
 #include "native_port/capture_session.hpp"
+#include "native_port/mp4_writer.hpp"
 #include "native_port/platform_adapter.hpp"
 #include "native_port/replay_store.hpp"
 #include "native_port/settings_store.hpp"
@@ -18,6 +19,7 @@
 #include <deque>
 #include <exception>
 #include <functional>
+#include <filesystem>
 #include <iostream>
 #include <mutex>
 #include <optional>
@@ -246,9 +248,25 @@ class HelperSession final {
       std::size_t video_packets = 0;
       std::size_t keyframes = 0;
       std::size_t configured_keyframes = 0;
+      std::size_t system_audio_packets = 0;
+      std::size_t microphone_packets = 0;
+      std::size_t configured_audio_packets = 0;
+      std::uint64_t audio_encoder_delay_frames = 0;
+      std::uint64_t audio_discard_padding_frames = 0;
       std::string codec = "unknown";
       for (const auto& packet : snapshot->packets) {
         if (packet->track != native_port::TrackKind::video) {
+          if (packet->track == native_port::TrackKind::game_audio) {
+            ++system_audio_packets;
+          } else if (packet->track == native_port::TrackKind::microphone_audio) {
+            ++microphone_packets;
+          }
+          if (packet->codec == native_port::Codec::aac && packet->codec_configuration &&
+              !packet->codec_configuration->empty()) {
+            ++configured_audio_packets;
+          }
+          audio_encoder_delay_frames += packet->encoder_delay_frames;
+          audio_discard_padding_frames += packet->discard_padding_frames;
           continue;
         }
         ++video_packets;
@@ -267,6 +285,11 @@ class HelperSession final {
           {"videoPacketCount", video_packets},
           {"keyframeCount", keyframes},
           {"configuredKeyframeCount", configured_keyframes},
+          {"systemAudioPacketCount", system_audio_packets},
+          {"microphonePacketCount", microphone_packets},
+          {"configuredAudioPacketCount", configured_audio_packets},
+          {"audioEncoderDelayFrames", audio_encoder_delay_frames},
+          {"audioDiscardPaddingFrames", audio_discard_padding_frames},
           {"configurationGeneration", snapshot->configuration_generation},
           {"startMonotonicNanoseconds", snapshot->start_monotonic_nanoseconds},
           {"endMonotonicNanoseconds", snapshot->end_monotonic_nanoseconds},
@@ -280,6 +303,66 @@ class HelperSession final {
       result["lastEvent"] = last_capture_event_;
     }
     return result;
+  }
+
+  [[nodiscard]] std::filesystem::path validated_test_export_path(const nlohmann::json& params) const {
+    const auto requested_text = params.value("outputPath", std::string{});
+    const char* profile_text = std::getenv("NATIVE_PORT_PROFILE_DIR");
+    if (requested_text.empty() || profile_text == nullptr) {
+      throw std::invalid_argument("test export requires an isolated profile and outputPath");
+    }
+    const std::filesystem::path requested(requested_text);
+    const std::filesystem::path profile(profile_text);
+    if (!requested.is_absolute() || requested.extension() != ".mp4") {
+      throw std::invalid_argument("test export path must be an absolute MP4 path");
+    }
+    const auto profile_root = std::filesystem::weakly_canonical(profile);
+    const auto output_parent = std::filesystem::weakly_canonical(requested.parent_path());
+    auto profile_iterator = profile_root.begin();
+    auto output_iterator = output_parent.begin();
+    while (profile_iterator != profile_root.end() && output_iterator != output_parent.end() &&
+           *profile_iterator == *output_iterator) {
+      ++profile_iterator;
+      ++output_iterator;
+    }
+    if (profile_iterator != profile_root.end()) {
+      throw std::invalid_argument("test export path must stay inside the isolated profile");
+    }
+    if (std::filesystem::exists(requested)) {
+      throw std::invalid_argument("test export refuses to overwrite an existing file");
+    }
+    return requested;
+  }
+
+  [[nodiscard]] nlohmann::json save_test_replay(const nlohmann::json& params) {
+    const auto duration_seconds = params.value("durationSeconds", 30);
+    if (duration_seconds < 1 || duration_seconds > 120) {
+      throw std::invalid_argument("durationSeconds must be between 1 and 120");
+    }
+    const auto output = validated_test_export_path(params);
+    const auto snapshot = replay_.snapshot(std::chrono::seconds(duration_seconds));
+    if (!snapshot) {
+      throw std::runtime_error("no decodable replay snapshot is available");
+    }
+    const auto temporary = output.string() + ".partial-" + std::to_string(::getpid());
+    std::error_code cleanup_error;
+    std::filesystem::remove(temporary, cleanup_error);
+    try {
+      const auto result = native_port::write_mp4(temporary, *snapshot);
+      std::filesystem::rename(temporary, output);
+      return {
+          {"saved", true},
+          {"fileName", output.filename().string()},
+          {"bytesWritten", result.bytes_written},
+          {"durationNanoseconds", result.duration.count()},
+          {"videoPacketCount", result.video_packets},
+          {"systemAudioPacketCount", result.system_audio_packets},
+          {"microphonePacketCount", result.microphone_packets},
+      };
+    } catch (...) {
+      std::filesystem::remove(temporary, cleanup_error);
+      throw;
+    }
   }
 
   void send_json(const nlohmann::json& value) {
@@ -392,6 +475,8 @@ class HelperSession final {
         respond(request, {{"accepted", true}});
       } else if (request.method == "nativePort.captureStatus") {
         respond(request, capture_status());
+      } else if (request.method == "nativePort.saveReplay") {
+        respond(request, save_test_replay(request.params));
       } else if (request.method == "nativePort.videoEncoderCapabilities") {
         respond(request, {{"gpuDevices", adapter_->gpu_devices()},
                           {"gpuCodecs", adapter_->gpu_codecs()},

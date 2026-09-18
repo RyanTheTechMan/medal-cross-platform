@@ -385,7 +385,7 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
     manifest = {
         'schemaVersion': 1,
         'clientVersion': version,
-        'portBuild': 'development-m3.3',
+        'portBuild': 'development-m3.4',
         'target': 'darwin-arm64',
         'electron': {'version': '43.2.0', 'modulesAbi': '148'},
         'sourceAudit': source_audit,
@@ -489,7 +489,7 @@ def prepare(args: argparse.Namespace) -> dict[str, object]:
         manifest_digest = hashlib.sha256(
             json.dumps(manifest, sort_keys=True, separators=(',', ':')).encode('utf-8')
         ).hexdigest()[:12]
-        version_name = f'{version}-native-port-m3.3-{manifest_digest}'
+        version_name = f'{version}-native-port-m3.4-{manifest_digest}'
         final_version = versions / version_name
         if final_version.exists():
             existing_manifest_path = final_version / 'native-port' / 'patch-manifest.json'

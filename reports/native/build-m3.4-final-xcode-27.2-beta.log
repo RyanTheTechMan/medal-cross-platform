@@ -1,0 +1,4 @@
+Change Dir: '/Users/ryan/Developer/medal-cross-platform/build-macos'
+
+Run Build Command(s): /opt/homebrew/bin/ninja -v -j 4
+ninja: no work to do.

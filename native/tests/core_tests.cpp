@@ -172,6 +172,7 @@ void test_replay_store() {
   store.push(packet(1'600'000'000, false, 1, native_port::TrackKind::mixed_audio));
   store.push(packet(2'000'000'000, true, 1, native_port::TrackKind::video, 10, configuration));
   store.push(packet(2'500'000'000, false));
+  store.push(packet(2'450'000'000, false, 1, native_port::TrackKind::microphone_audio));
 
   const auto snapshot = store.snapshot(900ms);
   expect(snapshot.has_value(), "a replay with a retained decoder configuration must export");
@@ -181,6 +182,11 @@ void test_replay_store() {
          "keyframe preroll must be explicit, not silently reported as exact duration");
   expect(snapshot->packets.front()->data == store.snapshot(900ms)->packets.front()->data,
          "repeated snapshots must share encoded payload ownership instead of copying frame bytes");
+  expect(std::is_sorted(snapshot->packets.begin(), snapshot->packets.end(),
+                        [](const auto& left, const auto& right) {
+                          return left->monotonic_nanoseconds < right->monotonic_nanoseconds;
+                        }),
+         "bounded cross-track callback reordering must produce a monotonic snapshot");
 
   native_port::ReplayStore short_store({.maximum_duration = 800ms, .maximum_bytes = 1'000});
   short_store.push(packet(0, true, 1, native_port::TrackKind::video, 10, configuration));
@@ -203,7 +209,7 @@ void test_replay_store() {
   expect(byte_store.occupied_bytes() <= 25, "byte limit must be enforced");
 
   expect_throws<std::invalid_argument>([&store] { store.push(packet(100, false)); },
-                                       "out-of-order monotonic packets must be rejected");
+                                       "packets outside the bounded reorder window must be rejected");
   expect_throws<std::invalid_argument>([&store] {
     store.push(packet(3'000'000'000, true, 1, native_port::TrackKind::video, 10, nullptr));
   }, "a video keyframe without decoder configuration must be rejected");

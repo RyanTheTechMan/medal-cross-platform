@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "evidenceKind": "signed actual imported-client ScreenCaptureKit display and system-audio capture summary",
+  "captureSystemAudio": true,
+  "captureMicrophone": false,
+  "video": {
+    "codec": "H264",
+    "width": 1920,
+    "height": 802,
+    "requestedFramesPerSecond": 60,
+    "requestedBitrateBitsPerSecond": 15000000,
+    "framesReceived": 461,
+    "framesEncoded": 461,
+    "encodeFailures": 0,
+    "hardwareEncoder": true
+  },
+  "systemAudio": {
+    "sampleRate": 48000,
+    "channelCount": 2,
+    "inputSampleCount": 387840,
+    "packetsEncoded": 378,
+    "encodeFailures": 0,
+    "discontinuities": 0,
+    "startToVideoOffsetNanoseconds": 62521375,
+    "endToVideoDriftNanoseconds": -51875958,
+    "encoderDelayFrames": 2112
+  },
+  "microphone": {
+    "enabled": false,
+    "inputSampleCount": 0,
+    "packetsEncoded": 0
+  },
+  "replay": {
+    "packetCount": 839,
+    "videoPacketCount": 461,
+    "systemAudioPacketCount": 378,
+    "microphonePacketCount": 0,
+    "configuredVideoKeyframeCount": 5,
+    "configuredAudioPacketCount": 378,
+    "occupiedBytes": 4567085,
+    "retainedNanoseconds": 8161730541
+  },
+  "manualPrerequisiteActuallyPerformed": "The user chose one display in the macOS ScreenCaptureKit picker. No microphone, camera, input-monitoring or Medal login prompt was requested.",
+  "limitations": [
+    "This approximately eight-second run is not the required 30-minute A/V drift soak.",
+    "The observed start offset and end drift are recorded without relaxing the acceptance target.",
+    "This run preceded the MP4 mux integration and therefore proves encoded replay packets, not a real captured MP4."
+  ]
+}

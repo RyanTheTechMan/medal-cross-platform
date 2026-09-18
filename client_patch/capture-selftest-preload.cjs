@@ -35,11 +35,15 @@ async function waitForRecorder() {
 window.addEventListener('DOMContentLoaded', async () => {
   const kind = process.env.NATIVE_PORT_CAPTURE_SELFTEST_KIND
   const videoCodec = process.env.NATIVE_PORT_CAPTURE_SELFTEST_CODEC || 'H264'
+  const captureSystemAudio = process.env.NATIVE_PORT_CAPTURE_SELFTEST_SYSTEM_AUDIO === '1'
+  const captureMicrophone = process.env.NATIVE_PORT_CAPTURE_SELFTEST_MICROPHONE === '1'
+  const exportMp4 = process.env.NATIVE_PORT_CAPTURE_SELFTEST_EXPORT_MP4 === '1'
   const bitrateMegabitsPerSecond = Number(
     process.env.NATIVE_PORT_CAPTURE_SELFTEST_BITRATE_MBPS || (videoCodec === 'H264' ? 15 : 10)
   )
   const startedAt = new Date().toISOString()
   let diagnosticStatus = null
+  let exportResult = null
   try {
     if (!['display', 'window', 'application'].includes(kind)) throw new Error(`invalid capture kind ${kind}`)
     if (!['H264', 'H265', 'AV1'].includes(videoCodec)) throw new Error(`invalid video codec ${videoCodec}`)
@@ -63,8 +67,8 @@ window.addEventListener('DOMContentLoaded', async () => {
       videoCodec,
       bitrateMegabitsPerSecond,
       showCursor: true,
-      captureSystemAudio: false,
-      captureMicrophone: false
+      captureSystemAudio,
+      captureMicrophone
     })
     if (!pickerAccepted?.accepted) throw new Error('source picker was not accepted')
     const capturing = await waitFor(
@@ -82,6 +86,27 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (running.framesEncoded < 2 || running.replay?.packetCount < 2) {
       throw new Error('capture did not feed encoded frames into the replay store')
     }
+    if (captureSystemAudio &&
+        (running.audio?.system?.packetsEncoded < 2 || running.audio?.system?.encodeFailures !== 0)) {
+      throw new Error('system audio did not produce native AAC packets')
+    }
+    if (captureMicrophone &&
+        (running.audio?.microphone?.packetsEncoded < 2 || running.audio?.microphone?.encodeFailures !== 0)) {
+      throw new Error('microphone audio did not produce native AAC packets')
+    }
+    if (exportMp4) {
+      const profile = process.env.NATIVE_PORT_PROFILE_DIR
+      if (!profile || !profile.startsWith('/')) throw new Error('MP4 export requires an absolute isolated profile')
+      exportResult = await request('nativePort.saveReplay', {
+        durationSeconds: 120,
+        outputPath: `${profile.replace(/\/$/, '')}/capture-selftest.mp4`
+      })
+      if (!exportResult?.saved || exportResult.videoPacketCount < 2 ||
+          (captureSystemAudio && exportResult.systemAudioPacketCount < 2) ||
+          (captureMicrophone && exportResult.microphonePacketCount < 2)) {
+        throw new Error('native MP4 replay export did not contain the requested tracks')
+      }
+    }
     await request('nativePort.stopCapture')
     const stopped = await waitFor(status => status?.state === 'stopped', 15000, 'capture stop')
     ipcRenderer.send('native-port:capture-selftest-result', {
@@ -90,12 +115,16 @@ window.addEventListener('DOMContentLoaded', async () => {
       kind,
       videoCodec,
       bitrateMegabitsPerSecond,
+      captureSystemAudio,
+      captureMicrophone,
+      exportMp4,
       startedAt,
       completedAt: new Date().toISOString(),
       sourceEnumeration: enumerated.sourceEnumeration,
       capturing,
       running,
-      stopped
+      stopped,
+      exportResult
     })
   } catch (error) {
     try { diagnosticStatus = await request('nativePort.captureStatus') } catch {}
@@ -106,9 +135,13 @@ window.addEventListener('DOMContentLoaded', async () => {
       kind,
       videoCodec,
       bitrateMegabitsPerSecond,
+      captureSystemAudio,
+      captureMicrophone,
+      exportMp4,
       startedAt,
       completedAt: new Date().toISOString(),
       diagnosticStatus,
+      exportResult,
       error: String(error?.stack || error).replace(/[\r\n]+/g, ' ').slice(0, 2000)
     })
   }

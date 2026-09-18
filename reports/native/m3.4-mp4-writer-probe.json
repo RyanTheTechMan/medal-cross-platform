@@ -1,0 +1,13 @@
+{
+  "audioPacketCount": 93,
+  "bytesWritten": 10997,
+  "error": "",
+  "probe": "VideoToolbox and AudioToolbox encoded replay to AVAssetWriter MP4",
+  "readableAudioSampleCount": 4,
+  "readableVideoSampleCount": 64,
+  "schemaVersion": 1,
+  "status": "passed",
+  "videoPacketCount": 60,
+  "writeSystemAudioPacketCount": 93,
+  "writeVideoPacketCount": 60
+}

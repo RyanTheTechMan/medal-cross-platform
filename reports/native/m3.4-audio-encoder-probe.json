@@ -1,0 +1,18 @@
+{
+  "audioSpecificConfig": "1190",
+  "channelCount": 2,
+  "discontinuityCount": 0,
+  "encodeSucceeded": true,
+  "error": "",
+  "failureCount": 0,
+  "firstPacketNanoseconds": 0,
+  "formatCreateStatus": 0,
+  "inputSampleCount": 48000,
+  "lastPacketEndNanoseconds": 981333333,
+  "packetCount": 46,
+  "payloadBytes": 3277,
+  "probe": "AudioToolbox AAC-LC synthetic PCM encode",
+  "sampleRate": 48000,
+  "schemaVersion": 1,
+  "status": "passed"
+}

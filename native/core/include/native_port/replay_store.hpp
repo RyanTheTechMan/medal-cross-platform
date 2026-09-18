@@ -17,6 +17,7 @@ namespace native_port {
 struct ReplayLimits final {
   std::chrono::nanoseconds maximum_duration{std::chrono::seconds(30)};
   std::size_t maximum_bytes{128U * 1024U * 1024U};
+  std::chrono::nanoseconds maximum_reorder_duration{std::chrono::seconds(2)};
 };
 
 struct ReplaySnapshot final {
@@ -51,7 +52,7 @@ class ReplayStore final {
   mutable std::mutex mutex_;
   std::deque<std::shared_ptr<const EncodedPacket>> packets_;
   std::size_t occupied_bytes_{0};
-  std::int64_t last_monotonic_nanoseconds_{0};
+  std::int64_t newest_monotonic_nanoseconds_{0};
   bool has_timestamp_{false};
 };
 
