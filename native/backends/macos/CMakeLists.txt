@@ -8,6 +8,20 @@ find_library(SCREENCAPTUREKIT_FRAMEWORK ScreenCaptureKit REQUIRED)
 find_library(VIDEOTOOLBOX_FRAMEWORK VideoToolbox REQUIRED)
 find_library(CARBON_FRAMEWORK Carbon REQUIRED)
 
+add_library(native_port_macos_adapter STATIC platform_adapter.mm)
+target_include_directories(native_port_macos_adapter PUBLIC ${CMAKE_SOURCE_DIR}/native/core/include)
+target_link_libraries(native_port_macos_adapter PUBLIC
+  nlohmann_json::nlohmann_json
+  ${APPKIT_FRAMEWORK}
+  ${AVFOUNDATION_FRAMEWORK}
+  ${COREAUDIO_FRAMEWORK}
+  ${COREMEDIA_FRAMEWORK}
+  ${SCREENCAPTUREKIT_FRAMEWORK}
+  ${VIDEOTOOLBOX_FRAMEWORK}
+)
+target_compile_features(native_port_macos_adapter PUBLIC cxx_std_20)
+target_compile_options(native_port_macos_adapter PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+
 add_executable(native_port_macos_api_probe api_surface_probe.mm)
 
 target_link_libraries(native_port_macos_api_probe PRIVATE

@@ -1,0 +1,10 @@
+test=m2-parent-death
+main_pid=19565
+helper_pid=19588
+19588 19565 /Users/ryan/Developer/medal-cross-platform/artifacts/native-client/versions/2637.461.1-native-port-m2.1/native-port/bin/native-medal-recorder --electronPort 10603 --environment production --wsComms --parentPid 19565
+started_utc=2026-09-18T18:21:13Z
+elapsed_ms=20
+helper_exited=1
+port_10603_released=1
+result=PASS
+completed_utc=2026-09-18T18:21:13Z

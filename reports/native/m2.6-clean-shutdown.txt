@@ -1,0 +1,6 @@
+test=m2.6-clean-shutdown
+main_exited=1
+helper_exited=1
+elapsed_ms=761
+selected_port_released=1
+result=PASS

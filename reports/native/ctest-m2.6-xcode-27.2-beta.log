@@ -1,0 +1,9 @@
+Test project /Users/ryan/Developer/medal-cross-platform/build-macos
+    Start 1: native_port_macos_api_probe
+1/2 Test #1: native_port_macos_api_probe ......   Passed    0.05 sec
+    Start 2: native_port_core_tests
+2/2 Test #2: native_port_core_tests ...........   Passed    0.01 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =   0.06 sec

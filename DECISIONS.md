@@ -43,3 +43,25 @@
 - Security/privacy/packaging impact: no TLS or signature validation is bypassed, and no remote replacement binary is accepted.
 - Tests required and actual results: actual native Electron startup reaches the original renderer without a Velopack native-load error; packaged/update UI behavior is still required for A06.
 - Source references: `ACCEPTANCE_TESTS.md` A04/A06; `research/PATCH_PLAN.json` bootstrap-runtime.
+
+## Decision D005 — Authenticate the loopback recorder socket with an inherited per-launch secret
+
+- Date / commit: 2026-09-18 / pending M2 checkpoint.
+- Problem and evidence: the recovered server accepted any no-Origin loopback client. A second local process could otherwise connect before the recorder and impersonate it.
+- Selected approach: generate 32 random bytes before each Electron launch, inherit the secret through the child environment, and require an exact `x-native-port-secret` upgrade header. The secret is never placed in argv or protocol logs. Preserve the original no-Origin restriction and loopback-only listener.
+- Alternatives and tradeoffs: a fixed token would cross profiles and restarts; an argv token leaks through process inspection; treating loopback alone as authentication does not satisfy B04.
+- Affected interfaces: a namespaced private HTTP upgrade header on both patched Electron and native helper endpoints. Recovered JSON-RPC envelopes remain unchanged.
+- Security/privacy/packaging impact: profile launches cannot reuse stale credentials; missing and incorrect secrets fail before WebSocket upgrade.
+- Tests required and actual results: two unauthorized upgrades returned HTTP 401; the authenticated helper connected on the client-selected occupied-port fallback; argv contained no secret. See `reports/native/m2.6-websocket-auth.json` and `m2.6-process-evidence.txt`.
+- Source references: `research/PROTOCOL.md`; `ACCEPTANCE_TESTS.md` B02-B04.
+
+## Decision D006 — Treat client/helper logs as protocol-shape evidence, not payload dumps
+
+- Date / commit: 2026-09-18 / pending M2 checkpoint.
+- Problem and evidence: the imported client logged complete WebSocket messages, exposing real device labels, camera identifiers and settings; its feature client also logged per-profile context in a URL.
+- Selected approach: exact-patch inbound/outbound recorder logs to method/id/error-code shapes, summarize setKV values by key/count, and redact feature client context creation/stream URLs. Native helper fatal messages do not include secrets or device inventories.
+- Alternatives and tradeoffs: post-processing reports would leave sensitive values in live application logs; suppressing all logs would remove useful lifecycle/error evidence.
+- Affected interfaces: logging only; wire values and client state remain unchanged.
+- Security/privacy/packaging impact: retained reports contain no observed personal device labels, feature-context token or session secret.
+- Tests required and actual results: actual M2.6 log retained handshake/readiness/method/error/shutdown evidence, and repository report scans found none of the observed labels/context markers.
+- Source references: repository privacy rules; `ACCEPTANCE_TESTS.md` B03/B04.

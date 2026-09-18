@@ -26,6 +26,7 @@ SUPPORTED_PATH = ROOT / 'client_patch' / 'supported-builds.json'
 EXTRACTOR_PATH = ROOT / 'research' / 'tools' / 'extract_medal.py'
 BOOTSTRAP_PATH = ROOT / 'client_patch' / 'native-port-bootstrap.cjs'
 DB_SELFTEST_PATH = ROOT / 'client_patch' / 'db-selftest-preload.cjs'
+PROTOCOL_SELFTEST_PATH = ROOT / 'client_patch' / 'protocol-selftest-preload.cjs'
 UPDATE_ADAPTER_PATH = ROOT / 'client_patch' / 'velopack-manual-adapter.js'
 MAX_COPY_BYTES = 2 * 1024**3
 
@@ -138,7 +139,7 @@ def copy_executable(source: Path, destination: Path) -> dict[str, object]:
     }
 
 
-def apply_client_patch(stage_app: Path, addon: Path, sqlite3: Path, ffmpeg: Path, ffprobe: Path,
+def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite3: Path, ffmpeg: Path, ffprobe: Path,
                        source_hashes: dict[str, str], version: str, source_audit: dict[str, object]) -> dict[str, object]:
     operations: list[dict[str, object]] = []
     index_path = stage_app / 'index.js'
@@ -184,11 +185,68 @@ def apply_client_patch(stage_app: Path, addon: Path, sqlite3: Path, ffmpeg: Path
         'prevent-imported-client-self-install',
         'main.min.js',
     ))
+    operations.append(exact_replace(
+        main_path,
+        'verifyClient:({origin:t})=>!t',
+        'verifyClient:({origin:t,req:n})=>!t&&n.headers["x-native-port-secret"]===process.env.NATIVE_PORT_SESSION_SECRET',
+        1,
+        'authenticated-loopback-recorder-websocket',
+        'main.min.js',
+    ))
+    operations.append(exact_replace(
+        main_path,
+        'r$.includes(t.method)||oe.logger.info(Gt.default.grey(`WebSocket message received: ${e}`))',
+        'r$.includes(t.method)||oe.logger.info(Gt.default.grey(`WebSocket message received: ${t.method?"request "+t.method:"response"} id=${String(t.id??"none")}${t.error?" error="+String(t.error.code):""} payload=redacted`))',
+        1,
+        'redact-recorder-values-from-inbound-transport-log',
+        'main.min.js',
+    ))
+    operations.append(exact_replace(
+        main_path,
+        'n.method&&!r$.includes(n.method)&&oe.logger.info(Gt.default.grey(`WebSocket request sent: ${r}`))',
+        'n.method&&!r$.includes(n.method)&&oe.logger.info(Gt.default.grey(`WebSocket request sent: method=${n.method} id=${String(n.id??"notification")} payload=redacted`))',
+        1,
+        'redact-recorder-values-from-outbound-transport-log',
+        'main.min.js',
+    ))
+    operations.append(exact_replace(
+        main_path,
+        'oe.logger.info(`setting ${t} to ${JSON.stringify(n)}`)',
+        'oe.logger.info(`setting ${t} (${Array.isArray(n)?n.length+" items":"value present"})`)',
+        1,
+        'redact-recorder-device-values-from-state-log',
+        'main.min.js',
+    ))
+    operations.append(exact_replace(
+        main_path,
+        'S=function(F){return"Opening stream connection to "+F}',
+        'S=function(F){return"Opening stream connection (URL redacted)"}',
+        1,
+        'redact-feature-stream-context-from-log',
+        'main.min.js',
+    ))
+    operations.append(exact_replace(
+        main_path,
+        'yt.info("Creating LaunchDarkly Client with key: "+e.key)',
+        'yt.info("Creating LaunchDarkly Client (context redacted)")',
+        1,
+        'redact-feature-client-context-from-log',
+        'main.min.js',
+    ))
+    operations.append(exact_replace(
+        main_path,
+        'async run(){if(process.platform!=="win32")return;try{',
+        'async run(){if(process.platform!=="win32"){if(process.platform!=="darwin")return;await this.getRecorderPort();const t=["--electronPort",this.#i,"--environment",dn.getGenericReleaseChannel(),"--wsComms","--parentPid",process.pid];this.spawn({executablePath:process.env.NATIVE_PORT_RECORDER_EXE,executableArgs:t,reset:n=>(this.logger[n?"error":"info"](`native recorder exited with code: ${n}`),this.stateMachine.meta={...this.stateMachine.meta,didReset:!0},!1)}),un("lowDiskSpace",void 0);return}try{',
+        1,
+        'launch-native-recorder-with-selected-port',
+        'main.min.js',
+    ))
 
     bootstrap_destination = stage_app / 'native-port' / 'bootstrap.cjs'
     bootstrap_destination.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(BOOTSTRAP_PATH, bootstrap_destination)
     shutil.copy2(DB_SELFTEST_PATH, stage_app / 'native-port' / 'db-selftest-preload.cjs')
+    shutil.copy2(PROTOCOL_SELFTEST_PATH, stage_app / 'native-port' / 'protocol-selftest-preload.cjs')
     adapter_destination = stage_app / 'node_modules' / 'velopack' / 'lib' / 'index.js'
     adapter_pre = sha256(adapter_destination)
     shutil.copy2(UPDATE_ADAPTER_PATH, adapter_destination)
@@ -204,6 +262,7 @@ def apply_client_patch(stage_app: Path, addon: Path, sqlite3: Path, ffmpeg: Path
     addon_destination = stage_app / 'lib' / 'binding' / 'node-v148-darwin-arm64' / 'better_sqlite3.node'
     addon_destination.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(addon, addon_destination)
+    helper = copy_executable(native_helper, stage_app / 'native-port' / 'bin' / 'native-medal-recorder')
     tools_destination = stage_app / 'native-port' / 'tools'
     tools = [
         copy_executable(sqlite3, tools_destination / 'sqlite3'),
@@ -214,7 +273,7 @@ def apply_client_patch(stage_app: Path, addon: Path, sqlite3: Path, ffmpeg: Path
     manifest = {
         'schemaVersion': 1,
         'clientVersion': version,
-        'portBuild': 'development-m1.3',
+        'portBuild': 'development-m2.6',
         'target': 'darwin-arm64',
         'electron': {'version': '43.2.0', 'modulesAbi': '148'},
         'sourceAudit': source_audit,
@@ -224,6 +283,14 @@ def apply_client_patch(stage_app: Path, addon: Path, sqlite3: Path, ffmpeg: Path
             'sourceSha256': sha256(addon),
             'installedSha256': sha256(addon_destination),
             'destination': 'lib/binding/node-v148-darwin-arm64/better_sqlite3.node',
+        },
+        'nativeHelper': helper,
+        'clientPatchFiles': {
+            'native-port/bootstrap.cjs': sha256(bootstrap_destination),
+            'native-port/db-selftest-preload.cjs': sha256(stage_app / 'native-port' / 'db-selftest-preload.cjs'),
+            'native-port/protocol-selftest-preload.cjs': sha256(
+                stage_app / 'native-port' / 'protocol-selftest-preload.cjs'
+            ),
         },
         'tools': tools,
         'updatePolicy': 'manual_verified_import_only',
@@ -272,6 +339,7 @@ def prepare(args: argparse.Namespace) -> dict[str, object]:
     versions.mkdir(exist_ok=True)
 
     extracted_temp: Path | None = None
+    extraction_report: dict[str, object] | None = None
     if args.installer:
         installer = args.installer.resolve(strict=True)
         extracted_temp = Path(tempfile.mkdtemp(prefix='.native-port-extracted-', dir=install_root))
@@ -279,7 +347,10 @@ def prepare(args: argparse.Namespace) -> dict[str, object]:
         subprocess.run(
             [sys.executable, str(EXTRACTOR_PATH), str(installer), '--out', str(extracted_output)],
             check=True,
+            capture_output=True,
+            text=True,
         )
+        extraction_report = json.loads((extracted_output / 'extraction-report.json').read_text())
         source_app = extracted_output / 'app'
     else:
         source_app = args.extracted_app.resolve(strict=True)
@@ -288,12 +359,13 @@ def prepare(args: argparse.Namespace) -> dict[str, object]:
     try:
         source_audit = audit_copy_source(source_app)
         version, source_hashes = verify_supported_build(source_app)
-        version_name = f'{version}-native-port-m1.3'
+        version_name = f'{version}-native-port-m2.6'
         final_version = versions / version_name
         shutil.copytree(source_app, stage, symlinks=False)
         manifest = apply_client_patch(
             stage,
             args.native_addon,
+            args.native_helper,
             args.sqlite3,
             args.ffmpeg,
             args.ffprobe,
@@ -314,6 +386,7 @@ def prepare(args: argparse.Namespace) -> dict[str, object]:
         result = {
             'status': 'prepared',
             'idempotent': idempotent,
+            'sourceExtraction': extraction_report,
             'versionDirectory': str(final_version),
             'manifest': str(final_version / 'native-port' / 'patch-manifest.json'),
             'activation': activation,
@@ -361,6 +434,7 @@ def parser() -> argparse.ArgumentParser:
     source.add_argument('--extracted-app', type=Path)
     prepare_parser.add_argument('--install-root', type=Path, required=True)
     prepare_parser.add_argument('--native-addon', type=Path, required=True)
+    prepare_parser.add_argument('--native-helper', type=Path, required=True)
     prepare_parser.add_argument('--sqlite3', type=Path, required=True)
     prepare_parser.add_argument('--ffmpeg', type=Path, required=True)
     prepare_parser.add_argument('--ffprobe', type=Path, required=True)

@@ -1,0 +1,5 @@
+{
+  "passed": true,
+  "missingSecretStatus": 401,
+  "incorrectSecretStatus": 401
+}

@@ -26,11 +26,25 @@
       "source": "research/evidence/recorder_metadata.json#rpc_methods",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "verified",
+        "implementation_files": [
+          "native/helper/main.cpp",
+          "native/backends/macos/platform_adapter.mm"
+        ],
+        "test_ids": [
+          "B03",
+          "B07",
+          "B08",
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/m2.6-protocol-selftest.json",
+          "reports/native/electron-m2.6-protocol.log",
+          "reports/native/m2.6-clean-shutdown.txt"
+        ],
+        "limitations": [
+          "Verified for the recovered request/result shape and current initialization/device/settings behavior; this does not imply capture behavior."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -53,11 +67,25 @@
       "source": "research/evidence/recorder_metadata.json#rpc_methods",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "verified",
+        "implementation_files": [
+          "native/helper/main.cpp",
+          "native/backends/macos/platform_adapter.mm"
+        ],
+        "test_ids": [
+          "B03",
+          "B07",
+          "B08",
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/m2.6-protocol-selftest.json",
+          "reports/native/electron-m2.6-protocol.log",
+          "reports/native/m2.6-clean-shutdown.txt"
+        ],
+        "limitations": [
+          "Verified for the recovered request/result shape and current initialization/device/settings behavior; this does not imply capture behavior."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -84,11 +112,25 @@
       "source": "research/evidence/recorder_metadata.json#rpc_methods",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "verified",
+        "implementation_files": [
+          "native/helper/main.cpp",
+          "native/backends/macos/platform_adapter.mm"
+        ],
+        "test_ids": [
+          "B03",
+          "B07",
+          "B08",
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/m2.6-protocol-selftest.json",
+          "reports/native/electron-m2.6-protocol.log",
+          "reports/native/m2.6-clean-shutdown.txt"
+        ],
+        "limitations": [
+          "Verified for the recovered request/result shape and current initialization/device/settings behavior; this does not imply capture behavior."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -115,11 +157,25 @@
       "source": "research/evidence/recorder_metadata.json#rpc_methods",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "verified",
+        "implementation_files": [
+          "native/helper/main.cpp",
+          "native/backends/macos/platform_adapter.mm"
+        ],
+        "test_ids": [
+          "B03",
+          "B07",
+          "B08",
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/m2.6-protocol-selftest.json",
+          "reports/native/electron-m2.6-protocol.log",
+          "reports/native/m2.6-clean-shutdown.txt"
+        ],
+        "limitations": [
+          "Verified for the recovered request/result shape and current initialization/device/settings behavior; this does not imply capture behavior."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -293,11 +349,25 @@
       "source": "research/evidence/recorder_metadata.json#rpc_methods",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "verified",
+        "implementation_files": [
+          "native/helper/main.cpp",
+          "native/backends/macos/platform_adapter.mm"
+        ],
+        "test_ids": [
+          "B03",
+          "B07",
+          "B08",
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/m2.6-protocol-selftest.json",
+          "reports/native/electron-m2.6-protocol.log",
+          "reports/native/m2.6-clean-shutdown.txt"
+        ],
+        "limitations": [
+          "Verified for the recovered request/result shape and current initialization/device/settings behavior; this does not imply capture behavior."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -324,11 +394,25 @@
       "source": "research/evidence/recorder_metadata.json#rpc_methods",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "verified",
+        "implementation_files": [
+          "native/helper/main.cpp",
+          "native/backends/macos/platform_adapter.mm"
+        ],
+        "test_ids": [
+          "B03",
+          "B07",
+          "B08",
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/m2.6-protocol-selftest.json",
+          "reports/native/electron-m2.6-protocol.log",
+          "reports/native/m2.6-clean-shutdown.txt"
+        ],
+        "limitations": [
+          "Verified for the recovered request/result shape and current initialization/device/settings behavior; this does not imply capture behavior."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -351,11 +435,25 @@
       "source": "research/evidence/recorder_metadata.json#rpc_methods",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "verified",
+        "implementation_files": [
+          "native/helper/main.cpp",
+          "native/backends/macos/platform_adapter.mm"
+        ],
+        "test_ids": [
+          "B03",
+          "B07",
+          "B08",
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/m2.6-protocol-selftest.json",
+          "reports/native/electron-m2.6-protocol.log",
+          "reports/native/m2.6-clean-shutdown.txt"
+        ],
+        "limitations": [
+          "Verified for the recovered request/result shape and current initialization/device/settings behavior; this does not imply capture behavior."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -378,11 +476,25 @@
       "source": "research/evidence/recorder_metadata.json#rpc_methods",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "verified",
+        "implementation_files": [
+          "native/helper/main.cpp",
+          "native/backends/macos/platform_adapter.mm"
+        ],
+        "test_ids": [
+          "B03",
+          "B07",
+          "B08",
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/m2.6-protocol-selftest.json",
+          "reports/native/electron-m2.6-protocol.log",
+          "reports/native/m2.6-clean-shutdown.txt"
+        ],
+        "limitations": [
+          "Verified for the recovered request/result shape and current initialization/device/settings behavior; this does not imply capture behavior."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -405,11 +517,25 @@
       "source": "research/evidence/recorder_metadata.json#rpc_methods",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "verified",
+        "implementation_files": [
+          "native/helper/main.cpp",
+          "native/backends/macos/platform_adapter.mm"
+        ],
+        "test_ids": [
+          "B03",
+          "B07",
+          "B08",
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/m2.6-protocol-selftest.json",
+          "reports/native/electron-m2.6-protocol.log",
+          "reports/native/m2.6-clean-shutdown.txt"
+        ],
+        "limitations": [
+          "Verified for the recovered request/result shape and current initialization/device/settings behavior; this does not imply capture behavior."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -436,11 +562,21 @@
       "source": "research/evidence/recorder_metadata.json#rpc_methods",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/helper/main.cpp",
+          "native/backends/macos/platform_adapter.mm"
+        ],
+        "test_ids": [
+          "B08",
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log"
+        ],
+        "limitations": [
+          "Compiled but not invoked through the actual Electron integration; process methods intentionally return empty arrays until native process mapping exists."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -463,11 +599,21 @@
       "source": "research/evidence/recorder_metadata.json#rpc_methods",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/helper/main.cpp",
+          "native/backends/macos/platform_adapter.mm"
+        ],
+        "test_ids": [
+          "B08",
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log"
+        ],
+        "limitations": [
+          "Compiled but not invoked through the actual Electron integration; process methods intentionally return empty arrays until native process mapping exists."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -552,11 +698,21 @@
       "source": "research/evidence/recorder_metadata.json#rpc_methods",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/helper/main.cpp",
+          "native/backends/macos/platform_adapter.mm"
+        ],
+        "test_ids": [
+          "B08",
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log"
+        ],
+        "limitations": [
+          "Compiled but not invoked through the actual Electron integration; process methods intentionally return empty arrays until native process mapping exists."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -579,11 +735,21 @@
       "source": "research/evidence/recorder_metadata.json#rpc_methods",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/helper/main.cpp",
+          "native/backends/macos/platform_adapter.mm"
+        ],
+        "test_ids": [
+          "B08",
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log"
+        ],
+        "limitations": [
+          "Compiled but not invoked through the actual Electron integration; process methods intentionally return empty arrays until native process mapping exists."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -668,11 +834,21 @@
       "source": "research/evidence/recorder_metadata.json#rpc_methods",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/helper/main.cpp",
+          "native/backends/macos/platform_adapter.mm"
+        ],
+        "test_ids": [
+          "B08",
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log"
+        ],
+        "limitations": [
+          "Compiled but not invoked through the actual Electron integration; process methods intentionally return empty arrays until native process mapping exists."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -877,11 +1053,25 @@
       "source": "research/evidence/recorder_metadata.json#rpc_methods",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "verified",
+        "implementation_files": [
+          "native/helper/main.cpp",
+          "native/backends/macos/platform_adapter.mm"
+        ],
+        "test_ids": [
+          "B03",
+          "B07",
+          "B08",
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/m2.6-protocol-selftest.json",
+          "reports/native/electron-m2.6-protocol.log",
+          "reports/native/m2.6-clean-shutdown.txt"
+        ],
+        "limitations": [
+          "Verified for the recovered request/result shape and current initialization/device/settings behavior; this does not imply capture behavior."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -1018,11 +1208,24 @@
       "source": "research/evidence/client_handlers.json",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "verified",
+        "implementation_files": [
+          "native/helper/main.cpp",
+          "tools/native_port_importer.py"
+        ],
+        "test_ids": [
+          "B02",
+          "B03",
+          "B06",
+          "B08"
+        ],
+        "report_paths": [
+          "reports/native/electron-m2.6-protocol.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Actual imported client handled native helper version-1 handshake, transitioned to ready, and stored redacted-shape device/capability state."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -1040,11 +1243,24 @@
       "source": "research/evidence/client_handlers.json",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "verified",
+        "implementation_files": [
+          "native/helper/main.cpp",
+          "tools/native_port_importer.py"
+        ],
+        "test_ids": [
+          "B02",
+          "B03",
+          "B06",
+          "B08"
+        ],
+        "report_paths": [
+          "reports/native/electron-m2.6-protocol.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Actual imported client handled native helper version-1 handshake, transitioned to ready, and stored redacted-shape device/capability state."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -1766,11 +1982,24 @@
       "source": "research/evidence/client_handlers.json",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "verified",
+        "implementation_files": [
+          "native/helper/main.cpp",
+          "tools/native_port_importer.py"
+        ],
+        "test_ids": [
+          "B02",
+          "B03",
+          "B06",
+          "B08"
+        ],
+        "report_paths": [
+          "reports/native/electron-m2.6-protocol.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Actual imported client handled native helper version-1 handshake, transitioned to ready, and stored redacted-shape device/capability state."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -1900,11 +2129,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -1921,11 +2161,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -1942,11 +2193,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -1963,11 +2225,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -1984,11 +2257,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2005,11 +2289,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2026,11 +2321,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2047,11 +2353,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2068,11 +2385,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2089,11 +2417,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2110,11 +2449,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2131,11 +2481,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2152,11 +2513,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2173,11 +2545,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2194,11 +2577,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2215,11 +2609,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2236,11 +2641,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2257,11 +2673,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2278,11 +2705,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2299,11 +2737,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2320,11 +2769,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2341,11 +2801,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2362,11 +2833,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2383,11 +2865,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2404,11 +2897,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2425,11 +2929,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2446,11 +2961,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2467,11 +2993,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2488,11 +3025,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2509,11 +3057,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2530,11 +3089,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2551,11 +3121,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2572,11 +3153,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2593,11 +3185,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2614,11 +3217,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2635,11 +3249,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2656,11 +3281,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2677,11 +3313,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2698,11 +3345,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2719,11 +3377,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2740,11 +3409,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2761,11 +3441,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2782,11 +3473,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2803,11 +3505,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2824,11 +3537,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2845,11 +3569,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2866,11 +3601,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2887,11 +3633,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2908,11 +3665,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2929,11 +3697,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2950,11 +3729,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2971,11 +3761,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2992,11 +3793,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -3013,11 +3825,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -3034,11 +3857,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -3055,11 +3889,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -3076,11 +3921,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -3097,11 +3953,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -3118,11 +3985,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -3139,11 +4017,22 @@
       "source": "research/evidence/settings_catalog.json#recorderKeys",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp",
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m2.6-protocol-selftest.json"
+        ],
+        "limitations": [
+          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -3334,10 +4223,14 @@
       "source": "CODEX_MASTER_PROMPT.md",
       "contract_status": "proposed_product_requirement",
       "macos": {
-        "status": "investigating",
+        "status": "implemented_unverified",
         "implementation_files": [
-          "native/core/include/native_port/json_rpc.hpp",
-          "native/core/src/json_rpc.cpp"
+          "native/helper/main.cpp",
+          "native/core/include/native_port/platform_adapter.hpp",
+          "native/backends/macos/platform_adapter.mm",
+          "client_patch/native-port-bootstrap.cjs",
+          "tools/native_port_importer.py",
+          "client_patch/protocol-selftest-preload.cjs"
         ],
         "test_ids": [
           "B02",
@@ -3346,10 +4239,13 @@
           "B05"
         ],
         "report_paths": [
-          "reports/native/ctest-xcode-27.2-beta.log"
+          "reports/native/electron-m2.6-protocol.log",
+          "reports/native/m2.6-protocol-selftest.json",
+          "reports/native/m2.6-websocket-auth.json",
+          "reports/native/m2.6-process-evidence.txt"
         ],
         "limitations": [
-          "Shared codec is implemented and unit-tested; no native helper is connected to actual Electron yet."
+          "Selected-port/authentication/bidirectional subset passed; heartbeat, reconnect, malformed/oversized frames, duplicate in-flight IDs and slow-handler coverage remain."
         ]
       },
       "linux": {
@@ -3372,11 +4268,24 @@
       "source": "CODEX_MASTER_PROMPT.md",
       "contract_status": "proposed_product_requirement",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/helper/main.cpp",
+          "tools/native_port_importer.py"
+        ],
+        "test_ids": [
+          "B05",
+          "B06",
+          "B07"
+        ],
+        "report_paths": [
+          "reports/native/m2.6-clean-shutdown.txt",
+          "reports/native/m2-parent-death-result.txt",
+          "reports/native/electron-m2.6-protocol.log"
+        ],
+        "limitations": [
+          "Normal shutdown and parent death passed; capture denial/failure, restart bounds and pending-export recovery are not implemented."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -3398,20 +4307,22 @@
       "source": "CODEX_MASTER_PROMPT.md",
       "contract_status": "proposed_product_requirement",
       "macos": {
-        "status": "investigating",
+        "status": "implemented_unverified",
         "implementation_files": [
-          "native/core/include/native_port/settings_store.hpp",
-          "native/core/src/settings_store.cpp"
+          "native/core/include/native_port/platform_adapter.hpp",
+          "native/backends/macos/platform_adapter.mm",
+          "native/helper/main.cpp"
         ],
         "test_ids": [
           "B08",
           "B09"
         ],
         "report_paths": [
-          "reports/native/ctest-xcode-27.2-beta.log"
+          "reports/native/m2.6-protocol-selftest.json",
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log"
         ],
         "limitations": [
-          "Exact 60-key storage and scoped overrides are unit-tested but not wired to a native helper or UI."
+          "Recovered outward DTO shapes and typed settings transport passed; persistent stable-ID mapping, duplicate-label selection, hotplug and live capture reconfiguration remain."
         ]
       },
       "linux": {

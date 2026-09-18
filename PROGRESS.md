@@ -2,9 +2,9 @@
 
 ## Current gate and next runnable task
 
-- Gate: M0 evidence is complete enough to proceed and M1 is implemented but not complete. A real isolated Electron GUI and real imported database worker run arm64-native; A04/A05 remain open for the Windows-only discovery error and recovery-path coverage. M2 helper integration is next.
-- Next command/change: implement the native helper WebSocket client/supervisor path, selected-port propagation and namespaced per-launch authentication, then test against the actual running Electron server.
-- Expected observation: the helper connects only to loopback using the client-selected port, validates a fresh secret, completes the recovered handshake/readiness/device/settings flow, and exits cleanly with the client instead of the current 10-second no-helper shutdown timeout.
+- Gate: M2 native client/helper integration is implemented and its focused macOS evidence passes. M1 remains partially open for the Windows-only external-recorder discovery path and deliberate SQLite recovery. M2 remains partially open for heartbeat/reconnect/malformed-frame coverage and the unimplemented method inventory. Native capture has not started and no TCC gate has passed.
+- Next command/change: implement the Objective-C++ ScreenCaptureKit source-selection/capture session and VideoToolbox H.264 writer behind the shared C++ capture interface, then compile it with the installed macOS 27.2 beta SDK before requesting Screen Recording consent.
+- Expected observation: source cancellation/denial does not emit captureStarted; an authorized synthetic moving window yields hardware VideoToolbox H.264 frames without any raw-frame Electron IPC.
 
 ## Implemented changes
 
@@ -16,8 +16,13 @@
 - Prepared and launched the actual imported renderer/preload/main code under Electron 43.2.0 arm64 / ABI 148 in an isolated profile. The Welcome to Medal window was observed through macOS accessibility, and the original renderer stayed sandboxed.
 - Replaced both Velopack entry points with one explicit manual-update adapter, blocked non-Windows SQLite asset fallback, installed the matching arm64 addon, and changed FFmpeg/ffprobe resolution to absolute prepared paths.
 - Exercised the imported client's own SQLite worker and IPC: schema version 4, JSONB insert/read/update, bulk insert/delete, clean close/reopen persistence, cleanup delete and quick-check all succeeded. Recovery remains untested.
+- Added a native arm64 helper launched by the imported client's actual recorder supervisor with the client-selected port and parent PID. It authenticates with a fresh 256-bit per-launch secret carried only in the WebSocket header, validates the recovered version-1 handshake envelope, and publishes readiness/device/capability state.
+- Added CoreGraphics/CoreAudio/AVFoundation-backed macOS enumeration through a shared C++ platform-adapter interface. Display DTO casing, default audio DTO casing and webcam DTO shape are exercised through the actual Electron IPC → WebSocket → C++ helper path.
+- Implemented the recovered `ping`, all-settings apply, scoped setting deletion, display/audio/mic/default/webcam queries, process-list placeholders with explicit empty semantics, and clean shutdown. Unknown methods return JSON-RPC `-32601`; unimplemented features are not acknowledged as success.
+- Patched the pinned client's recorder transport logs to retain method/id/error shapes while redacting device/settings payloads, and redacted per-profile feature-service context URLs/keys.
+- Verified selected-port propagation with 10603 deliberately occupied, loopback-only server binding on 10604, arm64 Electron/helper processes, missing/incorrect-secret HTTP 401 rejection, clean code-1000 `shutdown`, port release, and helper termination after forced parent death.
 - Added on-disk M0 environment, dependency, unknown-contract, progress, decision, limitation, and handoff records.
-- Commits: `9082bbe` establishes the M0 evidence/dependency baseline. The current M1/native-core work is pending the next checkpoint commit.
+- Commits: `9082bbe` establishes M0; `861023f` establishes the native core and M1 Electron bootstrap. The M2 work is pending its checkpoint commit.
 
 ## Tests run
 
@@ -30,6 +35,10 @@
 - Importer security: `python3 -m unittest -v tests/test_importer.py`; exit 0; 6/6 tests passed. See `reports/native/importer-security-tests.log`.
 - Real GUI: Electron 43.2.0 / ABI 148 / arm64 opened the original renderer in `artifacts/profiles/m1-gui-2`; actual main, renderer, GPU and network processes used the isolated profile. See `reports/native/electron-m1-gui-2.log`.
 - Real client DB close/reopen: imported IPC handlers and worker passed; see the local ignored `artifacts/profiles/m1-db/db-selftest-verify.json` and `reports/native/electron-m1-db-{write,verify}.log`.
+- M2 build: `DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer cmake --build build-macos --parallel 2` and matching `ctest`; exit 0; 2/2 tests passed. See `reports/native/build-m2.6-xcode-27.2-beta.log` and `ctest-m2.6-xcode-27.2-beta.log`.
+- Actual bidirectional protocol: the hidden sandboxed test renderer used the imported client's real IPC handler and WebSocket server to call the real C++ helper; ping, recovered DTOs, scoped settings/deletion and explicit unknown-method wire error passed. See `reports/native/m2.6-protocol-selftest.json` and `electron-m2.6-protocol.log`.
+- M2 authentication/network/process: missing and incorrect secrets returned 401; 10603 occupation selected 10604; the listener was loopback-only; both main/helper files were Mach-O arm64; no secret appeared in argv. See `reports/native/m2.6-websocket-auth.json` and `m2.6-process-evidence.txt`.
+- Lifecycle: actual app quit sent `shutdown`, observed close code 1000/reason `shutdown`, both processes exited and port 10604 released in 761 ms. Forced parent death terminated the helper and released its port in 20 ms. See `reports/native/m2.6-clean-shutdown.txt` and `m2-parent-death-result.txt`.
 
 ## Failed or blocked gates
 
@@ -37,8 +46,10 @@
 - A04 is not complete: the GUI works, but original external-clip discovery still attempts the Windows `REG` command and logs a command/PATH error on macOS.
 - A05 is not complete: the real worker passed migrations/JSONB/CRUD/close-reopen, but deliberate corruption and the packaged sqlite recovery CLI path have not run.
 - A06/A07 are not complete: the client updater and SQLite download path are controlled, but native recorder AssetManager replacement and self-contained FFmpeg/sqlite packaging remain outstanding. Current prepared tools are development copies.
-- With no helper connected, settings and shutdown notifications time out, and the database worker reports exit code 1 during app shutdown. This is recorded M2 lifecycle work, not a pass.
-- All native capture, TCC, encoder, audio, editor, account and packaging gates remain untested.
+- B05 is incomplete: JSON-RPC heartbeat timeout, bounded reconnect, oversized/malformed frames, duplicate in-flight IDs and slow-handler behavior still need actual-process tests.
+- B08/B09 are incomplete: enumeration wire shapes passed, but stable internal device mappings, hotplug/disappearance and dispositions for every method/setting are not complete. Process methods currently return explicit empty arrays; capture/control methods return `-32601`.
+- The original client's IPC wrapper converts a recorder wire error into `null` for its caller after logging the error. The actual wire response carries `-32601`; capability/UI disabling must avoid relying on a rejected renderer promise.
+- All native capture, TCC, encoder, captured audio, editor, account and packaging gates remain untested.
 
 ## Contracts and unknowns
 

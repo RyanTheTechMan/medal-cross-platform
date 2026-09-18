@@ -1,0 +1,12 @@
+test=m2.6-process-and-loopback-evidence
+main_pid=26360
+helper_pid=26383
+26360 26357 /Users/ryan/Developer/medal-cross-platform/packages/native-deps/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron /Users/ryan/Developer/medal-cross-platform/artifacts/native-client/current --enable-logging=stderr
+26383 26360 /Users/ryan/Developer/medal-cross-platform/artifacts/native-client/versions/2637.461.1-native-port-m2.6/native-port/bin/native-medal-recorder --electronPort 10604 --environment production --wsComms --parentPid 26360
+packages/native-deps/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron: Mach-O 64-bit executable arm64
+artifacts/native-client/current/native-port/bin/native-medal-recorder: Mach-O 64-bit executable arm64
+helper_secret_in_argv=0
+server_loopback_only=1
+port_row_count=3
+base_port_10603_occupied_during_selection=1
+selected_port=10604

@@ -1,0 +1,133 @@
+[native-port] Electron 43.2.0, ABI 148, arm64
+Launching live application...
+Discovered writable path: /Users/ryan/Developer/medal-cross-platform/artifacts/profiles/m2.6-protocol-1/store
+Discovered writable path: /Users/ryan/Developer/medal-cross-platform/artifacts/native-client/current/.updates
+Skip creating MedalOverlay class - OS is not Windows!
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [RecorderHandler2] [debug-env] NODE_ENV=production isDev=false MEDAL_ENCODER_EXE=(unset)
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [MedalApp] Configuring hardware acceleration...
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [AppUpdater] Not an updatable install (packed locally, or running from source), skipping update checks
+Failed to retrieve device UUID, generated and persisted a fallback uuid
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [Main] startup phase (whenReady → bootstrapAuthObjectFromGuestDB) took 184ms
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [Telemetry] track "DesktopStartupPhase" [main]
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] Creating LaunchDarkly Client (context redacted)
+(node:26360) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `Electron --trace-deprecation ...` to show where the warning was created)
+info: [LaunchDarkly] LaunchDarkly client initialized
+info: [LaunchDarkly] Opening stream connection (URL redacted)
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [login-item-settings] Initialized login item settings
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [WARN] [Main] auto-launch: shouldStartHidden=false, argv=/Users/ryan/Developer/medal-cross-platform/packages/native-deps/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron /Users/ryan/Developer/medal-cross-platform/artifacts/native-client/current --enable-logging=stderr
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [MedalApp] Starting app...
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [MedalApp] Ensuring fs integrity...
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [shortcut] Skipping shortcut creation, using local environment or non-windows environment
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [MedalApp] Loaded remote configs...
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [InstallUtils] App installed for the first time, setting installed flag in store
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [Telemetry] track "Install Complete" [main]
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [InstallUtils] App is an existing install
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][pending] [Main] [INFO] [MedalApp] Electron initialized...
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][pending] [Main] [INFO] [MedalApp] Tray menu initialized...
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][pending] [Main] [INFO] [MedalApp] Initializing main window...
+Starting medal renderer using renderer.min.html file
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][pending] [Main] [INFO] [PowerMonitor] Subscribed to PowerMonitor events
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][pending] [Main] [INFO] [Telemetry] track "updateSetting" [main]
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][pending] [Main] [INFO] [NetworkStatus] Network status event: online
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][pending] [Main] [INFO] [NetworkStatus] Network status updated: online
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] Window is ready to show
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] Main window ready!
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [DiscordBridge] Connecting to Discord RPC...
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] Window is within valid bounds of at least one display
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] Window is ready to show.
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] Finished starting up, time taken: 0.6s
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] Window is within valid bounds of at least one display
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] Building application menu...
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] local plugin API listening on 127.0.0.1:26905
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [RecorderHandler2] recorder port assigned: 10604
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [32mWebSocket server started[39m
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [RecorderComms] Started recorder WS server on 127.0.0.1:10604
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [RecorderHandler2] recorder state: inactive -> running
+[26360:0918/142951.993835:INFO:CONSOLE:1] "No `HydrateFallback` element provided to render during initial hydration", source: file:///Users/ryan/Developer/medal-cross-platform/artifacts/native-client/current/chunks/renderer-url.js (1)
+[26360:0918/142951.993931:INFO:CONSOLE:2] "%cElectron Security Warning (Insecure Content-Security-Policy) font-weight: bold; This renderer process has either no Content Security
+  Policy set or a policy with "unsafe-eval" enabled. This exposes users of
+  this app to unnecessary security risks.
+
+For more information and help, consult
+https://electronjs.org/docs/tutorial/security.
+This warning will not show up
+once the app is packaged.", source: node:electron/js2c/sandbox_bundle (2)
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [34mWebSocket client connected[39m
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: request handshake id=native-port:handshake payload=redacted[39m
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: request recordingReady id=native-port:ready payload=redacted[39m
+[09/18 02:29:51][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [RecorderHandler2] recorder state: running -> ready
+[26360:0918/142952.018831:ERROR:net/cert/internal/trust_store_mac.cc:807] Error parsing certificate:
+ERROR: GeneralNames is a sequence of 0 elements
+ERROR: Failed parsing subjectAltName
+
+[26360:0918/142952.018849:ERROR:net/cert/internal/trust_store_mac.cc:807] Error parsing certificate:
+ERROR: GeneralNames is a sequence of 0 elements
+ERROR: Failed parsing subjectAltName
+
+[09/18 02:29:52][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [DiscordBridge] Connected to Discord RPC!
+[09/18 02:29:52][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: request setKV id=native-port:displays payload=redacted[39m
+[09/18 02:29:52][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] setting activeDisplays (3 items)
+[09/18 02:29:52][electron 43.2.0][production/2637.461.1/0.0.1][online] [Renderer:main] [WARN] [UserStore] User not yet authenticated
+[09/18 02:29:52][electron 43.2.0][production/2637.461.1/0.0.1][online] [Renderer:main] [WARN] [UserStore] Potentially unexpected user response during hydration: null
+[09/18 02:29:52][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [Telemetry] track "Onboarding Sign Up With Screen Viewed" [ipc]
+[26360:0918/142952.117959:INFO:CONSOLE:2] "401 response from url: api-v2.medal.tv/users/@me/targeting?include=demographic", source: file:///Users/ryan/Developer/medal-cross-platform/artifacts/native-client/current/chunks/renderer-refs.js (2)
+[26360:0918/142952.117983:INFO:CONSOLE:347] "Error fetching user birthdate on app start Unauthorized", source: file:///Users/ryan/Developer/medal-cross-platform/artifacts/native-client/current/renderer.min.js (347)
+[09/18 02:29:52][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: request setKV id=native-port:mics payload=redacted[39m
+[09/18 02:29:52][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] setting micDevices (12 items)
+[09/18 02:29:52][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: request setKV id=native-port:audio payload=redacted[39m
+[09/18 02:29:52][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] setting gameDevices (14 items)
+[09/18 02:29:52][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: request setKV id=native-port:capabilities payload=redacted[39m
+[09/18 02:29:52][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] setting nativePort.capabilities (value present)
+[09/18 02:29:52][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=1 payload=redacted[39m
+[09/18 02:29:52][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=2 payload=redacted[39m
+[09/18 02:29:52][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=activeDisplays id=3 payload=redacted[39m
+[09/18 02:29:52][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=3 payload=redacted[39m
+[09/18 02:29:52][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=availableAudioDevices id=4 payload=redacted[39m
+[09/18 02:29:52][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=4 payload=redacted[39m
+[09/18 02:29:52][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=availableMicDevices id=5 payload=redacted[39m
+[09/18 02:29:52][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=5 payload=redacted[39m
+[09/18 02:29:52][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=getDefaultAudioDevices id=6 payload=redacted[39m
+[09/18 02:29:52][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=6 payload=redacted[39m
+[09/18 02:29:52][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=webcamDevices id=7 payload=redacted[39m
+[09/18 02:29:53][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=7 payload=redacted[39m
+[09/18 02:29:53][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=8 payload=redacted[39m
+[09/18 02:29:53][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=deleteCustomGameSettings id=9 payload=redacted[39m
+[09/18 02:29:53][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=9 payload=redacted[39m
+[09/18 02:29:53][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=deleteAllCustomGameSettings id=10 payload=redacted[39m
+[09/18 02:29:53][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=10 payload=redacted[39m
+[09/18 02:29:53][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.selftest.unknownMethod id=11 payload=redacted[39m
+[09/18 02:29:53][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=11 error=-32601 payload=redacted[39m
+[09/18 02:29:53][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [WARN] [33mMethod unavailable in the current native macOS implementation: nativePort.selftest.unknownMethod[39m
+(node:26360) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+Checked for external discord clips. New clips found: 0. Total discord clips: 0. Time spent: 5ms.
+steam clips not found — recorder may not be installed: QUERY command exited with code 127:
+
+/bin/sh: REG: command not found
+Checked for external shadowPlay clips. New clips found: 0. Total shadowPlay clips: 0. Time spent: 7ms.
+outplayed clips not found — recorder may not be installed: ENOENT: no such file or directory, opendir '/Users/ryan/Movies/Overwolf/Outplayed'
+Checked for external xboxGameBar clips. New clips found: 0. Total xboxGameBar clips: 0. Time spent: 6ms.
+[09/18 02:30:23][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [Telemetry] track "App Quit" [main]
+[09/18 02:30:23][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] Preparing to quit...
+[09/18 02:30:23][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] [Quit 2] Saving main window bounds...
+[09/18 02:30:23][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] Executing background tasks before quit...
+[09/18 02:30:23][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] [Quit 3] Ending game session
+[09/18 02:30:23][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] [Quit 3] Clearing server game state
+[09/18 02:30:23][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] [Quit 4] Killing record + shutting down API
+[09/18 02:30:23][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [RecorderHandler2] recorder state: ready -> inactive
+[09/18 02:30:23][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [RecorderHandler2] Signaling shutdown for the recorder...
+[09/18 02:30:23][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=shutdown id=notification payload=redacted[39m
+info: [LaunchDarkly] Closing stream connection
+[09/18 02:30:23][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [33mWebSocket client disconnected with code: 1000, reason: shutdown[39m
+[09/18 02:30:23][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [34mRecorder initiated self-exit[39m
+[09/18 02:30:23][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [RecorderHandler2] recorder state: inactive -> inactive
+[09/18 02:30:23][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [RecorderHandler2] native recorder exited with code: 0
+[09/18 02:30:23][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [RecorderHandler2] recorder kill selfExit
+[09/18 02:30:23][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [Telemetry] track "recorderKill" [main]
+[09/18 02:30:23][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [RecorderHandler2] recorder state: inactive -> inactive
+[09/18 02:30:23][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] [Quit 5] Flushing telemetry...
+[09/18 02:30:23][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] Executed background tasks!
+[09/18 02:30:23][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] Closing windows...
+[09/18 02:30:23][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] Destroying main window
+[09/18 02:30:23][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] quit done in 503 ms
+before-quit completed, safely quitting now

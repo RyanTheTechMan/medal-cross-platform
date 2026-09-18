@@ -9,12 +9,15 @@ This file records observed limits, not excuses for successful no-op behavior.
 
 ## Current implementation state
 
-- The real native Electron GUI and imported SQLite worker now run in isolated development profiles. The native helper/recorder, capture, media roundtrip and packaged artifact do not yet pass their gates.
+- The real native Electron GUI, imported SQLite worker and native C++ helper now run together in isolated development profiles. Capture, media roundtrip and packaged artifact do not yet pass their gates.
 - The original Windows better_sqlite3 and Velopack `.node` files are PE x86-64 and unusable on arm64 macOS.
 - The inherited 12-test suite uses adapted dependencies and proves only its documented protocol/library subset.
 - The current development client still tries one Windows registry-based external-clip discovery command on macOS; A04 remains open until that path has an explicit platform adapter.
 - The current prepared FFmpeg/ffprobe files originate from a Homebrew GPL-enabled development build, and the SQLite CLI is a development copy of the system tool. They are not a self-contained or release-cleared A07 package.
-- With no native helper connected, the client currently waits for settings/shutdown notifications and logs a database-worker code-1 exit during quit. M2 must replace this condition with the real supervisor lifecycle.
+- The native helper currently covers the handshake/readiness, settings, device-query and shutdown subset. Heartbeat/reconnect, malformed/oversized frames, slow handlers, duplicate in-flight IDs and most capture/control RPCs remain incomplete.
+- `getTargetedProcesses`, `getActiveProcesses` and `audioProcesses` currently return explicit empty arrays because no native process mapper exists yet. This is not evidence that process/game capture is supported.
+- The original client's renderer IPC wrapper resolves an explicit recorder wire error as `null` after logging it. Wire error `-32601` is verified, but renderer capability controls must prevent unsupported calls rather than depend on Promise rejection.
+- Device enumeration returns correct recovered outward shapes, but persistent stable-ID mapping, duplicate-name selection and hotplug behavior are not implemented.
 - The prepared development tree is ignored under `artifacts/`; it is not signed, notarized, redistributable, or a release candidate.
 
 ## Recovered-contract unknowns
