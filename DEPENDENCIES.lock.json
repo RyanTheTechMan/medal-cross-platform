@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "generatedOn": "2026-09-18",
+  "status": "development_inventory_not_release_lock",
+  "target": {
+    "os": "macOS 27.2 build 26B5086k",
+    "architecture": "arm64",
+    "chip": "Apple M5 Max",
+    "deploymentTarget": "27.0"
+  },
+  "toolchains": [
+    {
+      "name": "required-stable-xcode-27",
+      "status": "blocked",
+      "reason": "not installed"
+    },
+    {
+      "name": "development-xcode",
+      "version": "27.0 beta 3",
+      "build": "27A5218g",
+      "sdk": "macOS 27.0",
+      "compiler": "Apple clang 21.0.0 (clang-2100.3.25.1)",
+      "path": "/Applications/Xcode-27.0.0-beta.3.app/Contents/Developer",
+      "releaseEligible": false
+    }
+  ],
+  "upstreamInputs": {
+    "clientVersion": "2637.461.1",
+    "recorderVersion": "2638.2751.1",
+    "electronObserved": "43.2.0",
+    "electronModulesAbiObserved": 148,
+    "installerSha256": "e6477e89f968593fe4b8335f09fc25f81889dd412c28ff85522a0a37415decdb",
+    "recorderZipSha256": "d33c6e3c0506c1f6b71e6158716fda3a9866bfacc41060f2ec29c4d792ca1312",
+    "mainMinJsSha256": "5a2a6dd5d1370a15577b0c09bc2d021059e2f9e7dba6a2e40cc41b4685e0c8ff"
+  },
+  "resolvedSourceDependencies": [
+    {
+      "name": "better-sqlite3",
+      "version": "12.12.0",
+      "gitCommit": "38f111acfacced350ac17e62944ba9a4dbd176e5",
+      "tagSignature": "absent",
+      "license": "MIT",
+      "bundledSqlite": "3.53.3",
+      "localSourceArchive": "third_party/sources/better-sqlite3-v12.12.0.tar.gz",
+      "localSourceArchiveSha256": "116a8f653c1d9a9bf35bd4e89e07f4dc4385ad6c54e50554a778924edd49d785",
+      "evidence": "Every imported vendor wrapper file matches tag v12.12.0 after CRLF normalization, and the imported native binary embeds SQLite 3.53.3.",
+      "report": "reports/m0/better-sqlite3-source-audit.txt"
+    },
+    {
+      "name": "electron",
+      "version": "43.2.0",
+      "npmIntegrity": "sha512-80zvrgG7ZRXD+tD0IyLvrnN9n+veSxadMRsMaC9wKKP3iUbtC7rGM8+dVuCmOb0Rrwwv8ESW4awnUZh9Hbp1fA==",
+      "target": "darwin-arm64",
+      "verification": "pending downloaded artifact checksum and runtime process.versions report"
+    },
+    {
+      "name": "@electron/rebuild",
+      "version": "4.2.0",
+      "npmIntegrity": "sha512-RKL/O+jGoXJMxrx/5771y1n0xTKmFuOYGO3gMmwypBM6rsH0kou0mswwdXA2JrhIkE4xyC7v9vGk0n6NPzgOxQ==",
+      "use": "development rebuild orchestration"
+    }
+  ],
+  "developmentDependencies": [
+    {
+      "name": "cmake",
+      "version": "4.3.1",
+      "provenance": "Homebrew",
+      "releaseDecision": "pending"
+    },
+    {
+      "name": "ninja",
+      "version": "1.13.2",
+      "provenance": "Homebrew",
+      "releaseDecision": "pending"
+    },
+    {
+      "name": "boost",
+      "version": "1.90.0_1",
+      "provenance": "Homebrew",
+      "use": "development headers/libraries for Beast and Asio",
+      "releaseDecision": "must be source-pinned with hashes before packaging"
+    },
+    {
+      "name": "nlohmann-json",
+      "version": "3.12.0",
+      "provenance": "Homebrew",
+      "releaseDecision": "must be source-pinned with hashes before packaging"
+    },
+    {
+      "name": "ffmpeg",
+      "version": "8.1",
+      "provenance": "Homebrew",
+      "configurationClass": "GPL-enabled development build",
+      "use": "reference fixtures and development libavformat/libavutil",
+      "releaseDecision": "shipping build flags, license obligations, and hashes unresolved"
+    },
+    {
+      "name": "sqlite",
+      "version": "3.53.4",
+      "provenance": "Homebrew package present",
+      "releaseDecision": "Electron addon source/version still unresolved"
+    },
+    {
+      "name": "node",
+      "version": "24.18.0 runtime used for inherited baseline",
+      "provenance": "active shell runtime",
+      "releaseDecision": "development-only; target Electron runtime is separately pinned"
+    }
+  ],
+  "unresolvedNativeDependencies": [
+    "Electron 43.2.0 darwin-arm64 artifact and official checksum verification",
+    "Electron-ABI rebuild and full API verification of matched better-sqlite3 12.12.0 source",
+    "native sqlite3 recovery CLI packaging",
+    "native ffmpeg/ffprobe packaging and license configuration",
+    "Velopack replacement/update implementation",
+    "Boost/nlohmann/FFmpeg release source archives and SHA-256 values"
+  ]
+}

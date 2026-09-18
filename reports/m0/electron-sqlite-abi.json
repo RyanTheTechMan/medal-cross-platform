@@ -1,0 +1,21 @@
+{
+  "runtime": {
+    "electron": "43.2.0",
+    "node": "24.18.0",
+    "modules": "148",
+    "v8": "15.0.1240245-electron.0",
+    "platform": "darwin",
+    "architecture": "arm64"
+  },
+  "nativeBinding": "/Users/ryan/Developer/medal-cross-platform/packages/native-deps/node_modules/better-sqlite3/build/Release/better_sqlite3.node",
+  "importedWrapper": "/Users/ryan/Developer/medal-cross-platform/research/extracted-macos-m0/app/vendor/better-sqlite3",
+  "assertions": [
+    "matched imported wrapper loaded the rebuilt Electron addon",
+    "SQLite JSONB and json_extract are available",
+    "prepared insert/query/update/delete and transaction succeeded",
+    "second WAL connection read committed data",
+    "close/reopen, backup, readonly reopen, and integrity checks succeeded"
+  ],
+  "sqliteVersion": "3.53.3",
+  "status": "passed"
+}

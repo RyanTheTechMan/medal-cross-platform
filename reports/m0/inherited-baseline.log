@@ -1,0 +1,12 @@
+PASS standalone diagnostic probe connects to original client WS
+PASS actual client WS + JSON-RPC handshake
+PASS handshake negotiates common version
+PASS no common version produces empty data (client quirk)
+PASS recorder-to-client heartbeat uses Medal envelope
+PASS unknown RPC rejected; no fabricated success
+PASS setKV updates original client session state
+PASS recordingReady transitions original state machine
+PASS client-to-helper response is a raw array, not Medal envelope
+PASS actual m7e -> gfe -> w5 registers real MP4 + thumbnail in SQLite (adapted dependencies)
+PASS actual server rejects browser Origin header
+PASS shutdown close reason emits recorder.selfExit

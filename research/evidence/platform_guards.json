@@ -1,0 +1,192 @@
+[
+  {
+    "file": "index.js",
+    "offset": 1593,
+    "source": "if (process.platform !== 'win32' || path.basename(currentDir).toLowerCase() !== 'current') {\r\n    return false\r\n  }"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 15983,
+    "source": "if(process.platform===\"win32\"&&/[<>:\"|?*]/.test(i.replace(n.parse(i).root,\"\"))){const s=new Error(`Path contains invalid characters: ${i}`);throw s.code=\"EINVAL\",s}"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 1987483,
+    "source": "if(process.platform===\"win32\"){try{const{stdout:i}=await n(\"reg query HKLM\\\\Software\\\\Microsoft\\\\Cryptography /v MachineGuid\");r=i.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/m)?.[0]}catch{}r||console.warn(\"failed to get machine uuid from registry!\")}"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 2009670,
+    "source": "if(!(process.platform!==\"win32\"||!oe.MedalOverlay))try{oe.MedalOverlay.started||await oe.MedalOverlay.start()}catch(e){oe.logger.error(`Error starting overlay: ${String(e)}`)}"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 2009868,
+    "source": "if(!(process.platform!==\"win32\"||!oe.MedalOverlay))try{if(!e){Ct.emit(\"overlayDisabled\"),oe.MedalOverlay.started&&await oe.MedalOverlay.stop(!0);return}ss(Mr())&&await Uu()}catch(t){oe.logger.error(`Error applying overlay enabled change: ${String(t)}`)}"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 2028520,
+    "source": "if(oe.logger.info(Gt.default.grey(`generating thumbnail for \"${e}\"`)),process.platform===\"win32\"){if(!n)return oe.logger.info(Gt.default.grey(`bailing out of thumbnail generation for \"${e}\" due to missing namespace path!`)),!1;const r=await Ro(n);try{await Pa(r,[\"-v\",\"error\",\"-y\",\"-i\",e,\"-fps_mode\",\"passthrough\",\"-vf\",\"select=eq(n\\\\,0),scale=640:480:force_original_aspect_ratio=decrease\",\"-frames:v\",\"1\",t])}catch(i){throw Ra(i,`Failed to generate thumbnail for \"${At.default.basename(e)}\"`)}return oe.logger.info(Gt.default.magenta(`thumbnail \"${t}\" generated successful style`)),!0}else return oe.logger.error(Gt.default.red(\"not generating thumb"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 2029239,
+    "source": "if(oe.logger.info(Gt.default.grey(`generating film reel for \"${e}\"`)),process.platform===\"win32\"){if(!r)return oe.logger.info(Gt.default.grey(`bailing out of film reel generation for \"${e}\" due to missing namespace path!`)),!1;if(!n||n<=0)return oe.logger.info(Gt.default.grey(`bailing out of film reel generation for \"${e}\" due to missing clip duration!`)),!1;const i=await Ro(r),s=10,o=[\"-v\",\"error\",\"-y\"];for(let u=0;u<s;u++){const d=n*u/s;o.push(\"-ss\",`${d}`,\"-i\",e)}const a=[],c=[];for(let u=0;u<s;u++)c.push(`[v${u}]`),a.push(`[${u}:v]scale=-2:108,format=yuvj420p[v${u}]`);const l=`${a.join(\";\")};${c.join(\"\")}hstack=inputs=${s}`;o.push(\"-filte"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 2030245,
+    "source": "if(process.platform===\"win32\"){if(!n)return oe.logger.info(Gt.default.grey(`bailing out of thumbnail resize for \"${e}\" due to missing namespace path!`)),!1;const r=await Ro(n);try{await Pa(r,[\"-y\",\"-i\",e,\"-vf\",\"scale=640:480:force_original_aspect_ratio=decrease\",t])}catch(i){throw Ra(i,`Failed to resize thumbnail for \"${At.default.basename(e)}\"`)}return!0}else return oe.logger.error(Gt.default.red(\"not resizing thumbnail...\")),!1"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 2030784,
+    "source": "if(process.platform!==\"win32\")return bw.set(n,t),t;"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 2031314,
+    "source": "if(oe.logger.info(Gt.default.grey(`trimming video for \"${e}\". start: ${n}, duration: ${r}, audio streams: ${JSON.stringify(i)}`)),process.platform===\"win32\"){const o=await Ro(s),a=At.default.extname(e),c=At.default.basename(e,a).replace(/-trim-.+$/i,\"\"),l=At.default.join(await mc(\"Edits\"),`${c}-trim-${Date.now()}${a}`),u=[];if(typeof n==\"number\"){const f=Math.max(0,n);if(u.push(\"-ss\",n1(f)),typeof r==\"number\"){let m=f+r;const E=await $pe(e,s);typeof E==\"number\"&&(m=Math.min(m,E)),u.push(\"-to\",n1(m))}}const d=[...i].sort((f,m)=>f.index-m.index),p=d.find(f=>f.title===\"All Audio\"),h=d.filter(f=>f.title!==\"All Audio\"),A=i.some(f=>f.isMuted);if(p&"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 2043271,
+    "source": "if(process.platform!==\"win32\")return null;"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 2058257,
+    "source": "if(process.platform===\"win32\")try{await Tb(`mklink /h \"${t}\" \"${e}\"`,{windowsHide:!0});return}catch{}"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 2083382,
+    "source": "if(process.platform===\"win32\"&&/^[a-z]:\\\\$/i.test(e))throw new Error(`Target directory cannot be the root of a drive: \"${e}\"`);"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 2091959,
+    "source": "if(p=`0x${BigInt(p).toString(16).padStart(32,\"0\")}`,oe.logger.info(Gt.default.yellow(`missing file \"${o}\" w/ inode \"${p}\"`)),process.platform===\"win32\"){const{stdout:h}=await Tb(`fsutil file queryFileNameById ${o.slice(0,1)}: ${p}`),A=h.match(/\\\\\\\\\\?\\\\(.*)$/m)?.[1]?.trim();if(A){if(/:\\\\\\$Recycle\\.Bin\\\\/.test(A))throw new Error(`ignoring inode \"${p}\" due to matching recycle bin \"${A}\"`);return oe.logger.info(Gt.default.green(`found file \"${A}\" w/ inode \"${p}\"...`)),t?(await wr({local_content_id:s},{thumbnail_path:A}),e.thumbnail_path=A):n?(await wr({local_content_id:s},{video_path:A}),e.video_path=A):(await wr({local_content_id:s},{image_path:"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 2468794,
+    "source": "if(process.platform===\"win32\"){const d=n.release().split(\".\");return Number(process.versions.node.split(\".\")[0])>=8&&Number(d[0])>=10&&Number(d[2])>=10586?Number(d[2])>=14931?3:2:1}"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 3135482,
+    "source": "if(process.platform===\"win32\"){var d=n.release().split(\".\");return Number(process.versions.node.split(\".\")[0])>=8&&Number(d[0])>=10&&Number(d[2])>=10586?Number(d[2])>=14931?3:2:1}"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 3280645,
+    "source": "if(process.platform!==\"win32\")return null;"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 3281161,
+    "source": "if(!hi()&&process.platform===\"win32\")try{await kre()}catch{}"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 3282082,
+    "source": "if(process.platform!==\"win32\")return!1;"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 3284716,
+    "source": "if(process.platform===\"win32\"&&!Ce.app.getAppPath().startsWith(JA())){let e=Ce.app.getAppPath().split(Tt.default.sep);if(e[1]===\"Users\"){const t=JA(),n=e.splice(0,3).join(Tt.default.sep);for(let r of[\"home\",\"videos\",\"documents\",\"appData\",\"userData\"])FA(r,Ce.app.getPath(r).replace(t,n));console.log(\"Overrode app paths with real user home:\",n)}else console.log(\"Unrecognized app path, does not contain Users:\",Ce.app.getAppPath()),console.error(\"Unrecognized app path, does not contain Users\")}"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 3286279,
+    "source": "if(process.platform===\"win32\")try{const t=await Q6e()();if(t&&t.length&&t.length>0)for(let n=0;n<t.length;n++){const r=t[n];r&&(r.Name||r.Description||r.Caption)&&e.push({name:r.Name||r.Description||r.Caption,description:r.Description||r.Caption||r.Name,memory:r.AdapterRAM?au(r.AdapterRAM):void 0,memoryBytes:r.AdapterRAM})}}catch(t){console.log(t),console.warn(\"Failed to load GPU info!\")}"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 3336576,
+    "source": "if(process.platform!==\"win32\")return;"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 3645431,
+    "source": "if(process.platform!==\"win32\")return null;"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 3710187,
+    "source": "if(U4({...r,contexts:(r.contexts??[]).filter(i=>!(i.type===\"CATEGORY\"&&i.externalId===t))}),Ct.emit(\"gameStopped\",{categoryId:t,categoryName:n}),process.platform===\"win32\"&&oe.MedalOverlay)try{ss(Mr())?oe.logger.info(\"Not stopping the overlay, we still have active games\"):await oe.MedalOverlay.stop(!1,a7e)}catch(i){oe.logger.error(`Error stopping overlay: ${String(i)}`)}"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 3721377,
+    "source": "if(!(process.platform!==\"win32\"||!this.ws||!e.userId))try{const n=`${e.userId}:${t}`;if(this.#n===n)return;const r=await this.sendRequest(\"hardwareId\");if(typeof r!=\"string\"||!r){oe.logger.warn(Gt.default.yellow(`[capabilities-jwt] unusable hardware ID: ${JSON.stringify(r)}`));return}const{jwt:i}=await _r(`/capabilities/jwt?clientId=${encodeURIComponent(r)}`,{authObject:e});if(!i){oe.logger.warn(Gt.default.yellow(\"[capabilities-jwt] backend returned no JWT\"));return}this.sendNotification(\"settings\",{settings:[oi(De.JWT,i)]}),this.#n=n}catch(n){const r=n instanceof Error?n.message:String(n);oe.logger.error(Gt.default.red(`[capabilities-jwt] fa"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 3878929,
+    "source": "if(process.platform!==\"win32\"||hi())return;"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 3892091,
+    "source": "if(process.platform===\"win32\")try{await k$()}catch(e){yt.error(`Error capturing install attribution: ${e.message}`,{class:\"InstallUtils\"})}"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 4145600,
+    "source": "if(E.platform.length<=0||!E.platform.includes(process.platform))continue;"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 4689873,
+    "source": "if(process.platform===\"win32\"&&I>Tot&&!Uot(g.url))return global.logger.info(`window open denied due to event timing diff (${I} ms)`),Dn.track(\"adDenied\",{...y,timingDiff:I}),{action:\"deny\"};"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 4723645,
+    "source": "if(n&&un(\"requestedAdmin\",void 0),process.platform!==\"win32\"||n)return!1;"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 4773402,
+    "source": "if(process.platform!==\"win32\")return;"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 4778735,
+    "source": "if(hi()||process.platform!==\"win32\"){em(\"Skipping shortcut creation, using local environment or non-windows environment\");return}"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 4785102,
+    "source": "if(process.platform!==\"win32\"||!e){this.log.info(\"Overlay is not enabled, skipping starting overlay\");return}"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 4798187,
+    "source": "if(Ce.app.isReady()||global.logger.info(\"Waiting for when the app is ready...\",{class:\"MedalApp\"}),await Ce.app.whenReady(),Ce.protocol.handle(\"medal-fs\",async u=>{const d=decodeURIComponent(u.url.replace(\"medal-fs://file/\",\"\")),p=await Vs.promises.stat(d),h=(0,Vs.createReadStream)(d),A=GD.default.getType(d);return new Response(sl.Readable.toWeb(h),{headers:{\"Content-Type\":A?.startsWith(\"image/\")?A:\"application/octet-stream\",\"Content-Length\":String(p.size)}})}),process.platform===\"win32\"){const u=qU;global.logger.info(`Setting appUserModelId: ${u}`),Ce.app.setAppUserModelId(u)}"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 4804179,
+    "source": "if(this.resolve=t,global.logger.info(\"Initializing main window...\",{class:\"MedalApp\"}),this.window=oe.mainWindow=new Ce.BrowserWindow({icon:Tt.default.resolve(Tt.default.join(Ce.app.getAppPath(),\"src/assets/icon/MedalApp.png\")),title:\"Medal\",width:1e3,height:900,minWidth:1100,minHeight:800,show:!1,frame:!1,paintWhenInitiallyHidden:!0,backgroundColor:\"#000000\",titleBarStyle:\"hidden\",trafficLightPosition:{x:-100,y:-100},webPreferences:{plugins:!0,webSecurity:!hi(),backgroundThrottling:!0,nodeIntegration:!1,contextIsolation:!0,webviewTag:!0,preload:oue(),additionalArguments:[\"--renderer_name=main\",`--app-path=${Ce.app.getAppPath()}`,`--user-data"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 4828063,
+    "source": "if(process.platform!==\"win32\")return l();"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 4906848,
+    "source": "if(process.platform!==\"win32\")return!1;"
+  },
+  {
+    "file": "main.min.js",
+    "offset": 4907348,
+    "source": "if(process.platform!==\"win32\"||!process.argv.includes(Flt))return!1;"
+  }
+]

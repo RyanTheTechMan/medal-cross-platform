@@ -1,0 +1,19 @@
+{
+  "platform": "linux",
+  "arch": "x64",
+  "node": "v22.16.0",
+  "tests": [
+    {
+      "name": "node_modules/velopack",
+      "result": "expected failure on Linux",
+      "code": "MODULE_NOT_FOUND",
+      "message": "Cannot find module './native/velopack_nodeffi_linux_x64_gnu.node'\nRequire stack:\n- /mnt/data/medal_research/client/app/node_modules/velopack/lib/load.js\n- /mnt/data/medal_research/client/app/node_modules/velopack/lib/index.js\n- /[stdin]"
+    },
+    {
+      "name": "lib/binding/node-v148-win32-x64/better_sqlite3.node",
+      "result": "expected failure on Linux",
+      "code": "ERR_DLOPEN_FAILED",
+      "message": "/mnt/data/medal_research/client/app/lib/binding/node-v148-win32-x64/better_sqlite3.node: invalid ELF header"
+    }
+  ]
+}

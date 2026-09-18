@@ -1,0 +1,596 @@
+{
+  "name": "RESTService.IConnection+ClipSavedData",
+  "rid": 1397,
+  "fields": [
+    {
+      "name": "<ClipLocation>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x21",
+      "token": "0x40022ea"
+    },
+    {
+      "name": "<ImageLocation>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x21",
+      "token": "0x40022eb"
+    },
+    {
+      "name": "<GameTitle>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x21",
+      "token": "0x40022ec"
+    },
+    {
+      "name": "<SavedTime>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x21",
+      "token": "0x40022ed"
+    },
+    {
+      "name": "<GameCategoryId>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x21",
+      "token": "0x40022ee"
+    },
+    {
+      "name": "<SaveType>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x21",
+      "token": "0x40022ef"
+    },
+    {
+      "name": "<CaptionName>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x21",
+      "token": "0x40022f0"
+    },
+    {
+      "name": "<ProcessName>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x21",
+      "token": "0x40022f1"
+    },
+    {
+      "name": "<ClassName>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x21",
+      "token": "0x40022f2"
+    },
+    {
+      "name": "<CaptureType>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x21",
+      "token": "0x40022f3"
+    },
+    {
+      "name": "<GameRequestId>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x21",
+      "token": "0x40022f4"
+    },
+    {
+      "name": "<Uuid>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x21",
+      "token": "0x40022f5"
+    },
+    {
+      "name": "<SkipDraft>k__BackingField",
+      "type": {
+        "type": "bool"
+      },
+      "flags": "0x21",
+      "token": "0x40022f6"
+    },
+    {
+      "name": "<Metadata>k__BackingField",
+      "type": {
+        "type": "RESTService.MetadataObject"
+      },
+      "flags": "0x21",
+      "token": "0x40022f7"
+    },
+    {
+      "name": "<ClipType>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x21",
+      "token": "0x40022f8"
+    },
+    {
+      "name": "<ContentType>k__BackingField",
+      "type": {
+        "type": "int32"
+      },
+      "flags": "0x21",
+      "token": "0x40022f9"
+    },
+    {
+      "name": "<FileSource>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x21",
+      "token": "0x40022fa"
+    }
+  ],
+  "properties": [
+    {
+      "name": "ClipLocation",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 2820
+    },
+    {
+      "name": "ImageLocation",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 2821
+    },
+    {
+      "name": "GameTitle",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 2822
+    },
+    {
+      "name": "SavedTime",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 2823
+    },
+    {
+      "name": "GameCategoryId",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 2824
+    },
+    {
+      "name": "SaveType",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 2825
+    },
+    {
+      "name": "CaptionName",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 2826
+    },
+    {
+      "name": "ProcessName",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 2827
+    },
+    {
+      "name": "ClassName",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 2828
+    },
+    {
+      "name": "CaptureType",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 2829
+    },
+    {
+      "name": "GameRequestId",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 2830
+    },
+    {
+      "name": "Uuid",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 2831
+    },
+    {
+      "name": "SkipDraft",
+      "signature": {
+        "return": "bool",
+        "args": []
+      },
+      "rid": 2832
+    },
+    {
+      "name": "Metadata",
+      "signature": {
+        "return": "RESTService.MetadataObject",
+        "args": []
+      },
+      "rid": 2833
+    },
+    {
+      "name": "ClipType",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 2834
+    },
+    {
+      "name": "ContentType",
+      "signature": {
+        "return": "int32",
+        "args": []
+      },
+      "rid": 2835
+    },
+    {
+      "name": "FileSource",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 2836
+    }
+  ],
+  "methods": [
+    {
+      "name": "get_ClipLocation",
+      "rid": 10925,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_ClipLocation",
+      "rid": 10926,
+      "sig": {
+        "return": "void mod(System.Runtime.CompilerServices.IsExternalInit)",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_ImageLocation",
+      "rid": 10927,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_ImageLocation",
+      "rid": 10928,
+      "sig": {
+        "return": "void mod(System.Runtime.CompilerServices.IsExternalInit)",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_GameTitle",
+      "rid": 10929,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_GameTitle",
+      "rid": 10930,
+      "sig": {
+        "return": "void mod(System.Runtime.CompilerServices.IsExternalInit)",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_SavedTime",
+      "rid": 10931,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_SavedTime",
+      "rid": 10932,
+      "sig": {
+        "return": "void mod(System.Runtime.CompilerServices.IsExternalInit)",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_GameCategoryId",
+      "rid": 10933,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_GameCategoryId",
+      "rid": 10934,
+      "sig": {
+        "return": "void mod(System.Runtime.CompilerServices.IsExternalInit)",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_SaveType",
+      "rid": 10935,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_SaveType",
+      "rid": 10936,
+      "sig": {
+        "return": "void mod(System.Runtime.CompilerServices.IsExternalInit)",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_CaptionName",
+      "rid": 10937,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_CaptionName",
+      "rid": 10938,
+      "sig": {
+        "return": "void mod(System.Runtime.CompilerServices.IsExternalInit)",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_ProcessName",
+      "rid": 10939,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_ProcessName",
+      "rid": 10940,
+      "sig": {
+        "return": "void mod(System.Runtime.CompilerServices.IsExternalInit)",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_ClassName",
+      "rid": 10941,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_ClassName",
+      "rid": 10942,
+      "sig": {
+        "return": "void mod(System.Runtime.CompilerServices.IsExternalInit)",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_CaptureType",
+      "rid": 10943,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_CaptureType",
+      "rid": 10944,
+      "sig": {
+        "return": "void mod(System.Runtime.CompilerServices.IsExternalInit)",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_GameRequestId",
+      "rid": 10945,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_GameRequestId",
+      "rid": 10946,
+      "sig": {
+        "return": "void mod(System.Runtime.CompilerServices.IsExternalInit)",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_Uuid",
+      "rid": 10947,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_Uuid",
+      "rid": 10948,
+      "sig": {
+        "return": "void mod(System.Runtime.CompilerServices.IsExternalInit)",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_SkipDraft",
+      "rid": 10949,
+      "sig": {
+        "return": "bool",
+        "args": []
+      }
+    },
+    {
+      "name": "set_SkipDraft",
+      "rid": 10950,
+      "sig": {
+        "return": "void mod(System.Runtime.CompilerServices.IsExternalInit)",
+        "args": [
+          "bool"
+        ]
+      }
+    },
+    {
+      "name": "get_Metadata",
+      "rid": 10951,
+      "sig": {
+        "return": "RESTService.MetadataObject",
+        "args": []
+      }
+    },
+    {
+      "name": "set_Metadata",
+      "rid": 10952,
+      "sig": {
+        "return": "void mod(System.Runtime.CompilerServices.IsExternalInit)",
+        "args": [
+          "RESTService.MetadataObject"
+        ]
+      }
+    },
+    {
+      "name": "get_ClipType",
+      "rid": 10953,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_ClipType",
+      "rid": 10954,
+      "sig": {
+        "return": "void mod(System.Runtime.CompilerServices.IsExternalInit)",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_ContentType",
+      "rid": 10955,
+      "sig": {
+        "return": "int32",
+        "args": []
+      }
+    },
+    {
+      "name": "set_ContentType",
+      "rid": 10956,
+      "sig": {
+        "return": "void mod(System.Runtime.CompilerServices.IsExternalInit)",
+        "args": [
+          "int32"
+        ]
+      }
+    },
+    {
+      "name": "get_FileSource",
+      "rid": 10957,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_FileSource",
+      "rid": 10958,
+      "sig": {
+        "return": "void mod(System.Runtime.CompilerServices.IsExternalInit)",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": ".ctor",
+      "rid": 10959,
+      "sig": {
+        "return": "void",
+        "args": []
+      }
+    }
+  ]
+}

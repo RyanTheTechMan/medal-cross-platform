@@ -1,0 +1,1242 @@
+{
+  "file": "ScopeSharp.dll",
+  "machine": "0x14c",
+  "clr_flags": "0x1",
+  "runtime": "v4.0.30319",
+  "entry": "",
+  "counts": {
+    "Module": 1,
+    "TypeRef": 77,
+    "TypeDef": 213,
+    "Field": 611,
+    "MethodDef": 779,
+    "Param": 1196,
+    "InterfaceImpl": 105,
+    "MemberRef": 131,
+    "Constant": 314,
+    "CustomAttribute": 331,
+    "DeclSecurity": 1,
+    "ClassLayout": 18,
+    "FieldLayout": 18,
+    "StandAloneSig": 123,
+    "EventMap": 2,
+    "Event": 10,
+    "PropertyMap": 42,
+    "Property": 162,
+    "MethodSemantics": 250,
+    "MethodImpl": 20,
+    "ModuleRef": 1,
+    "TypeSpec": 22,
+    "ImplMap": 196,
+    "Assembly": 1,
+    "AssemblyRef": 1,
+    "NestedClass": 16,
+    "MethodSpec": 10
+  },
+  "rpc_methods": [],
+  "pinvoke": [
+    {
+      "member": "Medal.Scope.Native::scope_acap_devtype_name",
+      "module": "scope",
+      "import": "scope_acap_devtype_name",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_acap_device_type",
+      "module": "scope",
+      "import": "scope_acap_device_type",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_acap_device_id",
+      "module": "scope",
+      "import": "scope_acap_device_id",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_acap_device_name",
+      "module": "scope",
+      "import": "scope_acap_device_name",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_acap_device_default_properties",
+      "module": "scope",
+      "import": "scope_acap_device_default_properties",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_acap_list_devices",
+      "module": "scope",
+      "import": "scope_acap_list_devices",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_acap_free_device_list",
+      "module": "scope",
+      "import": "scope_acap_free_device_list",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_acap_session_process_id",
+      "module": "scope",
+      "import": "scope_acap_session_process_id",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_acap_session_process_name",
+      "module": "scope",
+      "import": "scope_acap_session_process_name",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_acap_session_display_name",
+      "module": "scope",
+      "import": "scope_acap_session_display_name",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_acap_session_icon_data",
+      "module": "scope",
+      "import": "scope_acap_session_icon_data",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_acap_session_icon_size",
+      "module": "scope",
+      "import": "scope_acap_session_icon_size",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_acap_list_active_sessions",
+      "module": "scope",
+      "import": "scope_acap_list_active_sessions",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_acap_free_session_list",
+      "module": "scope",
+      "import": "scope_acap_free_session_list",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_acap_create_device_target",
+      "module": "scope",
+      "import": "scope_acap_create_device_target",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_acap_is_process_target_supported",
+      "module": "scope",
+      "import": "scope_acap_is_process_target_supported",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_acap_create_process_target",
+      "module": "scope",
+      "import": "scope_acap_create_process_target",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_acap_get_properties",
+      "module": "scope",
+      "import": "scope_acap_get_properties",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_acap_get_capture_period",
+      "module": "scope",
+      "import": "scope_acap_get_capture_period",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_aud_format_name",
+      "module": "scope",
+      "import": "scope_aud_format_name",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_aud_frame_queue_create",
+      "module": "scope",
+      "import": "scope_aud_frame_queue_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_aud_frame_tee_create",
+      "module": "scope",
+      "import": "scope_aud_frame_tee_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_aud_packet_queue_create",
+      "module": "scope",
+      "import": "scope_aud_packet_queue_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_aud_packet_tee_create",
+      "module": "scope",
+      "import": "scope_aud_packet_tee_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_aud_stabiliser_create",
+      "module": "scope",
+      "import": "scope_aud_stabiliser_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_aenc_codec_name",
+      "module": "scope",
+      "import": "scope_aenc_codec_name",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_aenc_create",
+      "module": "scope",
+      "import": "scope_aenc_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_aenc_get_settings",
+      "module": "scope",
+      "import": "scope_aenc_get_settings",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_apro_create",
+      "module": "scope",
+      "import": "scope_apro_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_apro_add_input_stream",
+      "module": "scope",
+      "import": "scope_apro_add_input_stream",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_apro_add_output_stream",
+      "module": "scope",
+      "import": "scope_apro_add_output_stream",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_apro_set_input_volume",
+      "module": "scope",
+      "import": "scope_apro_set_input_volume",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_apro_set_input_noise_suppression",
+      "module": "scope",
+      "import": "scope_apro_set_input_noise_suppression",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_apro_set_input_gate",
+      "module": "scope",
+      "import": "scope_apro_set_input_gate",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_result_string",
+      "module": "scope",
+      "import": "scope_result_string",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_frametime_now",
+      "module": "scope",
+      "import": "scope_frametime_now",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_dict_create",
+      "module": "scope",
+      "import": "scope_dict_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_dict_destroy",
+      "module": "scope",
+      "import": "scope_dict_destroy",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_dict_size",
+      "module": "scope",
+      "import": "scope_dict_size",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_dict_get_type",
+      "module": "scope",
+      "import": "scope_dict_get_type",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_dict_get_int64",
+      "module": "scope",
+      "import": "scope_dict_get_int64",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_dict_get_double",
+      "module": "scope",
+      "import": "scope_dict_get_double",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_dict_get_string",
+      "module": "scope",
+      "import": "scope_dict_get_string",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_dict_set_int64",
+      "module": "scope",
+      "import": "scope_dict_set_int64",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_dict_set_double",
+      "module": "scope",
+      "import": "scope_dict_set_double",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_dict_set_string",
+      "module": "scope",
+      "import": "scope_dict_set_string",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_dict_remove",
+      "module": "scope",
+      "import": "scope_dict_remove",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_dict_clear",
+      "module": "scope",
+      "import": "scope_dict_clear",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_img_container_for_filename",
+      "module": "scope",
+      "import": "scope_img_container_for_filename",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_img_container_name",
+      "module": "scope",
+      "import": "scope_img_container_name",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_img_container_extension",
+      "module": "scope",
+      "import": "scope_img_container_extension",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_icap_create",
+      "module": "scope",
+      "import": "scope_icap_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_icap_get_storage_type",
+      "module": "scope",
+      "import": "scope_icap_get_storage_type",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_icap_get_max_duration",
+      "module": "scope",
+      "import": "scope_icap_get_max_duration",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_icap_set_max_duration",
+      "module": "scope",
+      "import": "scope_icap_set_max_duration",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_icap_get_events",
+      "module": "scope",
+      "import": "scope_icap_get_events",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_icap_get_input_resolution",
+      "module": "scope",
+      "import": "scope_icap_get_input_resolution",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_icap_reader_create",
+      "module": "scope",
+      "import": "scope_icap_reader_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_icap_reader_get_events",
+      "module": "scope",
+      "import": "scope_icap_reader_get_events",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_icap_reader_destroy",
+      "module": "scope",
+      "import": "scope_icap_reader_destroy",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_io_file_writer_create",
+      "module": "scope",
+      "import": "scope_io_file_writer_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_io_aud_memory_buffer_create",
+      "module": "scope",
+      "import": "scope_io_aud_memory_buffer_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_io_vid_memory_buffer_create",
+      "module": "scope",
+      "import": "scope_io_vid_memory_buffer_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_io_aud_disk_buffer_create",
+      "module": "scope",
+      "import": "scope_io_aud_disk_buffer_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_io_vid_disk_buffer_create",
+      "module": "scope",
+      "import": "scope_io_vid_disk_buffer_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_io_aud_mmap_buffer_create",
+      "module": "scope",
+      "import": "scope_io_aud_mmap_buffer_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_io_vid_mmap_buffer_create",
+      "module": "scope",
+      "import": "scope_io_vid_mmap_buffer_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_io_buffer_max_duration",
+      "module": "scope",
+      "import": "scope_io_buffer_max_duration",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_io_buffer_duration",
+      "module": "scope",
+      "import": "scope_io_buffer_duration",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_io_buffer_exportable_duration",
+      "module": "scope",
+      "import": "scope_io_buffer_exportable_duration",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_io_buffer_start_time",
+      "module": "scope",
+      "import": "scope_io_buffer_start_time",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_io_buffer_end_time",
+      "module": "scope",
+      "import": "scope_io_buffer_end_time",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_io_buffer_exportable_start_time",
+      "module": "scope",
+      "import": "scope_io_buffer_exportable_start_time",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_io_buffer_exportable_end_time",
+      "module": "scope",
+      "import": "scope_io_buffer_exportable_end_time",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_io_buffer_set_max_duration",
+      "module": "scope",
+      "import": "scope_io_buffer_set_max_duration",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_io_buffer_size",
+      "module": "scope",
+      "import": "scope_io_buffer_size",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_io_buffer_storage_type",
+      "module": "scope",
+      "import": "scope_io_buffer_storage_type",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_io_buffer_export",
+      "module": "scope",
+      "import": "scope_io_buffer_export",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_io_buffer_export_from_timestamp",
+      "module": "scope",
+      "import": "scope_io_buffer_export_from_timestamp",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_io_whip_output_create",
+      "module": "scope",
+      "import": "scope_io_whip_output_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_io_packet_output_add_video_stream",
+      "module": "scope",
+      "import": "scope_io_packet_output_add_video_stream",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_io_packet_output_add_audio_stream",
+      "module": "scope",
+      "import": "scope_io_packet_output_add_audio_stream",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_mux_container_for_filename",
+      "module": "scope",
+      "import": "scope_mux_container_for_filename",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_mux_container_name",
+      "module": "scope",
+      "import": "scope_mux_container_name",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_mux_container_extension",
+      "module": "scope",
+      "import": "scope_mux_container_extension",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_mux_create",
+      "module": "scope",
+      "import": "scope_mux_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_mux_current_duration",
+      "module": "scope",
+      "import": "scope_mux_current_duration",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_mux_add_video_stream",
+      "module": "scope",
+      "import": "scope_mux_add_video_stream",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_mux_add_audio_stream",
+      "module": "scope",
+      "import": "scope_mux_add_audio_stream",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_mux_set_default_video_stream",
+      "module": "scope",
+      "import": "scope_mux_set_default_video_stream",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_mux_set_default_audio_stream",
+      "module": "scope",
+      "import": "scope_mux_set_default_audio_stream",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_mux_get_start_time",
+      "module": "scope",
+      "import": "scope_mux_get_start_time",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_pipeline_create",
+      "module": "scope",
+      "import": "scope_pipeline_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_pipeline_destroy",
+      "module": "scope",
+      "import": "scope_pipeline_destroy",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_pipeline_start",
+      "module": "scope",
+      "import": "scope_pipeline_start",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_pipeline_stop",
+      "module": "scope",
+      "import": "scope_pipeline_stop",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_pipeline_is_running",
+      "module": "scope",
+      "import": "scope_pipeline_is_running",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_pipeline_last_run_info",
+      "module": "scope",
+      "import": "scope_pipeline_last_run_info",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_pipeline_set_started_callback",
+      "module": "scope",
+      "import": "scope_pipeline_set_started_callback",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_pipeline_set_stopped_callback",
+      "module": "scope",
+      "import": "scope_pipeline_set_stopped_callback",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_pipeline_set_failed_callback",
+      "module": "scope",
+      "import": "scope_pipeline_set_failed_callback",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_pipeline_set_fatal_callback",
+      "module": "scope",
+      "import": "scope_pipeline_set_fatal_callback",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_pipeline_set_event_callback",
+      "module": "scope",
+      "import": "scope_pipeline_set_event_callback",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_pipeline_open_debug_stats_window",
+      "module": "scope",
+      "import": "scope_pipeline_open_debug_stats_window",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_pipeline_close_debug_stats_window",
+      "module": "scope",
+      "import": "scope_pipeline_close_debug_stats_window",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_pipeline_obj_add_source",
+      "module": "scope",
+      "import": "scope_pipeline_obj_add_source",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_pipeline_obj_add_sink",
+      "module": "scope",
+      "import": "scope_pipeline_obj_add_sink",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_pipeline_obj_destroy",
+      "module": "scope",
+      "import": "scope_pipeline_obj_destroy",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_pipeline_obj_typeid",
+      "module": "scope",
+      "import": "scope_pipeline_obj_typeid",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_pipeline_obj_name",
+      "module": "scope",
+      "import": "scope_pipeline_obj_name",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_pipeline_obj_id",
+      "module": "scope",
+      "import": "scope_pipeline_obj_id",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_pipeline_obj_num_input_stats",
+      "module": "scope",
+      "import": "scope_pipeline_obj_num_input_stats",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_pipeline_obj_num_output_stats",
+      "module": "scope",
+      "import": "scope_pipeline_obj_num_output_stats",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_pipeline_obj_get_input_stats",
+      "module": "scope",
+      "import": "scope_pipeline_obj_get_input_stats",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_pipeline_obj_get_output_stats",
+      "module": "scope",
+      "import": "scope_pipeline_obj_get_output_stats",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_pipeline_obj_get_input_fps",
+      "module": "scope",
+      "import": "scope_pipeline_obj_get_input_fps",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_pipeline_obj_get_output_fps",
+      "module": "scope",
+      "import": "scope_pipeline_obj_get_output_fps",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_api_version",
+      "module": "scope",
+      "import": "scope_api_version",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_hardware_id",
+      "module": "scope",
+      "import": "scope_hardware_id",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_init",
+      "module": "scope",
+      "import": "scope_init",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_exit",
+      "module": "scope",
+      "import": "scope_exit",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_get_log_level",
+      "module": "scope",
+      "import": "scope_get_log_level",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_set_log_level",
+      "module": "scope",
+      "import": "scope_set_log_level",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_system_info",
+      "module": "scope",
+      "import": "scope_system_info",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vcap_window_mode_support",
+      "module": "scope",
+      "import": "scope_vcap_window_mode_support",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vcap_screen_mode_support",
+      "module": "scope",
+      "import": "scope_vcap_screen_mode_support",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vcap_output_handle",
+      "module": "scope",
+      "import": "scope_vcap_output_handle",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vcap_output_name",
+      "module": "scope",
+      "import": "scope_vcap_output_name",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vcap_output_size",
+      "module": "scope",
+      "import": "scope_vcap_output_size",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vcap_output_position",
+      "module": "scope",
+      "import": "scope_vcap_output_position",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vcap_output_adapter_luid",
+      "module": "scope",
+      "import": "scope_vcap_output_adapter_luid",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vcap_output_adapter_vendor_id",
+      "module": "scope",
+      "import": "scope_vcap_output_adapter_vendor_id",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vcap_output_adapter_product_id",
+      "module": "scope",
+      "import": "scope_vcap_output_adapter_product_id",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vcap_output_adapter_name",
+      "module": "scope",
+      "import": "scope_vcap_output_adapter_name",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vcap_list_outputs",
+      "module": "scope",
+      "import": "scope_vcap_list_outputs",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vcap_free_output_list",
+      "module": "scope",
+      "import": "scope_vcap_free_output_list",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vcap_device_id",
+      "module": "scope",
+      "import": "scope_vcap_device_id",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vcap_device_name",
+      "module": "scope",
+      "import": "scope_vcap_device_name",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vcap_device_source",
+      "module": "scope",
+      "import": "scope_vcap_device_source",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vcap_list_devices",
+      "module": "scope",
+      "import": "scope_vcap_list_devices",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vcap_free_device_list",
+      "module": "scope",
+      "import": "scope_vcap_free_device_list",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vcap_create_window_target",
+      "module": "scope",
+      "import": "scope_vcap_create_window_target",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vcap_create_screen_target",
+      "module": "scope",
+      "import": "scope_vcap_create_screen_target",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vcap_create_texture_target",
+      "module": "scope",
+      "import": "scope_vcap_create_texture_target",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vcap_create_device_target",
+      "module": "scope",
+      "import": "scope_vcap_create_device_target",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vcap_update_target_texture",
+      "module": "scope",
+      "import": "scope_vcap_update_target_texture",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vcap_get_trimmed_window_rect",
+      "module": "scope",
+      "import": "scope_vcap_get_trimmed_window_rect",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vcap_last_frame_received_time",
+      "module": "scope",
+      "import": "scope_vcap_last_frame_received_time",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_format_name",
+      "module": "scope",
+      "import": "scope_vid_format_name",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_colorspace_name",
+      "module": "scope",
+      "import": "scope_vid_colorspace_name",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_codec_name",
+      "module": "scope",
+      "import": "scope_vid_codec_name",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_frametype_name",
+      "module": "scope",
+      "import": "scope_vid_frametype_name",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_frame_buffer_data",
+      "module": "scope",
+      "import": "scope_vid_frame_buffer_data",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_frame_buffer_size",
+      "module": "scope",
+      "import": "scope_vid_frame_buffer_size",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_frame_buffer_hash32",
+      "module": "scope",
+      "import": "scope_vid_frame_buffer_hash32",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_frame_buffer_hash64",
+      "module": "scope",
+      "import": "scope_vid_frame_buffer_hash64",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_frame_properties",
+      "module": "scope",
+      "import": "scope_vid_frame_properties",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_frame_type",
+      "module": "scope",
+      "import": "scope_vid_frame_type",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_frame_time",
+      "module": "scope",
+      "import": "scope_vid_frame_time",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_frame_source_time",
+      "module": "scope",
+      "import": "scope_vid_frame_source_time",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_frame_flags",
+      "module": "scope",
+      "import": "scope_vid_frame_flags",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_frame_acquire_buffer",
+      "module": "scope",
+      "import": "scope_vid_frame_acquire_buffer",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_frame_release_buffer",
+      "module": "scope",
+      "import": "scope_vid_frame_release_buffer",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_frame_destroy",
+      "module": "scope",
+      "import": "scope_vid_frame_destroy",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_frame_to_file",
+      "module": "scope",
+      "import": "scope_vid_frame_to_file",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_frame_from_file",
+      "module": "scope",
+      "import": "scope_vid_frame_from_file",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_get_default_adapter_luid",
+      "module": "scope",
+      "import": "scope_vid_get_default_adapter_luid",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_get_best_connected_adapter_luid",
+      "module": "scope",
+      "import": "scope_vid_get_best_connected_adapter_luid",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_frame_queue_create",
+      "module": "scope",
+      "import": "scope_vid_frame_queue_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_frame_tee_create",
+      "module": "scope",
+      "import": "scope_vid_frame_tee_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_packet_queue_create",
+      "module": "scope",
+      "import": "scope_vid_packet_queue_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_packet_tee_create",
+      "module": "scope",
+      "import": "scope_vid_packet_tee_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_stabiliser_create",
+      "module": "scope",
+      "import": "scope_vid_stabiliser_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_stabiliser_get_duplicate_frame_fps",
+      "module": "scope",
+      "import": "scope_vid_stabiliser_get_duplicate_frame_fps",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_frame_source_get_newest",
+      "module": "scope",
+      "import": "scope_vid_frame_source_get_newest",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_single_frame_source_create",
+      "module": "scope",
+      "import": "scope_vid_single_frame_source_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_gpu_luid",
+      "module": "scope",
+      "import": "scope_vid_gpu_luid",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_gpu_vendor_id",
+      "module": "scope",
+      "import": "scope_vid_gpu_vendor_id",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_gpu_product_id",
+      "module": "scope",
+      "import": "scope_vid_gpu_product_id",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_gpu_name",
+      "module": "scope",
+      "import": "scope_vid_gpu_name",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_gpu_is_default",
+      "module": "scope",
+      "import": "scope_vid_gpu_is_default",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_gpu_vram_bytes",
+      "module": "scope",
+      "import": "scope_vid_gpu_vram_bytes",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_gpu_dsram_bytes",
+      "module": "scope",
+      "import": "scope_vid_gpu_dsram_bytes",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_gpu_ssram_bytes",
+      "module": "scope",
+      "import": "scope_vid_gpu_ssram_bytes",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_list_gpus",
+      "module": "scope",
+      "import": "scope_vid_list_gpus",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vid_free_gpu_list",
+      "module": "scope",
+      "import": "scope_vid_free_gpu_list",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_venc_capabilities",
+      "module": "scope",
+      "import": "scope_venc_capabilities",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_venc_supports_codec",
+      "module": "scope",
+      "import": "scope_venc_supports_codec",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_venc_create_gpu",
+      "module": "scope",
+      "import": "scope_venc_create_gpu",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_venc_create_cpu",
+      "module": "scope",
+      "import": "scope_venc_create_cpu",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vpro_create",
+      "module": "scope",
+      "import": "scope_vpro_create",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vpro_get_last_valid_input_frame",
+      "module": "scope",
+      "import": "scope_vpro_get_last_valid_input_frame",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vpro_add_rescale_step",
+      "module": "scope",
+      "import": "scope_vpro_add_rescale_step",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vpro_add_overlay_step",
+      "module": "scope",
+      "import": "scope_vpro_add_overlay_step",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vpro_add_effect_step",
+      "module": "scope",
+      "import": "scope_vpro_add_effect_step",
+      "flags": 513
+    },
+    {
+      "member": "Medal.Scope.Native::scope_vpro_get_static_frame_stats",
+      "module": "scope",
+      "import": "scope_vpro_get_static_frame_stats",
+      "flags": 513
+    }
+  ],
+  "target_framework": [
+    {
+      "parent_table": 32,
+      "parent_rid": 1,
+      "parent": "ScopeSharp",
+      "attribute": "System.Runtime.Versioning.TargetFrameworkAttribute::.ctor",
+      "first_string": ".NETStandard,Version=v2.0",
+      "blob": "0100192e4e45545374616e646172642c56657273696f6e3d76322e300100540e144672616d65776f726b446973706c61794e616d65112e4e4554205374616e6461726420322e30",
+      "metadata_offset": 52070
+    }
+  ],
+  "references": [
+    {
+      "rid": 1,
+      "offset": 58982,
+      "token": 587202561,
+      "Major": 2,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 2521,
+      "Name": "netstandard",
+      "Culture": "",
+      "HashValue": 0
+    }
+  ]
+}

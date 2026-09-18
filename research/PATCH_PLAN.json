@@ -1,0 +1,88 @@
+{
+  "status": "PROPOSED PATCH CONTRACTS, NOT AN APPLIED OR COMPLETE PATCHER",
+  "client_version": "2637.461.1",
+  "recorder_version": "2638.2751.1",
+  "main_sha256": "5a2a6dd5d1370a15577b0c09bc2d021059e2f9e7dba6a2e40cc41b4685e0c8ff",
+  "patches": [
+    {
+      "id": "bootstrap-runtime",
+      "anchors": [
+        "index.js",
+        "main.min.js",
+        "node_modules/velopack/lib/load.js"
+      ],
+      "change": "Supply native Electron matching inspected 43.2.0 or explicitly validate another version. Replace Velopack bootstrap and updater interactions, not a global platform spoof.",
+      "acceptance_gate": "Native app opens in isolated profile without updater/native loader error."
+    },
+    {
+      "id": "sqlite",
+      "anchors": [
+        "main.min.js embedded worker",
+        "lib/binding/node-v148-win32-x64/better_sqlite3.node",
+        "lib/sqlite3.exe"
+      ],
+      "change": "Build matching Electron/OS/arch SQLite binding and native CLI; preserve JS API and JSONB migrations.",
+      "acceptance_gate": "Worker starts; schema migration, insert, JSONB query, close/reopen and recovery pass."
+    },
+    {
+      "id": "recorder-supervisor",
+      "anchors": [
+        "main.min.js::$at",
+        "main.min.js::jat"
+      ],
+      "change": "Replace win32 guard, updater/download path, executable resolution, elevation and Windows heartbeat. Preserve actual selected port, lifecycle events and shutdown.",
+      "acceptance_gate": "Helper starts/stops/restarts without Windows binaries; no recorder update overwrites helper."
+    },
+    {
+      "id": "protocol",
+      "anchors": [
+        "main.min.js::K7e",
+        "main.min.js::w7e",
+        "RESTService.WSConnection+WSHandlers"
+      ],
+      "change": "Implement observed bidirectional JSON-RPC, asymmetric envelopes, version check, device/settings state and explicit unsupported methods. Add per-launch local authentication in both endpoints.",
+      "acceptance_gate": "Pinned protocol fixtures pass; unsupported calls never silently succeed."
+    },
+    {
+      "id": "capture-source-ui",
+      "anchors": [
+        "renderer-useActiveDisplays.js",
+        "renderer process selection",
+        "main platform guards"
+      ],
+      "change": "Implement native source selection, backend capability UI and stable names-to-native-IDs map; handle permission denial.",
+      "acceptance_gate": "User selects a permissioned source, can stop it, and unavailable features are visibly disabled."
+    },
+    {
+      "id": "hotkeys-settings",
+      "anchors": [
+        "main.min.js::L5",
+        "main.min.js::eM",
+        "Hotkeys setting"
+      ],
+      "change": "Translate typed/scoped settings and action strings to backend and native shortcut registration.",
+      "acceptance_gate": "Save-last-N action works without focusing Medal; rebinding/cancel/suspend and per-game overrides tested."
+    },
+    {
+      "id": "media-and-library",
+      "anchors": [
+        "main.min.js::m7e",
+        "main.min.js::gfe",
+        "main.min.js::w5",
+        "main.min.js::Ro",
+        "main.min.js::lhe"
+      ],
+      "change": "Provide native FFmpeg/ffprobe absolute paths; finalize actual media before contentCreate; preserve library ownership in client. Audit other editor/remux code paths.",
+      "acceptance_gate": "Clip appears, plays, has a thumbnail; editing/export and explicit upload separately verified."
+    },
+    {
+      "id": "release-safety",
+      "anchors": [
+        "patcher package",
+        "native app packaging"
+      ],
+      "change": "Version-pinned local extraction, isolated data, minimal reversible patches, signed native helper as appropriate, atomic update/rollback. No redistribution of Medal bundle or impersonated publisher signature.",
+      "acceptance_gate": "Unknown input refuses patches; rollback preserves clips/settings; production consent and auth flows work."
+    }
+  ]
+}

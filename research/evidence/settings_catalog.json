@@ -1,0 +1,285 @@
+{
+  "recorderKeys": [
+    "AdvancedWindowCapture",
+    "AspectRatio",
+    "AudioModeConfig",
+    "Bitrate",
+    "ClipFolder",
+    "Codec",
+    "DevelopmentMode",
+    "ProfileRecommendationServicesEnabled",
+    "Encoder",
+    "ExperimentalCapture",
+    "ExternalFileSources",
+    "ForceWindowCapture",
+    "FpsMode",
+    "FullSessionMode",
+    "GameAudioOnly",
+    "GameControlsCollectionEnabled",
+    "ClipSavedSoundAlerts",
+    "BookmarkSavedSoundAlerts",
+    "SessionToggleSoundAlerts",
+    "AutoClippingSoundAlerts",
+    "DiskFullSoundAlerts",
+    "ScreenshotSoundAlerts",
+    "GlobalSoundAlerts",
+    "ClipSound",
+    "ClipSoundPath",
+    "AudioNotificationVolume",
+    "HDRCompatibility",
+    "Hotkeys",
+    "ICYMIEnabled",
+    "ICYMIEventSettings",
+    "RobloxAutoClipBlacklist",
+    "MinecraftAutoClipBlacklist",
+    "GTAAutoClipBlacklist",
+    "InMemoryBuffer",
+    "JWT",
+    "MicEnabled",
+    "MicNoiseGateEnabled",
+    "MicNoiseGateThreshold",
+    "MicNoiseSuppressionEnabled",
+    "MicSoundGain",
+    "MonitorDeviceName",
+    "MonoMicAudio",
+    "MultipleAudioTracks",
+    "PassiveGameSwitchEnabled",
+    "PreferGameCapture",
+    "PushToTalkEnabled",
+    "RecordingEnabled",
+    "Resolution",
+    "ScreenCaptureEnabled",
+    "SDKMode",
+    "SelectedAudioDevices",
+    "SelectedGPUDevice",
+    "SelectedMicDevice",
+    "ShowCursor",
+    "ShowOverlay",
+    "TargetFPS",
+    "VoiceClippingEnabled",
+    "VoiceClippingAssistantNames",
+    "VoiceCommandsActiveConfig",
+    "VideoOverlayConfig"
+  ],
+  "appKeys": {
+    "RecordingPreset": "RecordingPreset",
+    "LastSplitByProcessConfig": "LastSplitByProcessConfig",
+    "LastAllPcAudioConfig": "LastAllPcAudioConfig",
+    "EncoderOptions": "EncoderOptions",
+    "AvailableGPUDevices": "AvailableGPUDevices",
+    "AvailableGPUCodecs": "AvailableGPUCodecs",
+    "GameSwitchHotkeyEnabled": "GameSwitchHotkeyEnabled",
+    "WindowsGameModeDisabled": "WindowsGameModeDisabled",
+    "ScreenshotEnabled": "ScreenshotEnabled",
+    "ShouldScreenRecordOnStartup": "ShouldScreenRecordOnStartup",
+    "AlwaysRunAdmin": "AlwaysRunAdmin",
+    "StorageLimitGB": "StorageLimitGB",
+    "OnlyDeleteLongRecordings": "OnlyDeleteLongRecordings",
+    "AutoRunFreeUpSpaceWhenOverStorageLimit": "AutoRunFreeUpSpaceWhenOverStorageLimit",
+    "FileRename": "FileRename",
+    "AutoUploadOption": "AutoUploadOption",
+    "AutoUploadPrivacy": "AutoUploadPrivacy",
+    "VideoOverlayEnabled": "VideoOverlayEnabled",
+    "VirtualCamerasEnabled": "VirtualCamerasEnabled",
+    "CustomGameSettings": "CustomGameSettings",
+    "OverlayEnabled": "OverlayEnabled",
+    "MessageAndNotificationSoundAlerts": "MessageAndNotificationSoundAlerts",
+    "LaunchAutomatically": "LaunchAutomatically",
+    "StartMinimized": "StartMinimized",
+    "AutoFocus": "AutoFocus",
+    "AutoCopyLinks": "AutoCopyLinks",
+    "StreamerMode": "StreamerMode",
+    "Language": "Language",
+    "SharedDeviceMode": "SharedDeviceMode",
+    "CafeMode": "CafeMode",
+    "AllowNotificationPopups": "AllowNotificationPopups",
+    "DefaultPrivacy": "DefaultPrivacy",
+    "DefaultCommentPermissions": "DefaultCommentPermissions",
+    "FilesToRecycleBin": "FilesToRecycleBin",
+    "FreeUpSpace": "FreeUpSpace",
+    "DiscordRpcEnabled": "DiscordRpcEnabled",
+    "VideoEditorAntiAliasing": "VideoEditorAntiAliasing",
+    "LibraryDefaultPostType": "LibraryDefaultPostType",
+    "VoiceCommandsFullConfig": "VoiceCommandsFullConfig"
+  },
+  "defaults": {
+    "Hotkeys": [
+      {
+        "action": "clip;length=30",
+        "device": "keyboard",
+        "type": "short_press",
+        "inputs": "F8"
+      },
+      {
+        "action": "segment_toggle",
+        "device": "keyboard",
+        "type": "short_press",
+        "inputs": "ALT + F7"
+      },
+      {
+        "action": "bookmark",
+        "device": "keyboard",
+        "type": "short_press",
+        "inputs": "F8"
+      },
+      {
+        "action": "switch_game",
+        "device": "keyboard",
+        "type": "short_press",
+        "inputs": "F10"
+      },
+      {
+        "action": "screenshot",
+        "device": "keyboard",
+        "type": "short_press",
+        "inputs": "F7"
+      }
+    ],
+    "ClipFolder": "C:\\Medal",
+    "TargetFPS": 60,
+    "Bitrate": 15,
+    "Resolution": {
+      "width": 1280,
+      "height": 720
+    },
+    "FpsMode": "VFR",
+    "MicNoiseGateEnabled": false,
+    "MicNoiseSuppressionEnabled": false,
+    "MicNoiseGateThreshold": -100,
+    "MicEnabled": true,
+    "MonoMicAudio": false,
+    "GameAudioOnly": false,
+    "AudioModeConfig": {
+      "type": "splitByProcess",
+      "sources": [
+        {
+          "id": "game-audio",
+          "enabled": true,
+          "volume": 100
+        },
+        {
+          "id": "MedalEncoder.exe",
+          "enabled": true,
+          "volume": 100
+        },
+        {
+          "id": "Discord.exe",
+          "enabled": true,
+          "volume": 100
+        }
+      ]
+    },
+    "MultipleAudioTracks": true,
+    "VoiceClippingEnabled": false,
+    "VoiceClippingAssistantNames": [
+      "Medal"
+    ],
+    "VoiceCommandsActiveConfig": {
+      "commands": []
+    },
+    "MicSoundGain": 50,
+    "SelectedMicDevice": "Auto",
+    "SelectedAudioDevices": [
+      "Auto"
+    ],
+    "Encoder": "GPU",
+    "EncoderOptions": [
+      "GPU"
+    ],
+    "RecordingPreset": "high",
+    "SelectedGPUDevice": "Auto",
+    "Codec": "H264",
+    "AvailableGPUDevices": [],
+    "AvailableGPUCodecs": {},
+    "RecordingEnabled": true,
+    "FullSessionMode": false,
+    "ShowCursor": false,
+    "AspectRatio": 2,
+    "AdvancedWindowCapture": false,
+    "ExperimentalCapture": false,
+    "HDRCompatibility": false,
+    "ForceWindowCapture": false,
+    "InMemoryBuffer": true,
+    "WindowsGameModeDisabled": true,
+    "ScreenshotEnabled": true,
+    "GameSwitchHotkeyEnabled": true,
+    "PassiveGameSwitchEnabled": true,
+    "PushToTalkEnabled": false,
+    "MonitorDeviceName": null,
+    "ShouldScreenRecordOnStartup": false,
+    "PreferGameCapture": true,
+    "AlwaysRunAdmin": false,
+    "ICYMIEnabled": true,
+    "RobloxAutoClipBlacklist": [],
+    "MinecraftAutoClipBlacklist": [],
+    "GTAAutoClipBlacklist": [],
+    "StorageLimitGB": null,
+    "OnlyDeleteLongRecordings": false,
+    "AutoRunFreeUpSpaceWhenOverStorageLimit": false,
+    "FileRename": null,
+    "ExternalFileSources": {
+      "folders": []
+    },
+    "AutoUploadOption": "ON_GAME_EXIT",
+    "AutoUploadPrivacy": null,
+    "ShowOverlay": true,
+    "VideoOverlayConfig": [
+      {
+        "type": "peripheral",
+        "position": 2,
+        "value": "qwerty_truncated"
+      }
+    ],
+    "VideoOverlayEnabled": false,
+    "VirtualCamerasEnabled": false,
+    "CustomGameSettings": {},
+    "OverlayEnabled": true,
+    "GlobalSoundAlerts": true,
+    "AudioNotificationVolume": 100,
+    "ClipSavedSoundAlerts": true,
+    "BookmarkSavedSoundAlerts": true,
+    "ScreenshotSoundAlerts": true,
+    "SessionToggleSoundAlerts": true,
+    "AutoClippingSoundAlerts": false,
+    "MessageAndNotificationSoundAlerts": true,
+    "DiskFullSoundAlerts": true,
+    "ClipSound": "default",
+    "ClipSoundPath": null,
+    "LaunchAutomatically": true,
+    "StartMinimized": false,
+    "AutoFocus": true,
+    "AutoCopyLinks": true,
+    "StreamerMode": false,
+    "DevelopmentMode": false,
+    "SDKMode": false,
+    "Language": "",
+    "SharedDeviceMode": false,
+    "CafeMode": false,
+    "AllowNotificationPopups": true,
+    "DefaultPrivacy": "public",
+    "DefaultCommentPermissions": "open",
+    "FilesToRecycleBin": true,
+    "FreeUpSpace": false,
+    "DiscordRpcEnabled": true,
+    "VoiceCommandsFullConfig": {
+      "enabled": false,
+      "languages": {
+        "en": {
+          "commands": [
+            {
+              "phrase": "Medal clip that"
+            },
+            {
+              "phrase": "Medal clip it"
+            },
+            {
+              "phrase": "Medal clip at"
+            }
+          ]
+        }
+      }
+    },
+    "VideoEditorAntiAliasing": "MSAA",
+    "LibraryDefaultPostType": null
+  }
+}

@@ -1,0 +1,162 @@
+[
+  {
+    "method": "recordingReady",
+    "symbol": "A7e"
+  },
+  {
+    "method": "setKV",
+    "symbol": "p7e"
+  },
+  {
+    "method": "diskSpace",
+    "symbol": "f7e"
+  },
+  {
+    "method": "contentDelete",
+    "symbol": "E7e"
+  },
+  {
+    "method": "contentFailed",
+    "symbol": "y7e"
+  },
+  {
+    "method": "contentUpdate",
+    "symbol": "I7e"
+  },
+  {
+    "method": "gameStarted",
+    "symbol": "C7e"
+  },
+  {
+    "method": "gameEnded",
+    "symbol": "v7e"
+  },
+  {
+    "method": "gameServerStarted",
+    "symbol": "b7e"
+  },
+  {
+    "method": "gameMatchStarted",
+    "symbol": "S7e"
+  },
+  {
+    "method": "gameMatchEnded",
+    "symbol": "_7e"
+  },
+  {
+    "method": "subgameStarted",
+    "symbol": "B7e"
+  },
+  {
+    "method": "subgameEnded",
+    "symbol": "Q7e"
+  },
+  {
+    "method": "fallbackEncoder",
+    "symbol": "T7e"
+  },
+  {
+    "method": "recorderError",
+    "symbol": "R7e"
+  },
+  {
+    "method": "voiceCommandDetected",
+    "symbol": "D7e"
+  },
+  {
+    "method": "hotkeyCaptureState",
+    "symbol": "k7e"
+  },
+  {
+    "method": "hotkeyCaptured",
+    "symbol": "N7e"
+  },
+  {
+    "method": "hotkeyCaptureCancelled",
+    "symbol": "M7e"
+  },
+  {
+    "method": "gameState",
+    "symbol": "U7e"
+  },
+  {
+    "method": "captureStarted",
+    "symbol": "F7e"
+  },
+  {
+    "method": "captureStopped",
+    "symbol": "H7e"
+  },
+  {
+    "method": "requestAdmin",
+    "symbol": "G7e"
+  },
+  {
+    "method": "overlaySize",
+    "symbol": "V7e"
+  },
+  {
+    "method": "overlayEnabled",
+    "symbol": "Y7e"
+  },
+  {
+    "method": "overlayShow",
+    "symbol": "j7e"
+  },
+  {
+    "method": "overlayInjected",
+    "symbol": "q7e"
+  },
+  {
+    "method": "callback",
+    "symbol": "W7e"
+  },
+  {
+    "method": "steamGamesInLibrary",
+    "symbol": "$7e"
+  },
+  {
+    "method": "autoClipCatalogChanged",
+    "symbol": "P7e"
+  },
+  {
+    "method": "ping",
+    "symbol": "l7e"
+  },
+  {
+    "method": "user",
+    "symbol": "u7e"
+  },
+  {
+    "method": "recordingSettings",
+    "symbol": "d7e"
+  },
+  {
+    "method": "customGameSettings",
+    "symbol": "x7e"
+  },
+  {
+    "method": "handshake",
+    "symbol": "w7e"
+  },
+  {
+    "method": "targetProcess",
+    "symbol": "h7e"
+  },
+  {
+    "method": "contentCreate",
+    "symbol": "m7e"
+  },
+  {
+    "method": "hardwareInfo",
+    "symbol": "g7e"
+  },
+  {
+    "method": "environment",
+    "symbol": "e$"
+  },
+  {
+    "method": "gameAudioOnlyEnabled",
+    "symbol": "e$"
+  }
+]

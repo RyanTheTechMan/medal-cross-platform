@@ -1,0 +1,21 @@
+{
+  "inputs": [
+    {
+      "name": "Medal-production-2637.461.1-Setup.exe",
+      "size": 176455976,
+      "sha256": "e6477e89f968593fe4b8335f09fc25f81889dd412c28ff85522a0a37415decdb",
+      "archive_members": 666,
+      "uncompressed_bytes": 409387416
+    },
+    {
+      "name": "v2638.2751.1.zip",
+      "size": 121123951,
+      "sha256": "d33c6e3c0506c1f6b71e6158716fda3a9866bfacc41060f2ec29c4d792ca1312",
+      "archive_members": 445,
+      "uncompressed_bytes": 321501990
+    }
+  ],
+  "manifest_version": "2638.2751.1",
+  "checks_count": 433,
+  "checksum_failures": []
+}

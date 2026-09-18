@@ -1,0 +1,198 @@
+{
+  "x": {
+    "start": 1103,
+    "end": 1169,
+    "byteStart": 1103,
+    "byteEnd": 1169,
+    "type": "VariableDeclarator"
+  },
+  "Kn": {
+    "start": 2010236,
+    "end": 2017792,
+    "byteStart": 2010401,
+    "byteEnd": 2017957,
+    "type": "VariableDeclarator"
+  },
+  "oi": {
+    "start": 2022453,
+    "end": 2022512,
+    "byteStart": 2022618,
+    "byteEnd": 2022677,
+    "type": "FunctionDeclaration"
+  },
+  "Ro": {
+    "start": 2030679,
+    "end": 2031193,
+    "byteStart": 2030844,
+    "byteEnd": 2031358,
+    "type": "FunctionDeclaration"
+  },
+  "lhe": {
+    "start": 2043220,
+    "end": 2043658,
+    "byteStart": 2043385,
+    "byteEnd": 2043823,
+    "type": "FunctionDeclaration"
+  },
+  "w5": {
+    "start": 2065475,
+    "end": 2068598,
+    "byteStart": 2065646,
+    "byteEnd": 2068769,
+    "type": "FunctionDeclaration"
+  },
+  "gfe": {
+    "start": 2108539,
+    "end": 2109808,
+    "byteStart": 2108710,
+    "byteEnd": 2109979,
+    "type": "FunctionDeclaration"
+  },
+  "L5": {
+    "start": 2115483,
+    "end": 2116362,
+    "byteStart": 2115654,
+    "byteEnd": 2116533,
+    "type": "FunctionDeclaration"
+  },
+  "eM": {
+    "start": 2116362,
+    "end": 2116803,
+    "byteStart": 2116533,
+    "byteEnd": 2116974,
+    "type": "FunctionDeclaration"
+  },
+  "Ao": {
+    "start": 3283756,
+    "end": 3283758,
+    "byteStart": 3284144,
+    "byteEnd": 3284146,
+    "type": "VariableDeclarator"
+  },
+  "BQ": {
+    "start": 3673900,
+    "end": 3676258,
+    "byteStart": 3674361,
+    "byteEnd": 3676719,
+    "type": "VariableDeclarator"
+  },
+  "nse": {
+    "start": 3676259,
+    "end": 3676368,
+    "byteStart": 3676720,
+    "byteEnd": 3676829,
+    "type": "VariableDeclarator"
+  },
+  "SZe": {
+    "start": 3676369,
+    "end": 3680509,
+    "byteStart": 3676830,
+    "byteEnd": 3680970,
+    "type": "VariableDeclarator"
+  },
+  "_Ze": {
+    "start": 3680510,
+    "end": 3680572,
+    "byteStart": 3680971,
+    "byteEnd": 3681033,
+    "type": "VariableDeclarator"
+  },
+  "BZe": {
+    "start": 3680573,
+    "end": 3686084,
+    "byteStart": 3681034,
+    "byteEnd": 3686545,
+    "type": "VariableDeclarator"
+  },
+  "QZe": {
+    "start": 3686085,
+    "end": 3689146,
+    "byteStart": 3686546,
+    "byteEnd": 3689607,
+    "type": "VariableDeclarator"
+  },
+  "wZe": {
+    "start": 3689147,
+    "end": 3689694,
+    "byteStart": 3689608,
+    "byteEnd": 3690155,
+    "type": "VariableDeclarator"
+  },
+  "Ov": {
+    "start": 3705190,
+    "end": 3705236,
+    "byteStart": 3705651,
+    "byteEnd": 3705697,
+    "type": "VariableDeclarator"
+  },
+  "l7e": {
+    "start": 3705237,
+    "end": 3705265,
+    "byteStart": 3705698,
+    "byteEnd": 3705726,
+    "type": "FunctionDeclaration"
+  },
+  "A7e": {
+    "start": 3705529,
+    "end": 3705964,
+    "byteStart": 3705990,
+    "byteEnd": 3706425,
+    "type": "FunctionDeclaration"
+  },
+  "p7e": {
+    "start": 3706099,
+    "end": 3706994,
+    "byteStart": 3706560,
+    "byteEnd": 3707455,
+    "type": "FunctionDeclaration"
+  },
+  "m7e": {
+    "start": 3707789,
+    "end": 3708713,
+    "byteStart": 3708250,
+    "byteEnd": 3709174,
+    "type": "FunctionDeclaration"
+  },
+  "w7e": {
+    "start": 3713222,
+    "end": 3713532,
+    "byteStart": 3713683,
+    "byteEnd": 3713993,
+    "type": "FunctionDeclaration"
+  },
+  "K7e": {
+    "start": 3718946,
+    "end": 3725908,
+    "byteStart": 3719407,
+    "byteEnd": 3726369,
+    "type": "VariableDeclarator"
+  },
+  "s$": {
+    "start": 3735135,
+    "end": 3735139,
+    "byteStart": 3735596,
+    "byteEnd": 3735600,
+    "type": "VariableDeclarator"
+  },
+  "cue": {
+    "start": 4760874,
+    "end": 4766448,
+    "byteStart": 4761868,
+    "byteEnd": 4767442,
+    "type": "VariableDeclarator"
+  },
+  "jat": {
+    "start": 4766979,
+    "end": 4767616,
+    "byteStart": 4767973,
+    "byteEnd": 4768610,
+    "type": "VariableDeclarator"
+  },
+  "$at": {
+    "start": 4768313,
+    "end": 4778530,
+    "byteStart": 4769307,
+    "byteEnd": 4779524,
+    "type": "VariableDeclarator"
+  }
+}

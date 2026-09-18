@@ -1,0 +1,107 @@
+{
+  "scope": "Isolated original JS functions, original bundled ws + JSON-RPC; runtime/DB/media dependencies adapted. No full Electron GUI or cloud calls.",
+  "tests": [
+    {
+      "name": "standalone diagnostic probe connects to original client WS",
+      "status": "passed",
+      "detail": {
+        "nativeCapture": false
+      }
+    },
+    {
+      "name": "actual client WS + JSON-RPC handshake",
+      "status": "passed",
+      "detail": {
+        "result": "success",
+        "errorMessage": null,
+        "data": {
+          "version": 1,
+          "capabilities": []
+        }
+      }
+    },
+    {
+      "name": "handshake negotiates common version",
+      "status": "passed",
+      "detail": {
+        "version": 1,
+        "capabilities": []
+      }
+    },
+    {
+      "name": "no common version produces empty data (client quirk)",
+      "status": "passed",
+      "detail": {
+        "result": "success",
+        "errorMessage": null,
+        "data": {}
+      }
+    },
+    {
+      "name": "recorder-to-client heartbeat uses Medal envelope",
+      "status": "passed",
+      "detail": {
+        "result": "success",
+        "errorMessage": null,
+        "data": "pong"
+      }
+    },
+    {
+      "name": "unknown RPC rejected; no fabricated success",
+      "status": "passed",
+      "detail": {
+        "code": -32601,
+        "message": "Method not found"
+      }
+    },
+    {
+      "name": "setKV updates original client session state",
+      "status": "passed",
+      "detail": {}
+    },
+    {
+      "name": "recordingReady transitions original state machine",
+      "status": "passed",
+      "detail": {
+        "status": "ready",
+        "meta": {
+          "didReset": false
+        },
+        "sessionState": {
+          "micDevices": [
+            "Test microphone"
+          ],
+          "currentSessionId": "f8d75bc0-7854-4e5b-b58b-27b5dd9fc244"
+        }
+      }
+    },
+    {
+      "name": "client-to-helper response is a raw array, not Medal envelope",
+      "status": "passed",
+      "detail": [
+        "Test microphone"
+      ]
+    },
+    {
+      "name": "actual m7e -> gfe -> w5 registers real MP4 + thumbnail in SQLite (adapted dependencies)",
+      "status": "passed",
+      "detail": {
+        "local_content_id": "25807602-d64b-420d-8a33-29d93cef593f",
+        "video_path": "/Users/ryan/Developer/medal-cross-platform/research/tests/media/replay.mp4",
+        "thumbnail_path": "/Users/ryan/Developer/medal-cross-platform/research/tests/media/thumbs/replay.jpg",
+        "duration": 4.015365,
+        "sessionId": "f8d75bc0-7854-4e5b-b58b-27b5dd9fc244"
+      }
+    },
+    {
+      "name": "actual server rejects browser Origin header",
+      "status": "passed",
+      "detail": {}
+    },
+    {
+      "name": "shutdown close reason emits recorder.selfExit",
+      "status": "passed",
+      "detail": {}
+    }
+  ]
+}

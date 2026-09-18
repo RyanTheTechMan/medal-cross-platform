@@ -1,0 +1,226 @@
+[
+  {
+    "file": "chunks/renderer-Audio.js",
+    "offset": 3542,
+    "byteOffset": 3542,
+    "kind": "sendRecorderWSMessage",
+    "method": "micTesting",
+    "source": "MedalIPC.sendRecorderWSMessage(\"micTesting\",{state:g.REMOVE_FILE})"
+  },
+  {
+    "file": "chunks/renderer-Audio.js",
+    "offset": 3657,
+    "byteOffset": 3657,
+    "kind": "sendRecorderWSMessage",
+    "method": "micTesting",
+    "source": "MedalIPC.sendRecorderWSMessage(\"micTesting\",{state:g.REMOVE_FILE})"
+  },
+  {
+    "file": "chunks/renderer-Audio.js",
+    "offset": 3815,
+    "byteOffset": 3815,
+    "kind": "sendRecorderWSMessage",
+    "method": "micTesting",
+    "source": "MedalIPC.sendRecorderWSMessage(\"micTesting\",{state:g.REMOVE_FILE})"
+  },
+  {
+    "file": "chunks/renderer-Audio.js",
+    "offset": 3900,
+    "byteOffset": 3900,
+    "kind": "sendRecorderWSMessage",
+    "method": "micTesting",
+    "source": "MedalIPC.sendRecorderWSMessage(\"micTesting\",{state:g.STOP})"
+  },
+  {
+    "file": "chunks/renderer-Audio.js",
+    "offset": 4240,
+    "byteOffset": 4240,
+    "kind": "sendRecorderWSMessage",
+    "method": "micTesting",
+    "source": "MedalIPC.sendRecorderWSMessage(\"micTesting\",{state:g.START})"
+  },
+  {
+    "file": "chunks/renderer-AutoClipping.js",
+    "offset": 2628,
+    "byteOffset": 2628,
+    "kind": "sendRecorderWSRequest",
+    "method": "gamePluginsInstalled",
+    "source": "MedalIPC.sendRecorderWSRequest(\"gamePluginsInstalled\",{})"
+  },
+  {
+    "file": "chunks/renderer-AutoClipping.js",
+    "offset": 2891,
+    "byteOffset": 2891,
+    "kind": "sendRecorderWSRequest",
+    "method": "p",
+    "source": "MedalIPC.sendRecorderWSRequest(p,{categoryId:n})"
+  },
+  {
+    "file": "chunks/renderer-CaptureHotkeys.js",
+    "offset": 12114,
+    "byteOffset": 12118,
+    "kind": "sendRecorderWSMessage",
+    "method": "voiceCommandsTesting",
+    "source": "MedalIPC.sendRecorderWSMessage(\"voiceCommandsTesting\",{state:$.STOP})"
+  },
+  {
+    "file": "chunks/renderer-CaptureHotkeys.js",
+    "offset": 12797,
+    "byteOffset": 12801,
+    "kind": "sendRecorderWSMessage",
+    "method": "voiceCommandsTesting",
+    "source": "MedalIPC.sendRecorderWSMessage(\"voiceCommandsTesting\",{state:$.START})"
+  },
+  {
+    "file": "chunks/renderer-CustomGameSettings.js",
+    "offset": 3943,
+    "byteOffset": 3943,
+    "kind": "sendRecorderWSMessage",
+    "method": "deleteCustomGameSettings",
+    "source": "MedalIPC.sendRecorderWSMessage(\"deleteCustomGameSettings\",{customGameSettings:[{categoryId:s,settingKeys:y}]})"
+  },
+  {
+    "file": "chunks/renderer-CustomGameSettings.js",
+    "offset": 7107,
+    "byteOffset": 7107,
+    "kind": "sendRecorderWSMessage",
+    "method": "deleteAllCustomGameSettings",
+    "source": "MedalIPC.sendRecorderWSMessage(\"deleteAllCustomGameSettings\",{categoryIds:[s]})"
+  },
+  {
+    "file": "chunks/renderer-EnableVideoOverlays.js",
+    "offset": 157929,
+    "byteOffset": 157931,
+    "kind": "sendRecorderWSRequest",
+    "method": "webcamDevices",
+    "source": "MedalIPC.sendRecorderWSRequest(\"webcamDevices\",{includeVirtualDevices:r})"
+  },
+  {
+    "file": "chunks/renderer-HotkeyContext.js",
+    "offset": 2566,
+    "byteOffset": 2566,
+    "kind": "sendRecorderWSRequest",
+    "method": "startHotkeyListening",
+    "source": "MedalIPC.sendRecorderWSRequest(\"startHotkeyListening\",{})"
+  },
+  {
+    "file": "chunks/renderer-HotkeyContext.js",
+    "offset": 3771,
+    "byteOffset": 3771,
+    "kind": "sendRecorderWSMessage",
+    "method": "stopHotkeyListening",
+    "source": "MedalIPC.sendRecorderWSMessage(\"stopHotkeyListening\",{})"
+  },
+  {
+    "file": "chunks/renderer-MedalAi.js",
+    "offset": 3052,
+    "byteOffset": 3052,
+    "kind": "sendRecorderWSMessage",
+    "method": "settings",
+    "source": "MedalIPC.sendRecorderWSMessage(\"settings\",{settings:[s]})"
+  },
+  {
+    "file": "chunks/renderer-PrivacyAndSecurity.js",
+    "offset": 11755,
+    "byteOffset": 11755,
+    "kind": "sendRecorderWSMessage",
+    "method": "settings",
+    "source": "MedalIPC.sendRecorderWSMessage(\"settings\",{settings:[t]})"
+  },
+  {
+    "file": "chunks/renderer-RecorderSettings.js",
+    "offset": 2134,
+    "byteOffset": 2134,
+    "kind": "sendRecorderWSRequest",
+    "method": "getTargetedProcesses",
+    "source": "MedalIPC.sendRecorderWSRequest(\"getTargetedProcesses\",{})"
+  },
+  {
+    "file": "chunks/renderer-RecorderSettings.js",
+    "offset": 2660,
+    "byteOffset": 2660,
+    "kind": "sendRecorderWSMessage",
+    "method": "deleteTargetProcess",
+    "source": "MedalIPC.sendRecorderWSMessage(\"deleteTargetProcess\",{processName:W(n)})"
+  },
+  {
+    "file": "chunks/renderer-SettingCheckboxItem.js",
+    "offset": 1945,
+    "byteOffset": 1945,
+    "kind": "sendRecorderWSRequest",
+    "method": "availableAudioDevices",
+    "source": "MedalIPC.sendRecorderWSRequest(\"availableAudioDevices\",{})"
+  },
+  {
+    "file": "chunks/renderer-SettingCheckboxItem.js",
+    "offset": 5789,
+    "byteOffset": 5789,
+    "kind": "sendRecorderWSRequest",
+    "method": "audioProcesses",
+    "source": "MedalIPC.sendRecorderWSRequest(\"audioProcesses\",{})"
+  },
+  {
+    "file": "chunks/renderer-SoundAlerts.js",
+    "offset": 3995,
+    "byteOffset": 3995,
+    "kind": "sendRecorderWSMessage",
+    "method": "soundAlertTest",
+    "source": "MedalIPC.sendRecorderWSMessage(\"soundAlertTest\",{clipSoundPath:h})"
+  },
+  {
+    "file": "chunks/renderer-WindowsSettings.js",
+    "offset": 2154,
+    "byteOffset": 2154,
+    "kind": "sendRecorderWSMessage",
+    "method": "windowsGameMode",
+    "source": "MedalIPC.sendRecorderWSMessage(\"windowsGameMode\",{enabled:!n})"
+  },
+  {
+    "file": "chunks/renderer-useActiveDisplays.js",
+    "offset": 722,
+    "byteOffset": 722,
+    "kind": "sendRecorderWSRequest",
+    "method": "activeDisplays",
+    "source": "MedalIPC.sendRecorderWSRequest(\"activeDisplays\",{captureScreenshots:e})"
+  },
+  {
+    "file": "chunks/renderer-useActiveProcesses.js",
+    "offset": 814,
+    "byteOffset": 814,
+    "kind": "sendRecorderWSRequest",
+    "method": "getActiveProcesses",
+    "source": "MedalIPC.sendRecorderWSRequest(\"getActiveProcesses\",{})"
+  },
+  {
+    "file": "chunks/renderer-useAvailableMicDevices.js",
+    "offset": 604,
+    "byteOffset": 604,
+    "kind": "sendRecorderWSRequest",
+    "method": "availableMicDevices",
+    "source": "MedalIPC.sendRecorderWSRequest(\"availableMicDevices\",{})"
+  },
+  {
+    "file": "chunks/renderer-useDefaultAudioDevices.js",
+    "offset": 673,
+    "byteOffset": 673,
+    "kind": "sendRecorderWSRequest",
+    "method": "getDefaultAudioDevices",
+    "source": "MedalIPC.sendRecorderWSRequest(\"getDefaultAudioDevices\",{})"
+  },
+  {
+    "file": "renderer.min.js",
+    "offset": 501493,
+    "byteOffset": 501526,
+    "kind": "sendRecorderWSMessage",
+    "method": "switchGameRecording",
+    "source": "MedalIPC.sendRecorderWSMessage(\"switchGameRecording\",{data:{processName:\"\",categoryId:e.categoryId}})"
+  },
+  {
+    "file": "renderer.min.js",
+    "offset": 504666,
+    "byteOffset": 504699,
+    "kind": "sendRecorderWSRequest",
+    "method": "getTargetedProcesses",
+    "source": "MedalIPC.sendRecorderWSRequest(\"getTargetedProcesses\",{})"
+  }
+]

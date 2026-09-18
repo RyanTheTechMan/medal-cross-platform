@@ -1,0 +1,3923 @@
+{
+  "schema_version": 1,
+  "status": "IMPLEMENTATION INVENTORY, NOT A NATIVE FUNCTIONALITY REPORT",
+  "created_on": "2026-09-18",
+  "client_version": "2637.461.1",
+  "recorder_version": "2638.2751.1",
+  "allowed_platform_statuses": [
+    "not_started",
+    "investigating",
+    "implemented_unverified",
+    "verified",
+    "blocked",
+    "unsupported_with_evidence"
+  ],
+  "rules": [
+    "Native verification requires native test reports; inherited isolated passes are separate evidence.",
+    "Every unsupported status requires a feature-specific reason and tested UI state.",
+    "Missing lab hardware is untested/blocked, not universally unsupported.",
+    "Metadata declarations do not establish all wire payloads or event order.",
+    "Do not aggregate these different inventory categories into a misleading completion percentage."
+  ],
+  "recorder_methods": [
+    {
+      "id": "rpc:ping",
+      "name": "ping",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002bd3",
+      "parameter_names": [],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task",
+        "args": []
+      }
+    },
+    {
+      "id": "rpc:settings",
+      "name": "settings",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002bd4",
+      "parameter_names": [
+        "settings"
+      ],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "System.Collections.Generic.List`1<RESTService.IConnection+SettingObject>"
+        ]
+      }
+    },
+    {
+      "id": "rpc:deleteAllCustomGameSettings",
+      "name": "deleteAllCustomGameSettings",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002bd5",
+      "parameter_names": [
+        "categoryIds"
+      ],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "string[]"
+        ]
+      }
+    },
+    {
+      "id": "rpc:deleteCustomGameSettings",
+      "name": "deleteCustomGameSettings",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002bd6",
+      "parameter_names": [
+        "customGameSettings"
+      ],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "System.Collections.Generic.List`1<RESTService.IConnection+DeleteCustomGameSettingsData>"
+        ]
+      }
+    },
+    {
+      "id": "rpc:gamePluginsInstalled",
+      "name": "gamePluginsInstalled",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002bd7",
+      "parameter_names": [],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task`1<string[]>",
+        "args": []
+      }
+    },
+    {
+      "id": "rpc:installGamePlugin",
+      "name": "installGamePlugin",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002bd8",
+      "parameter_names": [
+        "categoryId"
+      ],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task`1<string[]>",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "id": "rpc:uninstallGamePlugin",
+      "name": "uninstallGamePlugin",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002bd9",
+      "parameter_names": [
+        "categoryId"
+      ],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task`1<string[]>",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "id": "rpc:hardwareId",
+      "name": "hardwareId",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002bda",
+      "parameter_names": [],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task`1<string>",
+        "args": []
+      }
+    },
+    {
+      "id": "rpc:windowsGameMode",
+      "name": "windowsGameMode",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002bdb",
+      "parameter_names": [
+        "enabled"
+      ],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "bool"
+        ]
+      }
+    },
+    {
+      "id": "rpc:activeDisplays",
+      "name": "activeDisplays",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002bdc",
+      "parameter_names": [
+        "captureScreenshots"
+      ],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task`1<System.Collections.Generic.List`1<MedalEncoder.ScreenUtils+ScreenInfo>>",
+        "args": [
+          "bool"
+        ]
+      }
+    },
+    {
+      "id": "rpc:availableAudioDevices",
+      "name": "availableAudioDevices",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002bdd",
+      "parameter_names": [],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task`1<System.Collections.Generic.List`1<string>>",
+        "args": []
+      }
+    },
+    {
+      "id": "rpc:availableMicDevices",
+      "name": "availableMicDevices",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002bde",
+      "parameter_names": [],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task`1<System.Collections.Generic.List`1<string>>",
+        "args": []
+      }
+    },
+    {
+      "id": "rpc:getDefaultAudioDevices",
+      "name": "getDefaultAudioDevices",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002bdf",
+      "parameter_names": [],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task`1<RESTService.IConnection+DefaultAudioDevices>",
+        "args": []
+      }
+    },
+    {
+      "id": "rpc:webcamDevices",
+      "name": "webcamDevices",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002be0",
+      "parameter_names": [
+        "includeVirtualDevices"
+      ],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task`1<System.Collections.Generic.List`1<RESTService.IConnection+WebcamDeviceInfo>>",
+        "args": [
+          "bool"
+        ]
+      }
+    },
+    {
+      "id": "rpc:gameSoundAudioDevice",
+      "name": "gameSoundAudioDevice",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002be1",
+      "parameter_names": [],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task`1<System.Collections.Generic.List`1<string>>",
+        "args": []
+      }
+    },
+    {
+      "id": "rpc:micAudioDevice",
+      "name": "micAudioDevice",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002be2",
+      "parameter_names": [],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task`1<string>",
+        "args": []
+      }
+    },
+    {
+      "id": "rpc:deleteTargetProcess",
+      "name": "deleteTargetProcess",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002be3",
+      "parameter_names": [
+        "processName"
+      ],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "id": "rpc:setTargetProcess",
+      "name": "setTargetProcess",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002be4",
+      "parameter_names": [
+        "data"
+      ],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "RESTService.IConnection+TargetProcessData"
+        ]
+      }
+    },
+    {
+      "id": "rpc:getTargetedProcesses",
+      "name": "getTargetedProcesses",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002be5",
+      "parameter_names": [],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task`1<System.Collections.Generic.List`1<RESTService.IConnection+TargetedProcessInfo>>",
+        "args": []
+      }
+    },
+    {
+      "id": "rpc:getActiveProcesses",
+      "name": "getActiveProcesses",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002be6",
+      "parameter_names": [],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task`1<System.Collections.Generic.List`1<RESTService.IConnection+ActiveProcessInfo>>",
+        "args": []
+      }
+    },
+    {
+      "id": "rpc:setGameRequestId",
+      "name": "setGameRequestId",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002be7",
+      "parameter_names": [
+        "data"
+      ],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "RESTService.IConnection+GameRequestIdData"
+        ]
+      }
+    },
+    {
+      "id": "rpc:switchGameRecording",
+      "name": "switchGameRecording",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002be8",
+      "parameter_names": [
+        "data"
+      ],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "RESTService.IConnection+SwitchGameRecordingData"
+        ]
+      }
+    },
+    {
+      "id": "rpc:audioProcesses",
+      "name": "audioProcesses",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002be9",
+      "parameter_names": [],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task`1<System.Collections.Generic.List`1<object>>",
+        "args": []
+      }
+    },
+    {
+      "id": "rpc:micTesting",
+      "name": "micTesting",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002bea",
+      "parameter_names": [
+        "state"
+      ],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "int32"
+        ]
+      }
+    },
+    {
+      "id": "rpc:voiceCommandsTesting",
+      "name": "voiceCommandsTesting",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002beb",
+      "parameter_names": [
+        "state"
+      ],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "int32"
+        ]
+      }
+    },
+    {
+      "id": "rpc:soundAlertTest",
+      "name": "soundAlertTest",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002bec",
+      "parameter_names": [
+        "clipSoundPath"
+      ],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "id": "rpc:clipRecovery",
+      "name": "clipRecovery",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002bed",
+      "parameter_names": [
+        "clips"
+      ],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "System.Collections.Generic.List`1<RESTService.IConnection+ClipRecoverObject>"
+        ]
+      }
+    },
+    {
+      "id": "rpc:toggleBroadcast",
+      "name": "toggleBroadcast",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002bee",
+      "parameter_names": [
+        "data"
+      ],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "RESTService.IConnection+ToggleBroadcastData"
+        ]
+      }
+    },
+    {
+      "id": "rpc:toggleSessionRecording",
+      "name": "toggleSessionRecording",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002bef",
+      "parameter_names": [],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task",
+        "args": []
+      }
+    },
+    {
+      "id": "rpc:shutdown",
+      "name": "shutdown",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002bf0",
+      "parameter_names": [],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task",
+        "args": []
+      }
+    },
+    {
+      "id": "rpc:startHotkeyListening",
+      "name": "startHotkeyListening",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002bf1",
+      "parameter_names": [],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task`1<bool>",
+        "args": []
+      }
+    },
+    {
+      "id": "rpc:stopHotkeyListening",
+      "name": "stopHotkeyListening",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002bf2",
+      "parameter_names": [],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task",
+        "args": []
+      }
+    },
+    {
+      "id": "rpc:suspendHotkeys",
+      "name": "suspendHotkeys",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002bf3",
+      "parameter_names": [
+        "suspended"
+      ],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "bool"
+        ]
+      }
+    },
+    {
+      "id": "rpc:autoClipEvents",
+      "name": "autoClipEvents",
+      "source": "research/evidence/recorder_metadata.json#rpc_methods",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "electron_to_recorder",
+      "method_token": "0x6002bf4",
+      "parameter_names": [],
+      "clr_signature": {
+        "return": "System.Threading.Tasks.Task`1<MedalEncoder.AutoClipCatalog+CatalogPayload>",
+        "args": []
+      }
+    }
+  ],
+  "client_handlers": [
+    {
+      "id": "handler:recordingReady",
+      "name": "recordingReady",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "A7e"
+    },
+    {
+      "id": "handler:setKV",
+      "name": "setKV",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "p7e"
+    },
+    {
+      "id": "handler:diskSpace",
+      "name": "diskSpace",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "f7e"
+    },
+    {
+      "id": "handler:contentDelete",
+      "name": "contentDelete",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "E7e"
+    },
+    {
+      "id": "handler:contentFailed",
+      "name": "contentFailed",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "y7e"
+    },
+    {
+      "id": "handler:contentUpdate",
+      "name": "contentUpdate",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "I7e"
+    },
+    {
+      "id": "handler:gameStarted",
+      "name": "gameStarted",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "C7e"
+    },
+    {
+      "id": "handler:gameEnded",
+      "name": "gameEnded",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "v7e"
+    },
+    {
+      "id": "handler:gameServerStarted",
+      "name": "gameServerStarted",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "b7e"
+    },
+    {
+      "id": "handler:gameMatchStarted",
+      "name": "gameMatchStarted",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "S7e"
+    },
+    {
+      "id": "handler:gameMatchEnded",
+      "name": "gameMatchEnded",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "_7e"
+    },
+    {
+      "id": "handler:subgameStarted",
+      "name": "subgameStarted",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "B7e"
+    },
+    {
+      "id": "handler:subgameEnded",
+      "name": "subgameEnded",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "Q7e"
+    },
+    {
+      "id": "handler:fallbackEncoder",
+      "name": "fallbackEncoder",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "T7e"
+    },
+    {
+      "id": "handler:recorderError",
+      "name": "recorderError",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "R7e"
+    },
+    {
+      "id": "handler:voiceCommandDetected",
+      "name": "voiceCommandDetected",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "D7e"
+    },
+    {
+      "id": "handler:hotkeyCaptureState",
+      "name": "hotkeyCaptureState",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "k7e"
+    },
+    {
+      "id": "handler:hotkeyCaptured",
+      "name": "hotkeyCaptured",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "N7e"
+    },
+    {
+      "id": "handler:hotkeyCaptureCancelled",
+      "name": "hotkeyCaptureCancelled",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "M7e"
+    },
+    {
+      "id": "handler:gameState",
+      "name": "gameState",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "U7e"
+    },
+    {
+      "id": "handler:captureStarted",
+      "name": "captureStarted",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "F7e"
+    },
+    {
+      "id": "handler:captureStopped",
+      "name": "captureStopped",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "H7e"
+    },
+    {
+      "id": "handler:requestAdmin",
+      "name": "requestAdmin",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "G7e"
+    },
+    {
+      "id": "handler:overlaySize",
+      "name": "overlaySize",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "V7e"
+    },
+    {
+      "id": "handler:overlayEnabled",
+      "name": "overlayEnabled",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "Y7e"
+    },
+    {
+      "id": "handler:overlayShow",
+      "name": "overlayShow",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "j7e"
+    },
+    {
+      "id": "handler:overlayInjected",
+      "name": "overlayInjected",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "q7e"
+    },
+    {
+      "id": "handler:callback",
+      "name": "callback",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "W7e"
+    },
+    {
+      "id": "handler:steamGamesInLibrary",
+      "name": "steamGamesInLibrary",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "$7e"
+    },
+    {
+      "id": "handler:autoClipCatalogChanged",
+      "name": "autoClipCatalogChanged",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "P7e"
+    },
+    {
+      "id": "handler:ping",
+      "name": "ping",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "l7e"
+    },
+    {
+      "id": "handler:user",
+      "name": "user",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "u7e"
+    },
+    {
+      "id": "handler:recordingSettings",
+      "name": "recordingSettings",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "d7e"
+    },
+    {
+      "id": "handler:customGameSettings",
+      "name": "customGameSettings",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "x7e"
+    },
+    {
+      "id": "handler:handshake",
+      "name": "handshake",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "w7e"
+    },
+    {
+      "id": "handler:targetProcess",
+      "name": "targetProcess",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "h7e"
+    },
+    {
+      "id": "handler:contentCreate",
+      "name": "contentCreate",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "m7e"
+    },
+    {
+      "id": "handler:hardwareInfo",
+      "name": "hardwareInfo",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "g7e"
+    },
+    {
+      "id": "handler:environment",
+      "name": "environment",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "e$"
+    },
+    {
+      "id": "handler:gameAudioOnlyEnabled",
+      "name": "gameAudioOnlyEnabled",
+      "source": "research/evidence/client_handlers.json",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "direction": "recorder_to_electron",
+      "build_specific_symbol": "e$"
+    }
+  ],
+  "recorder_settings": [
+    {
+      "id": "setting:AdvancedWindowCapture",
+      "name": "AdvancedWindowCapture",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:AspectRatio",
+      "name": "AspectRatio",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:AudioModeConfig",
+      "name": "AudioModeConfig",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:Bitrate",
+      "name": "Bitrate",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:ClipFolder",
+      "name": "ClipFolder",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:Codec",
+      "name": "Codec",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:DevelopmentMode",
+      "name": "DevelopmentMode",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:ProfileRecommendationServicesEnabled",
+      "name": "ProfileRecommendationServicesEnabled",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:Encoder",
+      "name": "Encoder",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:ExperimentalCapture",
+      "name": "ExperimentalCapture",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:ExternalFileSources",
+      "name": "ExternalFileSources",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:ForceWindowCapture",
+      "name": "ForceWindowCapture",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:FpsMode",
+      "name": "FpsMode",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:FullSessionMode",
+      "name": "FullSessionMode",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:GameAudioOnly",
+      "name": "GameAudioOnly",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:GameControlsCollectionEnabled",
+      "name": "GameControlsCollectionEnabled",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:ClipSavedSoundAlerts",
+      "name": "ClipSavedSoundAlerts",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:BookmarkSavedSoundAlerts",
+      "name": "BookmarkSavedSoundAlerts",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:SessionToggleSoundAlerts",
+      "name": "SessionToggleSoundAlerts",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:AutoClippingSoundAlerts",
+      "name": "AutoClippingSoundAlerts",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:DiskFullSoundAlerts",
+      "name": "DiskFullSoundAlerts",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:ScreenshotSoundAlerts",
+      "name": "ScreenshotSoundAlerts",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:GlobalSoundAlerts",
+      "name": "GlobalSoundAlerts",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:ClipSound",
+      "name": "ClipSound",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:ClipSoundPath",
+      "name": "ClipSoundPath",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:AudioNotificationVolume",
+      "name": "AudioNotificationVolume",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:HDRCompatibility",
+      "name": "HDRCompatibility",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:Hotkeys",
+      "name": "Hotkeys",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:ICYMIEnabled",
+      "name": "ICYMIEnabled",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:ICYMIEventSettings",
+      "name": "ICYMIEventSettings",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:RobloxAutoClipBlacklist",
+      "name": "RobloxAutoClipBlacklist",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:MinecraftAutoClipBlacklist",
+      "name": "MinecraftAutoClipBlacklist",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:GTAAutoClipBlacklist",
+      "name": "GTAAutoClipBlacklist",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:InMemoryBuffer",
+      "name": "InMemoryBuffer",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:JWT",
+      "name": "JWT",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:MicEnabled",
+      "name": "MicEnabled",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:MicNoiseGateEnabled",
+      "name": "MicNoiseGateEnabled",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:MicNoiseGateThreshold",
+      "name": "MicNoiseGateThreshold",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:MicNoiseSuppressionEnabled",
+      "name": "MicNoiseSuppressionEnabled",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:MicSoundGain",
+      "name": "MicSoundGain",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:MonitorDeviceName",
+      "name": "MonitorDeviceName",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:MonoMicAudio",
+      "name": "MonoMicAudio",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:MultipleAudioTracks",
+      "name": "MultipleAudioTracks",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:PassiveGameSwitchEnabled",
+      "name": "PassiveGameSwitchEnabled",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:PreferGameCapture",
+      "name": "PreferGameCapture",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:PushToTalkEnabled",
+      "name": "PushToTalkEnabled",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:RecordingEnabled",
+      "name": "RecordingEnabled",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:Resolution",
+      "name": "Resolution",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:ScreenCaptureEnabled",
+      "name": "ScreenCaptureEnabled",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:SDKMode",
+      "name": "SDKMode",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:SelectedAudioDevices",
+      "name": "SelectedAudioDevices",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:SelectedGPUDevice",
+      "name": "SelectedGPUDevice",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:SelectedMicDevice",
+      "name": "SelectedMicDevice",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:ShowCursor",
+      "name": "ShowCursor",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:ShowOverlay",
+      "name": "ShowOverlay",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:TargetFPS",
+      "name": "TargetFPS",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:VoiceClippingEnabled",
+      "name": "VoiceClippingEnabled",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:VoiceClippingAssistantNames",
+      "name": "VoiceClippingAssistantNames",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:VoiceCommandsActiveConfig",
+      "name": "VoiceCommandsActiveConfig",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    },
+    {
+      "id": "setting:VideoOverlayConfig",
+      "name": "VideoOverlayConfig",
+      "source": "research/evidence/settings_catalog.json#recorderKeys",
+      "contract_status": "recovered_inventory_requires_behavior_verification",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "scope": "global_and_per_game_where_supported"
+    }
+  ],
+  "product_workflows": [
+    {
+      "id": "workflow:safe_import_and_rollback",
+      "name": "safe_import_and_rollback",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "investigating",
+        "implementation_files": [
+          "research/tools/extract_medal.py"
+        ],
+        "test_ids": [
+          "A01-evidence-subset"
+        ],
+        "report_paths": [
+          "reports/m0/extraction-report.json"
+        ],
+        "limitations": [
+          "The inherited read-only extractor was reproduced, but the product importer, exact patching, atomic activation, rollback, and uninstall behavior are not implemented."
+        ]
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "A01",
+        "A02",
+        "A03",
+        "A09"
+      ]
+    },
+    {
+      "id": "workflow:native_electron_bootstrap",
+      "name": "native_electron_bootstrap",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "investigating",
+        "implementation_files": [
+          "DEPENDENCIES.lock.json"
+        ],
+        "test_ids": [],
+        "report_paths": [
+          "reports/m0/environment.txt"
+        ],
+        "limitations": [
+          "Electron 43.2.0 darwin-arm64 is not yet installed or launched; stable Xcode 27 is absent."
+        ]
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "A04",
+        "A07",
+        "A08"
+      ]
+    },
+    {
+      "id": "workflow:real_sqlite_worker_and_recovery",
+      "name": "real_sqlite_worker_and_recovery",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "investigating",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [
+          "reports/m0/environment.txt"
+        ],
+        "limitations": [
+          "The bundled wrapper and PE x86-64 addon were inspected; exact public source/native compatibility and a real Electron test remain unresolved."
+        ]
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "A05"
+      ]
+    },
+    {
+      "id": "workflow:native_dependency_and_update_management",
+      "name": "native_dependency_and_update_management",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "investigating",
+        "implementation_files": [
+          "DEPENDENCIES.lock.json"
+        ],
+        "test_ids": [],
+        "report_paths": [
+          "reports/m0/environment.txt"
+        ],
+        "limitations": [
+          "Both Velopack entry points and recorder/SQLite asset replacement paths are identified but not patched."
+        ]
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "A06"
+      ]
+    },
+    {
+      "id": "workflow:normal_authentication_and_deeplinks",
+      "name": "normal_authentication_and_deeplinks",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "A10"
+      ]
+    },
+    {
+      "id": "workflow:real_native_client_helper_protocol",
+      "name": "real_native_client_helper_protocol",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "B01",
+        "B02",
+        "B03",
+        "B04"
+      ]
+    },
+    {
+      "id": "workflow:lifecycle_and_error_handling",
+      "name": "lifecycle_and_error_handling",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "B05",
+        "B06",
+        "B07",
+        "P10"
+      ]
+    },
+    {
+      "id": "workflow:device_selection_and_settings",
+      "name": "device_selection_and_settings",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "B08",
+        "B09",
+        "B10"
+      ]
+    },
+    {
+      "id": "workflow:native_video_capture",
+      "name": "native_video_capture",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "M02",
+        "M03",
+        "M04",
+        "L02",
+        "L03",
+        "L04",
+        "L05"
+      ]
+    },
+    {
+      "id": "workflow:system_microphone_audio",
+      "name": "system_microphone_audio",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "M05",
+        "M07",
+        "L06"
+      ]
+    },
+    {
+      "id": "workflow:game_only_audio",
+      "name": "game_only_audio",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "M06",
+        "L06"
+      ]
+    },
+    {
+      "id": "workflow:hotkeys_ptt_and_rebinding",
+      "name": "hotkeys_ptt_and_rebinding",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "M08",
+        "L07"
+      ]
+    },
+    {
+      "id": "workflow:camera_compositing",
+      "name": "camera_compositing",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "M09",
+        "L08"
+      ]
+    },
+    {
+      "id": "workflow:permissions_and_privacy",
+      "name": "permissions_and_privacy",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "M10",
+        "L02",
+        "L08",
+        "B04"
+      ]
+    },
+    {
+      "id": "workflow:hardware_encoding",
+      "name": "hardware_encoding",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "M03",
+        "L05",
+        "L11",
+        "P01"
+      ]
+    },
+    {
+      "id": "workflow:replay_buffer_and_export",
+      "name": "replay_buffer_and_export",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "E01",
+        "E02",
+        "E03",
+        "P04",
+        "P06"
+      ]
+    },
+    {
+      "id": "workflow:clip_library_roundtrip",
+      "name": "clip_library_roundtrip",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "E04",
+        "E09"
+      ]
+    },
+    {
+      "id": "workflow:full_sessions_bookmarks_segments",
+      "name": "full_sessions_bookmarks_segments",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "E05"
+      ]
+    },
+    {
+      "id": "workflow:multi_track_audio_editing",
+      "name": "multi_track_audio_editing",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "E06"
+      ]
+    },
+    {
+      "id": "workflow:editor_remux_trim_export",
+      "name": "editor_remux_trim_export",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "E07"
+      ]
+    },
+    {
+      "id": "workflow:screenshots_and_feedback",
+      "name": "screenshots_and_feedback",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "E08"
+      ]
+    },
+    {
+      "id": "workflow:crash_disk_and_export_recovery",
+      "name": "crash_disk_and_export_recovery",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "E09",
+        "E10",
+        "P09"
+      ]
+    },
+    {
+      "id": "workflow:private_authorized_upload",
+      "name": "private_authorized_upload",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "E11"
+      ]
+    },
+    {
+      "id": "workflow:honest_capability_controls",
+      "name": "honest_capability_controls",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "E12"
+      ]
+    },
+    {
+      "id": "workflow:hevc_hdr_compatibility",
+      "name": "hevc_hdr_compatibility",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "M11",
+        "E07"
+      ]
+    },
+    {
+      "id": "workflow:optional_voice_and_game_integrations",
+      "name": "optional_voice_and_game_integrations",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "M12",
+        "E13"
+      ]
+    },
+    {
+      "id": "workflow:linux_x11_optional",
+      "name": "linux_x11_optional",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "L09"
+      ]
+    },
+    {
+      "id": "workflow:packaging_shell_integration",
+      "name": "packaging_shell_integration",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "M10",
+        "L01",
+        "L10",
+        "L12"
+      ]
+    },
+    {
+      "id": "workflow:sustained_performance",
+      "name": "sustained_performance",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10"
+      ]
+    },
+    {
+      "id": "workflow:macos_linux_handoff_and_regressions",
+      "name": "macos_linux_handoff_and_regressions",
+      "source": "CODEX_MASTER_PROMPT.md",
+      "contract_status": "proposed_product_requirement",
+      "macos": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "linux": {
+        "status": "not_started",
+        "implementation_files": [],
+        "test_ids": [],
+        "report_paths": [],
+        "limitations": []
+      },
+      "acceptance_test_ids": []
+    }
+  ]
+}

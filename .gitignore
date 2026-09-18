@@ -1,0 +1,11 @@
+inputs/
+artifacts/
+build*/
+research/extracted*/
+research/tests/media/
+node_modules/
+.DS_Store
+*.p12
+*.pfx
+*.key
+.env

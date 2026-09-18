@@ -1,0 +1,1242 @@
+{
+  "name": "RESTService.MetadataObject",
+  "rid": 109,
+  "fields": [
+    {
+      "name": "<eventobj>k__BackingField",
+      "type": {
+        "type": "RESTService.EventObject"
+      },
+      "flags": "0x1",
+      "token": "0x40001b1"
+    },
+    {
+      "name": "<triggerType>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x1",
+      "token": "0x40001b2"
+    },
+    {
+      "name": "<isGAO>k__BackingField",
+      "type": {
+        "type": "bool"
+      },
+      "flags": "0x1",
+      "token": "0x40001b3"
+    },
+    {
+      "name": "<isUWP>k__BackingField",
+      "type": {
+        "type": "bool"
+      },
+      "flags": "0x1",
+      "token": "0x40001b4"
+    },
+    {
+      "name": "<generateThumbnail>k__BackingField",
+      "type": {
+        "type": "bool"
+      },
+      "flags": "0x1",
+      "token": "0x40001b5"
+    },
+    {
+      "name": "<clipDurationSec>k__BackingField",
+      "type": {
+        "type": "System.Nullable`1<int32>"
+      },
+      "flags": "0x1",
+      "token": "0x40001b6"
+    },
+    {
+      "name": "<clipStartTime>k__BackingField",
+      "type": {
+        "type": "System.Nullable`1<System.DateTimeOffset>"
+      },
+      "flags": "0x1",
+      "token": "0x40001b7"
+    },
+    {
+      "name": "<generateBookmark>k__BackingField",
+      "type": {
+        "type": "System.Nullable`1<bool>"
+      },
+      "flags": "0x1",
+      "token": "0x40001b8"
+    },
+    {
+      "name": "<attributedCategoryId>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x1",
+      "token": "0x40001b9"
+    },
+    {
+      "name": "<attributedCategoryName>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x1",
+      "token": "0x40001ba"
+    },
+    {
+      "name": "<activeWindowTitle>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x1",
+      "token": "0x40001bb"
+    },
+    {
+      "name": "<processName>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x1",
+      "token": "0x40001bc"
+    },
+    {
+      "name": "<outputPath>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x1",
+      "token": "0x40001bd"
+    },
+    {
+      "name": "<dontPublish>k__BackingField",
+      "type": {
+        "type": "bool"
+      },
+      "flags": "0x1",
+      "token": "0x40001be"
+    },
+    {
+      "name": "<alertType>k__BackingField",
+      "type": {
+        "type": "RESTService.NotificationAlertType"
+      },
+      "flags": "0x1",
+      "token": "0x40001bf"
+    },
+    {
+      "name": "<bookmarks>k__BackingField",
+      "type": {
+        "type": "System.Collections.Generic.List`1<MedalEncoder.Bookmark>"
+      },
+      "flags": "0x1",
+      "token": "0x40001c0"
+    },
+    {
+      "name": "<usingController>k__BackingField",
+      "type": {
+        "type": "bool"
+      },
+      "flags": "0x1",
+      "token": "0x40001c1"
+    },
+    {
+      "name": "<controller>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x1",
+      "token": "0x40001c2"
+    },
+    {
+      "name": "<exportStatsTimestamp>k__BackingField",
+      "type": {
+        "type": "System.DateTimeOffset"
+      },
+      "flags": "0x1",
+      "token": "0x40001c3"
+    },
+    {
+      "name": "<exportStatsDuration>k__BackingField",
+      "type": {
+        "type": "float64"
+      },
+      "flags": "0x1",
+      "token": "0x40001c4"
+    },
+    {
+      "name": "<gameControlsCollected>k__BackingField",
+      "type": {
+        "type": "bool"
+      },
+      "flags": "0x1",
+      "token": "0x40001c5"
+    },
+    {
+      "name": "<defaultControlsCollected>k__BackingField",
+      "type": {
+        "type": "bool"
+      },
+      "flags": "0x1",
+      "token": "0x40001c6"
+    },
+    {
+      "name": "<basicControlsCollected>k__BackingField",
+      "type": {
+        "type": "bool"
+      },
+      "flags": "0x1",
+      "token": "0x40001c7"
+    },
+    {
+      "name": "<saveAsSession>k__BackingField",
+      "type": {
+        "type": "bool"
+      },
+      "flags": "0x1",
+      "token": "0x40001c8"
+    },
+    {
+      "name": "<videoType>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x1",
+      "token": "0x40001c9"
+    },
+    {
+      "name": "<clipSound>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x1",
+      "token": "0x40001ca"
+    },
+    {
+      "name": "<webcamOverlayEnabled>k__BackingField",
+      "type": {
+        "type": "bool"
+      },
+      "flags": "0x1",
+      "token": "0x40001cb"
+    },
+    {
+      "name": "<inputDeviceOverlayEnabled>k__BackingField",
+      "type": {
+        "type": "bool"
+      },
+      "flags": "0x1",
+      "token": "0x40001cc"
+    },
+    {
+      "name": "<inputDeviceOverlayLayout>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x1",
+      "token": "0x40001cd"
+    },
+    {
+      "name": "<inputOverlaySources>k__BackingField",
+      "type": {
+        "type": "System.Collections.Generic.List`1<string>"
+      },
+      "flags": "0x1",
+      "token": "0x40001ce"
+    },
+    {
+      "name": "<lastSeenUniverseId>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x1",
+      "token": "0x40001cf"
+    },
+    {
+      "name": "<audioMode>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x1",
+      "token": "0x40001d0"
+    },
+    {
+      "name": "<audioProcessList>k__BackingField",
+      "type": {
+        "type": "System.Collections.Generic.List`1<string>"
+      },
+      "flags": "0x1",
+      "token": "0x40001d1"
+    },
+    {
+      "name": "<microphoneDeviceName>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x1",
+      "token": "0x40001d2"
+    },
+    {
+      "name": "<clientEnvironment>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x1",
+      "token": "0x40001d3"
+    },
+    {
+      "name": "<voiceCommand>k__BackingField",
+      "type": {
+        "type": "string"
+      },
+      "flags": "0x1",
+      "token": "0x40001d4"
+    }
+  ],
+  "properties": [
+    {
+      "name": "eventobj",
+      "signature": {
+        "return": "RESTService.EventObject",
+        "args": []
+      },
+      "rid": 185
+    },
+    {
+      "name": "triggerType",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 186
+    },
+    {
+      "name": "isGAO",
+      "signature": {
+        "return": "bool",
+        "args": []
+      },
+      "rid": 187
+    },
+    {
+      "name": "isUWP",
+      "signature": {
+        "return": "bool",
+        "args": []
+      },
+      "rid": 188
+    },
+    {
+      "name": "generateThumbnail",
+      "signature": {
+        "return": "bool",
+        "args": []
+      },
+      "rid": 189
+    },
+    {
+      "name": "clipDurationSec",
+      "signature": {
+        "return": "System.Nullable`1<int32>",
+        "args": []
+      },
+      "rid": 190
+    },
+    {
+      "name": "clipStartTime",
+      "signature": {
+        "return": "System.Nullable`1<System.DateTimeOffset>",
+        "args": []
+      },
+      "rid": 191
+    },
+    {
+      "name": "generateBookmark",
+      "signature": {
+        "return": "System.Nullable`1<bool>",
+        "args": []
+      },
+      "rid": 192
+    },
+    {
+      "name": "attributedCategoryId",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 193
+    },
+    {
+      "name": "attributedCategoryName",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 194
+    },
+    {
+      "name": "activeWindowTitle",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 195
+    },
+    {
+      "name": "processName",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 196
+    },
+    {
+      "name": "outputPath",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 197
+    },
+    {
+      "name": "dontPublish",
+      "signature": {
+        "return": "bool",
+        "args": []
+      },
+      "rid": 198
+    },
+    {
+      "name": "alertType",
+      "signature": {
+        "return": "RESTService.NotificationAlertType",
+        "args": []
+      },
+      "rid": 199
+    },
+    {
+      "name": "bookmarks",
+      "signature": {
+        "return": "System.Collections.Generic.List`1<MedalEncoder.Bookmark>",
+        "args": []
+      },
+      "rid": 200
+    },
+    {
+      "name": "usingController",
+      "signature": {
+        "return": "bool",
+        "args": []
+      },
+      "rid": 201
+    },
+    {
+      "name": "controller",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 202
+    },
+    {
+      "name": "exportStatsTimestamp",
+      "signature": {
+        "return": "System.DateTimeOffset",
+        "args": []
+      },
+      "rid": 203
+    },
+    {
+      "name": "exportStatsDuration",
+      "signature": {
+        "return": "float64",
+        "args": []
+      },
+      "rid": 204
+    },
+    {
+      "name": "gameControlsCollected",
+      "signature": {
+        "return": "bool",
+        "args": []
+      },
+      "rid": 205
+    },
+    {
+      "name": "defaultControlsCollected",
+      "signature": {
+        "return": "bool",
+        "args": []
+      },
+      "rid": 206
+    },
+    {
+      "name": "basicControlsCollected",
+      "signature": {
+        "return": "bool",
+        "args": []
+      },
+      "rid": 207
+    },
+    {
+      "name": "saveAsSession",
+      "signature": {
+        "return": "bool",
+        "args": []
+      },
+      "rid": 208
+    },
+    {
+      "name": "videoType",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 209
+    },
+    {
+      "name": "clipSound",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 210
+    },
+    {
+      "name": "webcamOverlayEnabled",
+      "signature": {
+        "return": "bool",
+        "args": []
+      },
+      "rid": 211
+    },
+    {
+      "name": "inputDeviceOverlayEnabled",
+      "signature": {
+        "return": "bool",
+        "args": []
+      },
+      "rid": 212
+    },
+    {
+      "name": "inputDeviceOverlayLayout",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 213
+    },
+    {
+      "name": "inputOverlaySources",
+      "signature": {
+        "return": "System.Collections.Generic.List`1<string>",
+        "args": []
+      },
+      "rid": 214
+    },
+    {
+      "name": "lastSeenUniverseId",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 215
+    },
+    {
+      "name": "audioMode",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 216
+    },
+    {
+      "name": "audioProcessList",
+      "signature": {
+        "return": "System.Collections.Generic.List`1<string>",
+        "args": []
+      },
+      "rid": 217
+    },
+    {
+      "name": "microphoneDeviceName",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 218
+    },
+    {
+      "name": "clientEnvironment",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 219
+    },
+    {
+      "name": "voiceCommand",
+      "signature": {
+        "return": "string",
+        "args": []
+      },
+      "rid": 220
+    }
+  ],
+  "methods": [
+    {
+      "name": "get_eventobj",
+      "rid": 638,
+      "sig": {
+        "return": "RESTService.EventObject",
+        "args": []
+      }
+    },
+    {
+      "name": "set_eventobj",
+      "rid": 639,
+      "sig": {
+        "return": "void",
+        "args": [
+          "RESTService.EventObject"
+        ]
+      }
+    },
+    {
+      "name": "get_triggerType",
+      "rid": 640,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_triggerType",
+      "rid": 641,
+      "sig": {
+        "return": "void",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_isGAO",
+      "rid": 642,
+      "sig": {
+        "return": "bool",
+        "args": []
+      }
+    },
+    {
+      "name": "set_isGAO",
+      "rid": 643,
+      "sig": {
+        "return": "void",
+        "args": [
+          "bool"
+        ]
+      }
+    },
+    {
+      "name": "get_isUWP",
+      "rid": 644,
+      "sig": {
+        "return": "bool",
+        "args": []
+      }
+    },
+    {
+      "name": "set_isUWP",
+      "rid": 645,
+      "sig": {
+        "return": "void",
+        "args": [
+          "bool"
+        ]
+      }
+    },
+    {
+      "name": "get_generateThumbnail",
+      "rid": 646,
+      "sig": {
+        "return": "bool",
+        "args": []
+      }
+    },
+    {
+      "name": "set_generateThumbnail",
+      "rid": 647,
+      "sig": {
+        "return": "void",
+        "args": [
+          "bool"
+        ]
+      }
+    },
+    {
+      "name": "get_clipDurationSec",
+      "rid": 648,
+      "sig": {
+        "return": "System.Nullable`1<int32>",
+        "args": []
+      }
+    },
+    {
+      "name": "set_clipDurationSec",
+      "rid": 649,
+      "sig": {
+        "return": "void",
+        "args": [
+          "System.Nullable`1<int32>"
+        ]
+      }
+    },
+    {
+      "name": "get_clipStartTime",
+      "rid": 650,
+      "sig": {
+        "return": "System.Nullable`1<System.DateTimeOffset>",
+        "args": []
+      }
+    },
+    {
+      "name": "set_clipStartTime",
+      "rid": 651,
+      "sig": {
+        "return": "void",
+        "args": [
+          "System.Nullable`1<System.DateTimeOffset>"
+        ]
+      }
+    },
+    {
+      "name": "get_generateBookmark",
+      "rid": 652,
+      "sig": {
+        "return": "System.Nullable`1<bool>",
+        "args": []
+      }
+    },
+    {
+      "name": "set_generateBookmark",
+      "rid": 653,
+      "sig": {
+        "return": "void",
+        "args": [
+          "System.Nullable`1<bool>"
+        ]
+      }
+    },
+    {
+      "name": "get_attributedCategoryId",
+      "rid": 654,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_attributedCategoryId",
+      "rid": 655,
+      "sig": {
+        "return": "void",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_attributedCategoryName",
+      "rid": 656,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_attributedCategoryName",
+      "rid": 657,
+      "sig": {
+        "return": "void",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_activeWindowTitle",
+      "rid": 658,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_activeWindowTitle",
+      "rid": 659,
+      "sig": {
+        "return": "void",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_processName",
+      "rid": 660,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_processName",
+      "rid": 661,
+      "sig": {
+        "return": "void",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_outputPath",
+      "rid": 662,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_outputPath",
+      "rid": 663,
+      "sig": {
+        "return": "void",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_dontPublish",
+      "rid": 664,
+      "sig": {
+        "return": "bool",
+        "args": []
+      }
+    },
+    {
+      "name": "set_dontPublish",
+      "rid": 665,
+      "sig": {
+        "return": "void",
+        "args": [
+          "bool"
+        ]
+      }
+    },
+    {
+      "name": "get_alertType",
+      "rid": 666,
+      "sig": {
+        "return": "RESTService.NotificationAlertType",
+        "args": []
+      }
+    },
+    {
+      "name": "set_alertType",
+      "rid": 667,
+      "sig": {
+        "return": "void",
+        "args": [
+          "RESTService.NotificationAlertType"
+        ]
+      }
+    },
+    {
+      "name": "get_bookmarks",
+      "rid": 668,
+      "sig": {
+        "return": "System.Collections.Generic.List`1<MedalEncoder.Bookmark>",
+        "args": []
+      }
+    },
+    {
+      "name": "set_bookmarks",
+      "rid": 669,
+      "sig": {
+        "return": "void",
+        "args": [
+          "System.Collections.Generic.List`1<MedalEncoder.Bookmark>"
+        ]
+      }
+    },
+    {
+      "name": "get_usingController",
+      "rid": 670,
+      "sig": {
+        "return": "bool",
+        "args": []
+      }
+    },
+    {
+      "name": "set_usingController",
+      "rid": 671,
+      "sig": {
+        "return": "void",
+        "args": [
+          "bool"
+        ]
+      }
+    },
+    {
+      "name": "get_controller",
+      "rid": 672,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_controller",
+      "rid": 673,
+      "sig": {
+        "return": "void",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_exportStatsTimestamp",
+      "rid": 674,
+      "sig": {
+        "return": "System.DateTimeOffset",
+        "args": []
+      }
+    },
+    {
+      "name": "set_exportStatsTimestamp",
+      "rid": 675,
+      "sig": {
+        "return": "void",
+        "args": [
+          "System.DateTimeOffset"
+        ]
+      }
+    },
+    {
+      "name": "get_exportStatsDuration",
+      "rid": 676,
+      "sig": {
+        "return": "float64",
+        "args": []
+      }
+    },
+    {
+      "name": "set_exportStatsDuration",
+      "rid": 677,
+      "sig": {
+        "return": "void",
+        "args": [
+          "float64"
+        ]
+      }
+    },
+    {
+      "name": "get_gameControlsCollected",
+      "rid": 678,
+      "sig": {
+        "return": "bool",
+        "args": []
+      }
+    },
+    {
+      "name": "set_gameControlsCollected",
+      "rid": 679,
+      "sig": {
+        "return": "void",
+        "args": [
+          "bool"
+        ]
+      }
+    },
+    {
+      "name": "get_defaultControlsCollected",
+      "rid": 680,
+      "sig": {
+        "return": "bool",
+        "args": []
+      }
+    },
+    {
+      "name": "set_defaultControlsCollected",
+      "rid": 681,
+      "sig": {
+        "return": "void",
+        "args": [
+          "bool"
+        ]
+      }
+    },
+    {
+      "name": "get_basicControlsCollected",
+      "rid": 682,
+      "sig": {
+        "return": "bool",
+        "args": []
+      }
+    },
+    {
+      "name": "set_basicControlsCollected",
+      "rid": 683,
+      "sig": {
+        "return": "void",
+        "args": [
+          "bool"
+        ]
+      }
+    },
+    {
+      "name": "get_saveAsSession",
+      "rid": 684,
+      "sig": {
+        "return": "bool",
+        "args": []
+      }
+    },
+    {
+      "name": "set_saveAsSession",
+      "rid": 685,
+      "sig": {
+        "return": "void",
+        "args": [
+          "bool"
+        ]
+      }
+    },
+    {
+      "name": "get_videoType",
+      "rid": 686,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_videoType",
+      "rid": 687,
+      "sig": {
+        "return": "void",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_clipSound",
+      "rid": 688,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_clipSound",
+      "rid": 689,
+      "sig": {
+        "return": "void",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_webcamOverlayEnabled",
+      "rid": 690,
+      "sig": {
+        "return": "bool",
+        "args": []
+      }
+    },
+    {
+      "name": "set_webcamOverlayEnabled",
+      "rid": 691,
+      "sig": {
+        "return": "void",
+        "args": [
+          "bool"
+        ]
+      }
+    },
+    {
+      "name": "get_inputDeviceOverlayEnabled",
+      "rid": 692,
+      "sig": {
+        "return": "bool",
+        "args": []
+      }
+    },
+    {
+      "name": "set_inputDeviceOverlayEnabled",
+      "rid": 693,
+      "sig": {
+        "return": "void",
+        "args": [
+          "bool"
+        ]
+      }
+    },
+    {
+      "name": "get_inputDeviceOverlayLayout",
+      "rid": 694,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_inputDeviceOverlayLayout",
+      "rid": 695,
+      "sig": {
+        "return": "void",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_inputOverlaySources",
+      "rid": 696,
+      "sig": {
+        "return": "System.Collections.Generic.List`1<string>",
+        "args": []
+      }
+    },
+    {
+      "name": "set_inputOverlaySources",
+      "rid": 697,
+      "sig": {
+        "return": "void",
+        "args": [
+          "System.Collections.Generic.List`1<string>"
+        ]
+      }
+    },
+    {
+      "name": "get_lastSeenUniverseId",
+      "rid": 698,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_lastSeenUniverseId",
+      "rid": 699,
+      "sig": {
+        "return": "void",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_audioMode",
+      "rid": 700,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_audioMode",
+      "rid": 701,
+      "sig": {
+        "return": "void",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_audioProcessList",
+      "rid": 702,
+      "sig": {
+        "return": "System.Collections.Generic.List`1<string>",
+        "args": []
+      }
+    },
+    {
+      "name": "set_audioProcessList",
+      "rid": 703,
+      "sig": {
+        "return": "void",
+        "args": [
+          "System.Collections.Generic.List`1<string>"
+        ]
+      }
+    },
+    {
+      "name": "get_microphoneDeviceName",
+      "rid": 704,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_microphoneDeviceName",
+      "rid": 705,
+      "sig": {
+        "return": "void",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_clientEnvironment",
+      "rid": 706,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_clientEnvironment",
+      "rid": 707,
+      "sig": {
+        "return": "void",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": "get_voiceCommand",
+      "rid": 708,
+      "sig": {
+        "return": "string",
+        "args": []
+      }
+    },
+    {
+      "name": "set_voiceCommand",
+      "rid": 709,
+      "sig": {
+        "return": "void",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "name": ".ctor",
+      "rid": 710,
+      "sig": {
+        "return": "void",
+        "args": []
+      }
+    }
+  ]
+}

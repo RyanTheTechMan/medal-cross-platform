@@ -1,0 +1,2776 @@
+{
+  "file": "MedalEncoder.exe",
+  "machine": "0x8664",
+  "clr_flags": "0x1",
+  "runtime": "v4.0.30319",
+  "entry": "MedalEncoder.Program::Main",
+  "counts": {
+    "Module": 1,
+    "TypeRef": 983,
+    "TypeDef": 2817,
+    "Field": 12927,
+    "MethodDef": 16166,
+    "Param": 14458,
+    "InterfaceImpl": 813,
+    "MemberRef": 5467,
+    "Constant": 3353,
+    "CustomAttribute": 16109,
+    "FieldMarshal": 643,
+    "DeclSecurity": 5,
+    "ClassLayout": 27,
+    "FieldLayout": 99,
+    "StandAloneSig": 1829,
+    "EventMap": 39,
+    "Event": 91,
+    "PropertyMap": 779,
+    "Property": 3258,
+    "MethodSemantics": 5796,
+    "MethodImpl": 831,
+    "ModuleRef": 25,
+    "TypeSpec": 1560,
+    "ImplMap": 195,
+    "FieldRVA": 11,
+    "Assembly": 1,
+    "AssemblyRef": 59,
+    "ManifestResource": 17,
+    "NestedClass": 1446,
+    "GenericParam": 216,
+    "MethodSpec": 1261,
+    "GenericParamConstraint": 17
+  },
+  "rpc_methods": [
+    {
+      "parent_table": 6,
+      "parent_rid": 11219,
+      "parent": "RESTService.WSConnection+WSHandlers::Ping",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "ping",
+      "blob": "01000470696e670000",
+      "metadata_offset": 1687162,
+      "params": [],
+      "signature": "20001280fd",
+      "method_token": "0x6002bd3",
+      "rva": "0x8d361",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task",
+        "args": []
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11220,
+      "parent": "RESTService.WSConnection+WSHandlers::Settings",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "settings",
+      "blob": "01000873657474696e67730000",
+      "metadata_offset": 1687174,
+      "params": [
+        {
+          "Sequence": 1,
+          "Name": "settings",
+          "Flags": 0
+        }
+      ],
+      "signature": "20011280fd151279011295c4",
+      "method_token": "0x6002bd4",
+      "rva": "0x8d374",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "System.Collections.Generic.List`1<RESTService.IConnection+SettingObject>"
+        ]
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11221,
+      "parent": "RESTService.WSConnection+WSHandlers::DeleteAllCustomGameSettings",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "deleteAllCustomGameSettings",
+      "blob": "01001b64656c657465416c6c437573746f6d47616d6553657474696e67730000",
+      "metadata_offset": 1687186,
+      "params": [
+        {
+          "Sequence": 1,
+          "Name": "categoryIds",
+          "Flags": 0
+        }
+      ],
+      "signature": "20011280fd1d0e",
+      "method_token": "0x6002bd5",
+      "rva": "0x8d3c8",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "string[]"
+        ]
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11222,
+      "parent": "RESTService.WSConnection+WSHandlers::DeleteCustomGameSettings",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "deleteCustomGameSettings",
+      "blob": "01001864656c657465437573746f6d47616d6553657474696e67730000",
+      "metadata_offset": 1687198,
+      "params": [
+        {
+          "Sequence": 1,
+          "Name": "customGameSettings",
+          "Flags": 0
+        }
+      ],
+      "signature": "20011280fd151279011295e0",
+      "method_token": "0x6002bd6",
+      "rva": "0x8d48c",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "System.Collections.Generic.List`1<RESTService.IConnection+DeleteCustomGameSettingsData>"
+        ]
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11223,
+      "parent": "RESTService.WSConnection+WSHandlers::GamePluginsInstalled",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "gamePluginsInstalled",
+      "blob": "01001467616d65506c7567696e73496e7374616c6c65640000",
+      "metadata_offset": 1687210,
+      "params": [],
+      "signature": "2000151280f9011d0e",
+      "method_token": "0x6002bd7",
+      "rva": "0x8d588",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task`1<string[]>",
+        "args": []
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11224,
+      "parent": "RESTService.WSConnection+WSHandlers::InstallGamePlugin",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "installGamePlugin",
+      "blob": "010011696e7374616c6c47616d65506c7567696e0000",
+      "metadata_offset": 1687234,
+      "params": [
+        {
+          "Sequence": 1,
+          "Name": "categoryId",
+          "Flags": 0
+        }
+      ],
+      "signature": "2001151280f9011d0e0e",
+      "method_token": "0x6002bd8",
+      "rva": "0x8d5dc",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task`1<string[]>",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11225,
+      "parent": "RESTService.WSConnection+WSHandlers::UninstallGamePlugin",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "uninstallGamePlugin",
+      "blob": "010013756e696e7374616c6c47616d65506c7567696e0000",
+      "metadata_offset": 1687258,
+      "params": [
+        {
+          "Sequence": 1,
+          "Name": "categoryId",
+          "Flags": 0
+        }
+      ],
+      "signature": "2001151280f9011d0e0e",
+      "method_token": "0x6002bd9",
+      "rva": "0x8d620",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task`1<string[]>",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11226,
+      "parent": "RESTService.WSConnection+WSHandlers::HardwareId",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "hardwareId",
+      "blob": "01000a686172647761726549640000",
+      "metadata_offset": 1687270,
+      "params": [],
+      "signature": "2000151280f9010e",
+      "method_token": "0x6002bda",
+      "rva": "0x8d664",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task`1<string>",
+        "args": []
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11227,
+      "parent": "RESTService.WSConnection+WSHandlers::WindowsGameMode",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "windowsGameMode",
+      "blob": "01000f77696e646f777347616d654d6f64650000",
+      "metadata_offset": 1687282,
+      "params": [
+        {
+          "Sequence": 1,
+          "Name": "enabled",
+          "Flags": 0
+        }
+      ],
+      "signature": "20011280fd02",
+      "method_token": "0x6002bdb",
+      "rva": "0x8d6b4",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "bool"
+        ]
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11228,
+      "parent": "RESTService.WSConnection+WSHandlers::ActiveDisplays",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "activeDisplays",
+      "blob": "01000e616374697665446973706c6179730000",
+      "metadata_offset": 1687294,
+      "params": [
+        {
+          "Sequence": 1,
+          "Name": "captureScreenshots",
+          "Flags": 0
+        }
+      ],
+      "signature": "2001151280f90115127901129e0802",
+      "method_token": "0x6002bdc",
+      "rva": "0x8d704",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task`1<System.Collections.Generic.List`1<MedalEncoder.ScreenUtils+ScreenInfo>>",
+        "args": [
+          "bool"
+        ]
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11229,
+      "parent": "RESTService.WSConnection+WSHandlers::AvailableAudioDevices",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "availableAudioDevices",
+      "blob": "010015617661696c61626c65417564696f446576696365730000",
+      "metadata_offset": 1687306,
+      "params": [],
+      "signature": "2000151280f901151279010e",
+      "method_token": "0x6002bdd",
+      "rva": "0x8d75c",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task`1<System.Collections.Generic.List`1<string>>",
+        "args": []
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11230,
+      "parent": "RESTService.WSConnection+WSHandlers::AvailableMicDevices",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "availableMicDevices",
+      "blob": "010013617661696c61626c654d6963446576696365730000",
+      "metadata_offset": 1687330,
+      "params": [],
+      "signature": "2000151280f901151279010e",
+      "method_token": "0x6002bde",
+      "rva": "0x8d7dc",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task`1<System.Collections.Generic.List`1<string>>",
+        "args": []
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11231,
+      "parent": "RESTService.WSConnection+WSHandlers::GetDefaultAudioDevices",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "getDefaultAudioDevices",
+      "blob": "01001667657444656661756c74417564696f446576696365730000",
+      "metadata_offset": 1687354,
+      "params": [],
+      "signature": "2000151280f9011295d0",
+      "method_token": "0x6002bdf",
+      "rva": "0x8d85c",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task`1<RESTService.IConnection+DefaultAudioDevices>",
+        "args": []
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11232,
+      "parent": "RESTService.WSConnection+WSHandlers::AvailableWebcamDevices",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "webcamDevices",
+      "blob": "01000d77656263616d446576696365730000",
+      "metadata_offset": 1687378,
+      "params": [
+        {
+          "Sequence": 1,
+          "Name": "includeVirtualDevices",
+          "Flags": 0
+        }
+      ],
+      "signature": "2001151280f901151279011295cc02",
+      "method_token": "0x6002be0",
+      "rva": "0x8d8e4",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task`1<System.Collections.Generic.List`1<RESTService.IConnection+WebcamDeviceInfo>>",
+        "args": [
+          "bool"
+        ]
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11233,
+      "parent": "RESTService.WSConnection+WSHandlers::GameSoundAudioDevice",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "gameSoundAudioDevice",
+      "blob": "01001467616d65536f756e64417564696f4465766963650000",
+      "metadata_offset": 1687402,
+      "params": [],
+      "signature": "2000151280f901151279010e",
+      "method_token": "0x6002be1",
+      "rva": "0x8d934",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task`1<System.Collections.Generic.List`1<string>>",
+        "args": []
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11234,
+      "parent": "RESTService.WSConnection+WSHandlers::MicAudioDevice",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "micAudioDevice",
+      "blob": "01000e6d6963417564696f4465766963650000",
+      "metadata_offset": 1687426,
+      "params": [],
+      "signature": "2000151280f9010e",
+      "method_token": "0x6002be2",
+      "rva": "0x8d984",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task`1<string>",
+        "args": []
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11235,
+      "parent": "RESTService.WSConnection+WSHandlers::DeleteTargetProcess",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "deleteTargetProcess",
+      "blob": "01001364656c65746554617267657450726f636573730000",
+      "metadata_offset": 1687438,
+      "params": [
+        {
+          "Sequence": 1,
+          "Name": "processName",
+          "Flags": 0
+        }
+      ],
+      "signature": "20011280fd0e",
+      "method_token": "0x6002be3",
+      "rva": "0x8d9d4",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11236,
+      "parent": "RESTService.WSConnection+WSHandlers::SetTargetProcess",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "setTargetProcess",
+      "blob": "01001073657454617267657450726f636573730000",
+      "metadata_offset": 1687450,
+      "params": [
+        {
+          "Sequence": 1,
+          "Name": "data",
+          "Flags": 0
+        }
+      ],
+      "signature": "20011280fd1295e4",
+      "method_token": "0x6002be4",
+      "rva": "0x8da28",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "RESTService.IConnection+TargetProcessData"
+        ]
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11237,
+      "parent": "RESTService.WSConnection+WSHandlers::GetTargetedProcesses",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "getTargetedProcesses",
+      "blob": "010014676574546172676574656450726f6365737365730000",
+      "metadata_offset": 1687462,
+      "params": [],
+      "signature": "2000151280f901151279011295e8",
+      "method_token": "0x6002be5",
+      "rva": "0x8da84",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task`1<System.Collections.Generic.List`1<RESTService.IConnection+TargetedProcessInfo>>",
+        "args": []
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11238,
+      "parent": "RESTService.WSConnection+WSHandlers::GetActiveProcesses",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "getActiveProcesses",
+      "blob": "01001267657441637469766550726f6365737365730000",
+      "metadata_offset": 1687474,
+      "params": [],
+      "signature": "2000151280f901151279011295ec",
+      "method_token": "0x6002be6",
+      "rva": "0x8db10",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task`1<System.Collections.Generic.List`1<RESTService.IConnection+ActiveProcessInfo>>",
+        "args": []
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11239,
+      "parent": "RESTService.WSConnection+WSHandlers::SetGameRequestId",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "setGameRequestId",
+      "blob": "01001073657447616d655265717565737449640000",
+      "metadata_offset": 1687486,
+      "params": [
+        {
+          "Sequence": 1,
+          "Name": "data",
+          "Flags": 0
+        }
+      ],
+      "signature": "20011280fd1295f0",
+      "method_token": "0x6002be7",
+      "rva": "0x8db88",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "RESTService.IConnection+GameRequestIdData"
+        ]
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11240,
+      "parent": "RESTService.WSConnection+WSHandlers::SwitchGameRecording",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "switchGameRecording",
+      "blob": "01001373776974636847616d655265636f7264696e670000",
+      "metadata_offset": 1687498,
+      "params": [
+        {
+          "Sequence": 1,
+          "Name": "data",
+          "Flags": 0
+        }
+      ],
+      "signature": "20011280fd1295f4",
+      "method_token": "0x6002be8",
+      "rva": "0x8dbec",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "RESTService.IConnection+SwitchGameRecordingData"
+        ]
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11241,
+      "parent": "RESTService.WSConnection+WSHandlers::AudioProcesses",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "audioProcesses",
+      "blob": "01000e617564696f50726f6365737365730000",
+      "metadata_offset": 1687510,
+      "params": [],
+      "signature": "2000151280f901151279011c",
+      "method_token": "0x6002be9",
+      "rva": "0x8dc5c",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task`1<System.Collections.Generic.List`1<object>>",
+        "args": []
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11242,
+      "parent": "RESTService.WSConnection+WSHandlers::MicTesting",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "micTesting",
+      "blob": "01000a6d696354657374696e670000",
+      "metadata_offset": 1687522,
+      "params": [
+        {
+          "Sequence": 1,
+          "Name": "state",
+          "Flags": 0
+        }
+      ],
+      "signature": "20011280fd08",
+      "method_token": "0x6002bea",
+      "rva": "0x8dd30",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "int32"
+        ]
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11243,
+      "parent": "RESTService.WSConnection+WSHandlers::VoiceCommandsTesting",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "voiceCommandsTesting",
+      "blob": "010014766f696365436f6d6d616e647354657374696e670000",
+      "metadata_offset": 1687534,
+      "params": [
+        {
+          "Sequence": 1,
+          "Name": "state",
+          "Flags": 0
+        }
+      ],
+      "signature": "20011280fd08",
+      "method_token": "0x6002beb",
+      "rva": "0x8dd7c",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "int32"
+        ]
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11244,
+      "parent": "RESTService.WSConnection+WSHandlers::SoundAlertTest",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "soundAlertTest",
+      "blob": "01000e736f756e64416c657274546573740000",
+      "metadata_offset": 1687558,
+      "params": [
+        {
+          "Sequence": 1,
+          "Name": "clipSoundPath",
+          "Flags": 0
+        }
+      ],
+      "signature": "20011280fd0e",
+      "method_token": "0x6002bec",
+      "rva": "0x8ddcc",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "string"
+        ]
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11245,
+      "parent": "RESTService.WSConnection+WSHandlers::ClipRecovery",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "clipRecovery",
+      "blob": "01000c636c69705265636f766572790000",
+      "metadata_offset": 1687582,
+      "params": [
+        {
+          "Sequence": 1,
+          "Name": "clips",
+          "Flags": 0
+        }
+      ],
+      "signature": "20011280fd151279011295f8",
+      "method_token": "0x6002bed",
+      "rva": "0x8de18",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "System.Collections.Generic.List`1<RESTService.IConnection+ClipRecoverObject>"
+        ]
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11246,
+      "parent": "RESTService.WSConnection+WSHandlers::ToggleBroadcast",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "toggleBroadcast",
+      "blob": "01000f746f67676c6542726f6164636173740000",
+      "metadata_offset": 1687606,
+      "params": [
+        {
+          "Sequence": 1,
+          "Name": "data",
+          "Flags": 0
+        }
+      ],
+      "signature": "20011280fd1295fc",
+      "method_token": "0x6002bee",
+      "rva": "0x8de68",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "RESTService.IConnection+ToggleBroadcastData"
+        ]
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11247,
+      "parent": "RESTService.WSConnection+WSHandlers::ToggleSessionRecording",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "toggleSessionRecording",
+      "blob": "010016746f67676c6553657373696f6e5265636f7264696e670000",
+      "metadata_offset": 1687630,
+      "params": [],
+      "signature": "20001280fd",
+      "method_token": "0x6002bef",
+      "rva": "0x8dee0",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task",
+        "args": []
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11248,
+      "parent": "RESTService.WSConnection+WSHandlers::Shutdown",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "shutdown",
+      "blob": "01000873687574646f776e0000",
+      "metadata_offset": 1687654,
+      "params": [],
+      "signature": "20001280fd",
+      "method_token": "0x6002bf0",
+      "rva": "0x8df30",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task",
+        "args": []
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11249,
+      "parent": "RESTService.WSConnection+WSHandlers::StartHotkeyListening",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "startHotkeyListening",
+      "blob": "0100147374617274486f746b65794c697374656e696e670000",
+      "metadata_offset": 1687666,
+      "params": [],
+      "signature": "2000151280f90102",
+      "method_token": "0x6002bf1",
+      "rva": "0x8df74",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task`1<bool>",
+        "args": []
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11250,
+      "parent": "RESTService.WSConnection+WSHandlers::StopHotkeyListening",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "stopHotkeyListening",
+      "blob": "01001373746f70486f746b65794c697374656e696e670000",
+      "metadata_offset": 1687678,
+      "params": [],
+      "signature": "20001280fd",
+      "method_token": "0x6002bf2",
+      "rva": "0x8dfd8",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task",
+        "args": []
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11251,
+      "parent": "RESTService.WSConnection+WSHandlers::SuspendHotkeys",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "suspendHotkeys",
+      "blob": "01000e73757370656e64486f746b6579730000",
+      "metadata_offset": 1687702,
+      "params": [
+        {
+          "Sequence": 1,
+          "Name": "suspended",
+          "Flags": 0
+        }
+      ],
+      "signature": "20011280fd02",
+      "method_token": "0x6002bf3",
+      "rva": "0x8e024",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task",
+        "args": [
+          "bool"
+        ]
+      }
+    },
+    {
+      "parent_table": 6,
+      "parent_rid": 11252,
+      "parent": "RESTService.WSConnection+WSHandlers::AutoClipEvents",
+      "attribute": "StreamJsonRpc.JsonRpcMethodAttribute::.ctor",
+      "first_string": "autoClipEvents",
+      "blob": "01000e6175746f436c69704576656e74730000",
+      "metadata_offset": 1687726,
+      "params": [],
+      "signature": "2000151280f90112a028",
+      "method_token": "0x6002bf4",
+      "rva": "0x8e070",
+      "signature_decoded": {
+        "return": "System.Threading.Tasks.Task`1<MedalEncoder.AutoClipCatalog+CatalogPayload>",
+        "args": []
+      }
+    }
+  ],
+  "pinvoke": [
+    {
+      "member": "Win32.WindowList::FindWindowEx",
+      "module": "user32.dll",
+      "import": "FindWindowEx",
+      "flags": 262
+    },
+    {
+      "member": "Win32.WindowList::GetClassName",
+      "module": "user32.dll",
+      "import": "GetClassName",
+      "flags": 326
+    },
+    {
+      "member": "Win32.WindowList::GetDesktopWindow",
+      "module": "user32.dll",
+      "import": "GetDesktopWindow",
+      "flags": 256
+    },
+    {
+      "member": "Win32.WindowList::GetWindow",
+      "module": "user32.dll",
+      "import": "GetWindow",
+      "flags": 320
+    },
+    {
+      "member": "Win32.WindowList::GetWindowTextLengthA",
+      "module": "user32.dll",
+      "import": "GetWindowTextLengthA",
+      "flags": 256
+    },
+    {
+      "member": "Win32.WindowList::GetWindowTextA",
+      "module": "user32.dll",
+      "import": "GetWindowTextA",
+      "flags": 258
+    },
+    {
+      "member": "Win32.WindowList::GetWindowTextLengthW",
+      "module": "user32.dll",
+      "import": "GetWindowTextLengthW",
+      "flags": 256
+    },
+    {
+      "member": "Win32.WindowList::GetWindowTextW",
+      "module": "user32.dll",
+      "import": "GetWindowTextW",
+      "flags": 260
+    },
+    {
+      "member": "Win32.WindowList::IsWindowVisible",
+      "module": "user32.dll",
+      "import": "IsWindowVisible",
+      "flags": 256
+    },
+    {
+      "member": "Win32.WindowList::SendMessage",
+      "module": "User32.dll",
+      "import": "SendMessage",
+      "flags": 256
+    },
+    {
+      "member": "Win32.WindowList::SendMessage",
+      "module": "User32.dll",
+      "import": "SendMessage",
+      "flags": 256
+    },
+    {
+      "member": "Microsoft.Samples.Utils.TokenAdjuster::OpenProcessToken",
+      "module": "advapi32",
+      "import": "OpenProcessToken",
+      "flags": 320
+    },
+    {
+      "member": "Microsoft.Samples.Utils.TokenAdjuster::CloseHandle",
+      "module": "kernel32",
+      "import": "CloseHandle",
+      "flags": 320
+    },
+    {
+      "member": "Microsoft.Samples.Utils.TokenAdjuster::AdjustTokenPrivileges",
+      "module": "advapi32.dll",
+      "import": "AdjustTokenPrivileges",
+      "flags": 326
+    },
+    {
+      "member": "Microsoft.Samples.Utils.TokenAdjuster::LookupPrivilegeValue",
+      "module": "advapi32.dll",
+      "import": "LookupPrivilegeValue",
+      "flags": 326
+    },
+    {
+      "member": "Medal.PerfAnalyzer.PerfAnalyzerNative::perf_analyzer_create",
+      "module": "PerfAnalyzer.dll",
+      "import": "perf_analyzer_create",
+      "flags": 512
+    },
+    {
+      "member": "Medal.PerfAnalyzer.PerfAnalyzerNative::perf_analyzer_destroy",
+      "module": "PerfAnalyzer.dll",
+      "import": "perf_analyzer_destroy",
+      "flags": 512
+    },
+    {
+      "member": "Medal.PerfAnalyzer.PerfAnalyzerNative::perf_analyzer_start",
+      "module": "PerfAnalyzer.dll",
+      "import": "perf_analyzer_start",
+      "flags": 512
+    },
+    {
+      "member": "Medal.PerfAnalyzer.PerfAnalyzerNative::perf_analyzer_stop",
+      "module": "PerfAnalyzer.dll",
+      "import": "perf_analyzer_stop",
+      "flags": 512
+    },
+    {
+      "member": "Medal.PerfAnalyzer.PerfAnalyzerNative::perf_analyzer_is_session_active",
+      "module": "PerfAnalyzer.dll",
+      "import": "perf_analyzer_is_session_active",
+      "flags": 512
+    },
+    {
+      "member": "Medal.PerfAnalyzer.PerfAnalyzerNative::perf_analyzer_get_frame_stats",
+      "module": "PerfAnalyzer.dll",
+      "import": "perf_analyzer_get_frame_stats",
+      "flags": 512
+    },
+    {
+      "member": "Medal.PerfAnalyzer.PerfAnalyzerNative::perf_analyzer_stop_session_if_exists",
+      "module": "PerfAnalyzer.dll",
+      "import": "perf_analyzer_stop_session_if_exists",
+      "flags": 512
+    },
+    {
+      "member": "Medal.PerfAnalyzer.PerfAnalyzerNative::perf_analyzer_log_set_level",
+      "module": "PerfAnalyzer.dll",
+      "import": "perf_analyzer_log_set_level",
+      "flags": 512
+    },
+    {
+      "member": "Medal.PerfAnalyzer.PerfAnalyzerNative::perf_analyzer_log_set_callback",
+      "module": "PerfAnalyzer.dll",
+      "import": "perf_analyzer_log_set_callback",
+      "flags": 512
+    },
+    {
+      "member": "Medal.PerfAnalyzer.PerfAnalyzerNative::perf_analyzer_check_abi",
+      "module": "PerfAnalyzer.dll",
+      "import": "perf_analyzer_check_abi",
+      "flags": 512
+    },
+    {
+      "member": "Medal.PerfAnalyzer.PerfAnalyzerNative::perf_analyzer_get_version_string",
+      "module": "PerfAnalyzer.dll",
+      "import": "perf_analyzer_get_version_string",
+      "flags": 512
+    },
+    {
+      "member": "Valve.VR.OpenVRInterop::InitInternal",
+      "module": "openvr_api",
+      "import": "VR_InitInternal",
+      "flags": 512
+    },
+    {
+      "member": "Valve.VR.OpenVRInterop::InitInternal2",
+      "module": "openvr_api",
+      "import": "VR_InitInternal2",
+      "flags": 512
+    },
+    {
+      "member": "Valve.VR.OpenVRInterop::ShutdownInternal",
+      "module": "openvr_api",
+      "import": "VR_ShutdownInternal",
+      "flags": 512
+    },
+    {
+      "member": "Valve.VR.OpenVRInterop::IsHmdPresent",
+      "module": "openvr_api",
+      "import": "VR_IsHmdPresent",
+      "flags": 512
+    },
+    {
+      "member": "Valve.VR.OpenVRInterop::IsRuntimeInstalled",
+      "module": "openvr_api",
+      "import": "VR_IsRuntimeInstalled",
+      "flags": 512
+    },
+    {
+      "member": "Valve.VR.OpenVRInterop::RuntimePath",
+      "module": "openvr_api",
+      "import": "VR_RuntimePath",
+      "flags": 512
+    },
+    {
+      "member": "Valve.VR.OpenVRInterop::GetRuntimePath",
+      "module": "openvr_api",
+      "import": "VR_GetRuntimePath",
+      "flags": 512
+    },
+    {
+      "member": "Valve.VR.OpenVRInterop::GetStringForHmdError",
+      "module": "openvr_api",
+      "import": "VR_GetStringForHmdError",
+      "flags": 512
+    },
+    {
+      "member": "Valve.VR.OpenVRInterop::GetGenericInterface",
+      "module": "openvr_api",
+      "import": "VR_GetGenericInterface",
+      "flags": 512
+    },
+    {
+      "member": "Valve.VR.OpenVRInterop::IsInterfaceVersionValid",
+      "module": "openvr_api",
+      "import": "VR_IsInterfaceVersionValid",
+      "flags": 512
+    },
+    {
+      "member": "Valve.VR.OpenVRInterop::GetInitToken",
+      "module": "openvr_api",
+      "import": "VR_GetInitToken",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.CPU::IsProcessorFeaturePresent",
+      "module": "kernel32",
+      "import": "IsProcessorFeaturePresent",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.ScreenExtensions::GetDisplayConfigBufferSizes",
+      "module": "user32.dll",
+      "import": "GetDisplayConfigBufferSizes",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.ScreenExtensions::QueryDisplayConfig",
+      "module": "user32.dll",
+      "import": "QueryDisplayConfig",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.ScreenExtensions::DisplayConfigGetDeviceInfo",
+      "module": "user32.dll",
+      "import": "DisplayConfigGetDeviceInfo",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.KeySettingHelpers::VkKeyScanExW",
+      "module": "user32.dll",
+      "import": "VkKeyScanExW",
+      "flags": 260
+    },
+    {
+      "member": "MedalEncoder.KeySettingHelpers::MapVirtualKeyEx",
+      "module": "user32.dll",
+      "import": "MapVirtualKeyEx",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.NtStatus::RtlNtStatusToDosError",
+      "module": "ntdll.dll",
+      "import": "RtlNtStatusToDosError",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::MonitorFromWindow",
+      "module": "user32.dll",
+      "import": "MonitorFromWindow",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::LoadLibrary",
+      "module": "kernel32",
+      "import": "LoadLibrary",
+      "flags": 324
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::GetWindowRect",
+      "module": "user32.dll",
+      "import": "GetWindowRect",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::GetWindow",
+      "module": "user32.dll",
+      "import": "GetWindow",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::GetWindowText",
+      "module": "user32.dll",
+      "import": "GetWindowText",
+      "flags": 262
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::GetWindowTextLength",
+      "module": "user32.dll",
+      "import": "GetWindowTextLength",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::GetClassName",
+      "module": "user32.dll",
+      "import": "GetClassName",
+      "flags": 326
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::GetWindowThreadProcessId",
+      "module": "user32.dll",
+      "import": "GetWindowThreadProcessId",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::GetProcessDpiAwareness",
+      "module": "Shcore.dll",
+      "import": "GetProcessDpiAwareness",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::SetProcessDpiAwareness",
+      "module": "Shcore.dll",
+      "import": "SetProcessDpiAwareness",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::GetDpiForMonitor",
+      "module": "Shcore.dll",
+      "import": "GetDpiForMonitor",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::IsWindow",
+      "module": "user32.dll",
+      "import": "IsWindow",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::IsChild",
+      "module": "user32.dll",
+      "import": "IsChild",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::EnumChildWindows",
+      "module": "user32",
+      "import": "EnumChildWindows",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::GetModuleHandle",
+      "module": "kernel32.dll",
+      "import": "GetModuleHandle",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::GetProcAddress",
+      "module": "kernel32",
+      "import": "GetProcAddress",
+      "flags": 323
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::OpenProcessToken",
+      "module": "advapi32.dll",
+      "import": "OpenProcessToken",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::GetTokenInformation",
+      "module": "advapi32.dll",
+      "import": "GetTokenInformation",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::IsWow64Process",
+      "module": "kernel32.dll",
+      "import": "IsWow64Process",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::SHQueryUserNotificationState",
+      "module": "Shell32.dll",
+      "import": "SHQueryUserNotificationState",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::IsProcessorFeaturePresent",
+      "module": "kernel32.dll",
+      "import": "IsProcessorFeaturePresent",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::GetProcessHandleFromHwnd",
+      "module": "oleacc",
+      "import": "GetProcessHandleFromHwnd",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::GetProcessId",
+      "module": "kernel32",
+      "import": "GetProcessId",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::OpenProcess",
+      "module": "kernel32",
+      "import": "OpenProcess",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::GetProcessTimes",
+      "module": "kernel32.dll",
+      "import": "GetProcessTimes",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::CloseHandle",
+      "module": "kernel32",
+      "import": "CloseHandle",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.NativeMethods::QueryFullProcessImageName",
+      "module": "kernel32.dll",
+      "import": "QueryFullProcessImageName",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.SafeNativeMethods::GetWindowRect",
+      "module": "user32.dll",
+      "import": "GetWindowRect",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.UnsafeNativeMethods::GetWindowThreadProcessId",
+      "module": "user32.dll",
+      "import": "GetWindowThreadProcessId",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.UnsafeNativeMethods::GetWindowThreadProcessId",
+      "module": "user32.dll",
+      "import": "GetWindowThreadProcessId",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.UnsafeNativeMethods::SetWinEventHook",
+      "module": "user32.dll",
+      "import": "SetWinEventHook",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.UnsafeNativeMethods::UnhookWinEvent",
+      "module": "user32.dll",
+      "import": "UnhookWinEvent",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.UnsafeNativeMethods::GetForegroundWindow",
+      "module": "user32.dll",
+      "import": "GetForegroundWindow",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.UnsafeNativeMethods::SetWindowPos",
+      "module": "user32.dll",
+      "import": "SetWindowPos",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.UnsafeNativeMethods::SetForegroundWindow",
+      "module": "User32.dll",
+      "import": "SetForegroundWindow",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.UnsafeNativeMethods::IsIconic",
+      "module": "user32.dll",
+      "import": "IsIconic",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.UnsafeNativeMethods::GetWindowText",
+      "module": "user32.dll",
+      "import": "GetWindowText",
+      "flags": 326
+    },
+    {
+      "member": "MedalEncoder.UnsafeNativeMethods::GetWindowPlacement",
+      "module": "user32.dll",
+      "import": "GetWindowPlacement",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.Program::CoInitializeSecurity",
+      "module": "ole32.dll",
+      "import": "CoInitializeSecurity",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.VideoOutput.ClipInputProcessor::SystemParametersInfo",
+      "module": "user32.dll",
+      "import": "SystemParametersInfo",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.OBS.BaseHookInterface::NtOpenSection",
+      "module": "ntdll.dll",
+      "import": "NtOpenSection",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.OBS.BaseHookInterface::NtOpenEvent",
+      "module": "ntdll.dll",
+      "import": "NtOpenEvent",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.OBS.BaseHookInterface::NtCreateMutant",
+      "module": "ntdll.dll",
+      "import": "NtCreateMutant",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.OBS.BaseHookInterface::RtlInitUnicodeString",
+      "module": "ntdll.dll",
+      "import": "RtlInitUnicodeString",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.OBS.BaseHookInterface::MapViewOfFile",
+      "module": "kernel32.dll",
+      "import": "MapViewOfFile",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.OBS.BaseHookInterface::UnmapViewOfFile",
+      "module": "kernel32.dll",
+      "import": "UnmapViewOfFile",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.OBS.BaseHookInterface::FillMemory",
+      "module": "kernel32.dll",
+      "import": "RtlFillMemory",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.OBS.BaseHookInterface::CopyMemory",
+      "module": "kernel32.dll",
+      "import": "CopyMemory",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.OBS.BaseHookInterface::WTSGetActiveConsoleSessionId",
+      "module": "kernel32.dll",
+      "import": "WTSGetActiveConsoleSessionId",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.OBS.BaseHookInterface::FindWindowEx",
+      "module": "user32.dll",
+      "import": "FindWindowEx",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.OBS.BaseHookInterface::OpenProcessToken",
+      "module": "advapi32.dll",
+      "import": "OpenProcessToken",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.OBS.BaseHookInterface::GetTokenInformation",
+      "module": "advapi32.dll",
+      "import": "GetTokenInformation",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.OBS.BaseHookInterface::ConvertSidToStringSid",
+      "module": "advapi32",
+      "import": "ConvertSidToStringSid",
+      "flags": 326
+    },
+    {
+      "member": "MedalEncoder.OBS.BaseHookInterface::CloseHandle",
+      "module": "kernel32.dll",
+      "import": "CloseHandle",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.OBS.BaseHookInterface::LocalFree",
+      "module": "kernel32.dll",
+      "import": "LocalFree",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.OBS.BaseHookInterface::IsWow64Process",
+      "module": "kernel32.dll",
+      "import": "IsWow64Process",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.OBS.BaseHookInterface::GetWindowThreadProcessId",
+      "module": "user32.dll",
+      "import": "GetWindowThreadProcessId",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.OBS.HookInterface::NtOpenSection",
+      "module": "ntdll.dll",
+      "import": "NtOpenSection",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.OBS.HookInterface::NtOpenEvent",
+      "module": "ntdll.dll",
+      "import": "NtOpenEvent",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.OBS.HookInterface::NtCreateMutant",
+      "module": "ntdll.dll",
+      "import": "NtCreateMutant",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.OBS.HookInterface::RtlInitUnicodeString",
+      "module": "ntdll.dll",
+      "import": "RtlInitUnicodeString",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.OBS.HookInterface::MapViewOfFile",
+      "module": "kernel32.dll",
+      "import": "MapViewOfFile",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.OBS.HookInterface::FillMemory",
+      "module": "kernel32.dll",
+      "import": "RtlFillMemory",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.OBS.HookInterface::CopyMemory",
+      "module": "kernel32.dll",
+      "import": "CopyMemory",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.OBS.GraphicsOffsets::DefWindowProcW",
+      "module": "user32.dll",
+      "import": "DefWindowProcW",
+      "flags": 260
+    },
+    {
+      "member": "MedalEncoder.OBS.GraphicsOffsets::RegisterClassExW",
+      "module": "user32.dll",
+      "import": "RegisterClassExW",
+      "flags": 324
+    },
+    {
+      "member": "MedalEncoder.OBS.GraphicsOffsets::CreateWindowExW",
+      "module": "user32.dll",
+      "import": "CreateWindowExW",
+      "flags": 324
+    },
+    {
+      "member": "MedalEncoder.OBS.GraphicsOffsets::DestroyWindow",
+      "module": "user32.dll",
+      "import": "DestroyWindow",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.OBS.GraphicsOffsets::UnregisterClassW",
+      "module": "user32.dll",
+      "import": "UnregisterClassW",
+      "flags": 260
+    },
+    {
+      "member": "MedalEncoder.OBS.GraphicsOffsets::GetModuleHandleW",
+      "module": "kernel32.dll",
+      "import": "GetModuleHandleW",
+      "flags": 260
+    },
+    {
+      "member": "MedalEncoder.OBS.GraphicsOffsets::GetCurrentProcess",
+      "module": "kernel32.dll",
+      "import": "GetCurrentProcess",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.OBS.GraphicsOffsets::GetModuleInformation",
+      "module": "psapi.dll",
+      "import": "GetModuleInformation",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.OBS.GraphicsOffsets::D3D11CreateDeviceAndSwapChain",
+      "module": "d3d11.dll",
+      "import": "D3D11CreateDeviceAndSwapChain",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.Sound.AudioStream::waveInMessage",
+      "module": "winmm.dll",
+      "import": "waveInMessage",
+      "flags": 257
+    },
+    {
+      "member": "MedalEncoder.Sound.AudioStream::waveInMessage",
+      "module": "winmm.dll",
+      "import": "waveInMessage",
+      "flags": 257
+    },
+    {
+      "member": "MedalEncoder.KeyboardMouseOverlay.KbmOverlayDrawer::CopyMemory",
+      "module": "kernel32.dll",
+      "import": "CopyMemory",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.Utilities.NetworkListing::GetExtendedTcpTable",
+      "module": "iphlpapi.dll",
+      "import": "GetExtendedTcpTable",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.Utilities.ChildProcessTracker::CreateJobObject",
+      "module": "kernel32.dll",
+      "import": "CreateJobObject",
+      "flags": 260
+    },
+    {
+      "member": "MedalEncoder.Utilities.ChildProcessTracker::SetInformationJobObject",
+      "module": "kernel32.dll",
+      "import": "SetInformationJobObject",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.Utilities.ChildProcessTracker::AssignProcessToJobObject",
+      "module": "kernel32.dll",
+      "import": "AssignProcessToJobObject",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.Utilities.ParentProcessUtilities::NtQueryInformationProcess",
+      "module": "ntdll.dll",
+      "import": "NtQueryInformationProcess",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.Utilities.ParentProcessUtilities::CreateToolhelp32Snapshot",
+      "module": "kernel32.dll",
+      "import": "CreateToolhelp32Snapshot",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.Utilities.ParentProcessUtilities::Process32First",
+      "module": "kernel32.dll",
+      "import": "Process32First",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.Utilities.ParentProcessUtilities::Process32Next",
+      "module": "kernel32.dll",
+      "import": "Process32Next",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.Utilities.ProcessUtilities::GetModuleFileNameEx",
+      "module": "psapi",
+      "import": "GetModuleFileNameEx",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.Utilities.ProcessUtilities::GetExitCodeProcess",
+      "module": "kernel32",
+      "import": "GetExitCodeProcess",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.Utilities.ProcessUtilities::CreateToolhelp32Snapshot",
+      "module": "kernel32",
+      "import": "CreateToolhelp32Snapshot",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.Utilities.ProcessUtilities::Module32FirstW",
+      "module": "kernel32",
+      "import": "Module32FirstW",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.Utilities.ProcessUtilities::Module32NextW",
+      "module": "kernel32",
+      "import": "Module32NextW",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.Utilities.TickCountTimer::GetTickCount",
+      "module": "kernel32.dll",
+      "import": "GetTickCount",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.Performance.Diagnostics.MemoryInfo::GetProcessMemoryInfo",
+      "module": "psapi.dll",
+      "import": "GetProcessMemoryInfo",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.Performance.Diagnostics.NetworkConnections::GetExtendedTcpTable",
+      "module": "iphlpapi.dll",
+      "import": "GetExtendedTcpTable",
+      "flags": 320
+    },
+    {
+      "member": "MedalEncoder.Input.DeviceNotification::RegisterDeviceNotification",
+      "module": "user32.dll",
+      "import": "RegisterDeviceNotification",
+      "flags": 326
+    },
+    {
+      "member": "MedalEncoder.Input.DeviceNotification::UnregisterDeviceNotification",
+      "module": "user32.dll",
+      "import": "UnregisterDeviceNotification",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::Init",
+      "module": "SDL3",
+      "import": "SDL_Init",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::Quit",
+      "module": "SDL3",
+      "import": "SDL_Quit",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::GetTicksNS",
+      "module": "SDL3",
+      "import": "SDL_GetTicksNS",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::SetHint",
+      "module": "SDL3",
+      "import": "SDL_SetHint",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::GetErrorInternal",
+      "module": "SDL3",
+      "import": "SDL_GetError",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::PollEvent",
+      "module": "SDL3",
+      "import": "SDL_PollEvent",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::WaitEventTimeout",
+      "module": "SDL3",
+      "import": "SDL_WaitEventTimeout",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::Free",
+      "module": "SDL3",
+      "import": "SDL_free",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::GetJoysticks",
+      "module": "SDL3",
+      "import": "SDL_GetJoysticks",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::OpenJoystick",
+      "module": "SDL3",
+      "import": "SDL_OpenJoystick",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::CloseJoystick",
+      "module": "SDL3",
+      "import": "SDL_CloseJoystick",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::GetJoystickNameInternal",
+      "module": "SDL3",
+      "import": "SDL_GetJoystickName",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::GetNumJoystickAxes",
+      "module": "SDL3",
+      "import": "SDL_GetNumJoystickAxes",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::GetNumJoystickButtons",
+      "module": "SDL3",
+      "import": "SDL_GetNumJoystickButtons",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::GetNumJoystickHats",
+      "module": "SDL3",
+      "import": "SDL_GetNumJoystickHats",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::GetJoystickVendor",
+      "module": "SDL3",
+      "import": "SDL_GetJoystickVendor",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::GetJoystickProduct",
+      "module": "SDL3",
+      "import": "SDL_GetJoystickProduct",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::GetJoystickProductVersion",
+      "module": "SDL3",
+      "import": "SDL_GetJoystickProductVersion",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::GetJoystickType",
+      "module": "SDL3",
+      "import": "SDL_GetJoystickType",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::GetJoystickPathInternal",
+      "module": "SDL3",
+      "import": "SDL_GetJoystickPath",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::GetJoystickGUIDInternal",
+      "module": "SDL3",
+      "import": "SDL_GetJoystickGUID",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::GUIDToStringInternal",
+      "module": "SDL3",
+      "import": "SDL_GUIDToString",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::GetJoystickAxis",
+      "module": "SDL3",
+      "import": "SDL_GetJoystickAxis",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::GetJoystickButton",
+      "module": "SDL3",
+      "import": "SDL_GetJoystickButton",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::GetJoystickHat",
+      "module": "SDL3",
+      "import": "SDL_GetJoystickHat",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::SetJoystickEventsEnabled",
+      "module": "SDL3",
+      "import": "SDL_SetJoystickEventsEnabled",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::JoystickEventsEnabled",
+      "module": "SDL3",
+      "import": "SDL_JoystickEventsEnabled",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::IsGamepad",
+      "module": "SDL3",
+      "import": "SDL_IsGamepad",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::OpenGamepad",
+      "module": "SDL3",
+      "import": "SDL_OpenGamepad",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::CloseGamepad",
+      "module": "SDL3",
+      "import": "SDL_CloseGamepad",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.SDL3.SDL::SetGamepadEventsEnabled",
+      "module": "SDL3",
+      "import": "SDL_SetGamepadEventsEnabled",
+      "flags": 512
+    },
+    {
+      "member": "MedalEncoder.Input.KeybindingConfigs.Utils.WindowsKnownFolders::SHGetKnownFolderPath",
+      "module": "shell32",
+      "import": "SHGetKnownFolderPath",
+      "flags": 261
+    },
+    {
+      "member": "MedalEncoder.Utilities.DisplayHelper+KMT::D3DKMTOpenAdapterFromGdiDisplayName",
+      "module": "gdi32.dll",
+      "import": "D3DKMTOpenAdapterFromGdiDisplayName",
+      "flags": 257
+    },
+    {
+      "member": "MedalEncoder.Utilities.DisplayHelper+KMT::D3DKMTGetMultiPlaneOverlayCaps",
+      "module": "gdi32.dll",
+      "import": "D3DKMTGetMultiPlaneOverlayCaps",
+      "flags": 257
+    },
+    {
+      "member": "MedalEncoder.Utilities.DisplayHelper+KMT::D3DKMTCloseAdapter",
+      "module": "gdi32.dll",
+      "import": "D3DKMTCloseAdapter",
+      "flags": 257
+    },
+    {
+      "member": "MedalEncoder.Utilities.ParentProcessUtilities+SafeSnapshotHandle::CloseHandle",
+      "module": "kernel32.dll",
+      "import": "CloseHandle",
+      "flags": 327
+    },
+    {
+      "member": "MedalEncoder.Performance.Diagnostics.DiagClass+PerfMapper::PdhLookupPerfNameByIndex",
+      "module": "pdh.dll",
+      "import": "PdhLookupPerfNameByIndex",
+      "flags": 262
+    },
+    {
+      "member": "MedalEncoder.Input.KeyboardLayoutConverter+KeyboardLayoutApi::GetForegroundWindow",
+      "module": "user32.dll",
+      "import": "GetForegroundWindow",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.Input.KeyboardLayoutConverter+KeyboardLayoutApi::GetWindowThreadProcessId",
+      "module": "user32.dll",
+      "import": "GetWindowThreadProcessId",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.Input.KeyboardLayoutConverter+KeyboardLayoutApi::GetKeyboardLayout",
+      "module": "user32.dll",
+      "import": "GetKeyboardLayout",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.Input.KeyboardLayoutConverter+KeyboardLayoutApi::MapVirtualKeyEx",
+      "module": "user32.dll",
+      "import": "MapVirtualKeyEx",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.Input.KeyboardLayoutConverter+KeyboardLayoutApi::GetKeyboardLayoutNameW",
+      "module": "user32.dll",
+      "import": "GetKeyboardLayoutNameW",
+      "flags": 260
+    },
+    {
+      "member": "MedalEncoder.Input.KeyboardMouseHookUtils+HookNativeMethods::GetKeyState",
+      "module": "user32.dll",
+      "import": "GetKeyState",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.Input.KeyboardMouseHookUtils+HookNativeMethods::GetKeyState",
+      "module": "user32.dll",
+      "import": "GetKeyState",
+      "flags": 774
+    },
+    {
+      "member": "MedalEncoder.Input.KeyboardMouseHookUtils+HookNativeMethods::GetKeyboardState",
+      "module": "user32.dll",
+      "import": "GetKeyboardState",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.Input.KeyboardMouseHookUtils+HookNativeMethods::CallNextHookEx",
+      "module": "user32.dll",
+      "import": "CallNextHookEx",
+      "flags": 326
+    },
+    {
+      "member": "MedalEncoder.Input.KeyboardMouseHookUtils+HookNativeMethods::GetModuleHandle",
+      "module": "kernel32.dll",
+      "import": "GetModuleHandle",
+      "flags": 326
+    },
+    {
+      "member": "MedalEncoder.Input.KeyboardMouseHookUtils+HookNativeMethods::SetWindowsHookEx",
+      "module": "user32.dll",
+      "import": "SetWindowsHookEx",
+      "flags": 326
+    },
+    {
+      "member": "MedalEncoder.Input.KeyboardMouseHookUtils+HookNativeMethods::SetWindowsHookEx",
+      "module": "user32.dll",
+      "import": "SetWindowsHookEx",
+      "flags": 326
+    },
+    {
+      "member": "MedalEncoder.Input.KeyboardMouseHookUtils+HookNativeMethods::UnhookWindowsHookEx",
+      "module": "user32.dll",
+      "import": "UnhookWindowsHookEx",
+      "flags": 326
+    },
+    {
+      "member": "MedalEncoder.Input.XInput.XInputLib+Imports::XInputGetState",
+      "module": "xinput1_4",
+      "import": "XInputGetState",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.Input.XInput.XInputLib+Imports::XInputGetStateInternal",
+      "module": "xinput1_4",
+      "import": "#100",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.Input.XInput.XInputLib+Imports::XInputSetState",
+      "module": "xinput1_4",
+      "import": "XInputSetState",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.Input.XInput.XInputLib+Imports::XInputGetKeystroke",
+      "module": "xinput1_4",
+      "import": "XInputGetKeystroke",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.GPUSchedulingUtility+HAGSStatus+D3DKMTFunctions::D3DKMTOpenAdapterFromLuid",
+      "module": "gdi32",
+      "import": "D3DKMTOpenAdapterFromLuid",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.GPUSchedulingUtility+HAGSStatus+D3DKMTFunctions::D3DKMTCloseAdapter",
+      "module": "gdi32",
+      "import": "D3DKMTCloseAdapter",
+      "flags": 256
+    },
+    {
+      "member": "MedalEncoder.GPUSchedulingUtility+HAGSStatus+D3DKMTFunctions::D3DKMTQueryAdapterInfo",
+      "module": "gdi32",
+      "import": "D3DKMTQueryAdapterInfo",
+      "flags": 256
+    }
+  ],
+  "target_framework": [
+    {
+      "parent_table": 32,
+      "parent_rid": 1,
+      "parent": "MedalEncoder",
+      "attribute": "System.Runtime.Versioning.TargetFrameworkAttribute::.ctor",
+      "first_string": ".NETFramework,Version=v4.6.2",
+      "blob": "01001c2e4e45544672616d65776f726b2c56657273696f6e3d76342e362e320100540e144672616d65776f726b446973706c61794e616d65142e4e4554204672616d65776f726b20342e362e32",
+      "metadata_offset": 1525978
+    }
+  ],
+  "references": [
+    {
+      "rid": 1,
+      "offset": 1815796,
+      "token": 587202561,
+      "Major": 4,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68324,
+      "Name": "mscorlib",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 2,
+      "offset": 1815824,
+      "token": 587202562,
+      "Major": 13,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68333,
+      "Name": "Newtonsoft.Json",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 3,
+      "offset": 1815852,
+      "token": 587202563,
+      "Major": 4,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68324,
+      "Name": "System",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 4,
+      "offset": 1815880,
+      "token": 587202564,
+      "Major": 2,
+      "Minor": 22,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68342,
+      "Name": "StreamJsonRpc",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 5,
+      "offset": 1815908,
+      "token": 587202565,
+      "Major": 4,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68324,
+      "Name": "System.Core",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 6,
+      "offset": 1815936,
+      "token": 587202566,
+      "Major": 10,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 1,
+      "Flags": 0,
+      "PublicKeyOrToken": 68351,
+      "Name": "System.Diagnostics.DiagnosticSource",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 7,
+      "offset": 1815964,
+      "token": 587202567,
+      "Major": 6,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68360,
+      "Name": "Sentry",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 8,
+      "offset": 1815992,
+      "token": 587202568,
+      "Major": 113,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68369,
+      "Name": "RestSharp",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 9,
+      "offset": 1816020,
+      "token": 587202569,
+      "Major": 4,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68324,
+      "Name": "System.Xml.Linq",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 10,
+      "offset": 1816048,
+      "token": 587202570,
+      "Major": 4,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68324,
+      "Name": "System.ServiceModel",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 11,
+      "offset": 1816076,
+      "token": 587202571,
+      "Major": 1,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68378,
+      "Name": "OpenTelemetry.Api",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 12,
+      "offset": 1816104,
+      "token": 587202572,
+      "Major": 1,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68378,
+      "Name": "OpenTelemetry",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 13,
+      "offset": 1816132,
+      "token": 587202573,
+      "Major": 1,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68378,
+      "Name": "OpenTelemetry.Exporter.OpenTelemetryProtocol",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 14,
+      "offset": 1816160,
+      "token": 587202574,
+      "Major": 1,
+      "Minor": 9,
+      "Build": 172,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 0,
+      "Name": "SQLite-net",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 15,
+      "offset": 1816188,
+      "token": 587202575,
+      "Major": 4,
+      "Minor": 2,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68342,
+      "Name": "System.Net.Http",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 16,
+      "offset": 1816216,
+      "token": 587202576,
+      "Major": 3,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68387,
+      "Name": "protobuf-net.Core",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 17,
+      "offset": 1816244,
+      "token": 587202577,
+      "Major": 1,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 0,
+      "Name": "ScopeSharp",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 18,
+      "offset": 1816272,
+      "token": 587202578,
+      "Major": 4,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68342,
+      "Name": "System.Drawing",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 19,
+      "offset": 1816300,
+      "token": 587202579,
+      "Major": 4,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68324,
+      "Name": "System.Windows.Forms",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 20,
+      "offset": 1816328,
+      "token": 587202580,
+      "Major": 4,
+      "Minor": 0,
+      "Build": 5,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68351,
+      "Name": "System.ValueTuple",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 21,
+      "offset": 1816356,
+      "token": 587202581,
+      "Major": 0,
+      "Minor": 7,
+      "Build": 0,
+      "Revision": 59,
+      "Flags": 0,
+      "PublicKeyOrToken": 0,
+      "Name": "NvAPIWrapper",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 22,
+      "offset": 1816384,
+      "token": 587202582,
+      "Major": 4,
+      "Minor": 2,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68396,
+      "Name": "SharpDX.Direct3D11",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 23,
+      "offset": 1816412,
+      "token": 587202583,
+      "Major": 4,
+      "Minor": 2,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68396,
+      "Name": "SharpDX.DXGI",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 24,
+      "offset": 1816440,
+      "token": 587202584,
+      "Major": 4,
+      "Minor": 4,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68405,
+      "Name": "Appccelerate.StateMachine",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 25,
+      "offset": 1816468,
+      "token": 587202585,
+      "Major": 2,
+      "Minor": 9,
+      "Build": 1,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68414,
+      "Name": "CommandLine",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 26,
+      "offset": 1816496,
+      "token": 587202586,
+      "Major": 2,
+      "Minor": 88,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68423,
+      "Name": "SkiaSharp",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 27,
+      "offset": 1816524,
+      "token": 587202587,
+      "Major": 1,
+      "Minor": 8,
+      "Build": 5,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 0,
+      "Name": "NAudio",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 28,
+      "offset": 1816552,
+      "token": 587202588,
+      "Major": 4,
+      "Minor": 2,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68396,
+      "Name": "SharpDX.Direct2D1",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 29,
+      "offset": 1816580,
+      "token": 587202589,
+      "Major": 4,
+      "Minor": 2,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68396,
+      "Name": "SharpDX",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 30,
+      "offset": 1816608,
+      "token": 587202590,
+      "Major": 4,
+      "Minor": 2,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68324,
+      "Name": "System.IO.Compression",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 31,
+      "offset": 1816636,
+      "token": 587202591,
+      "Major": 4,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68342,
+      "Name": "System.Management",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 32,
+      "offset": 1816664,
+      "token": 587202592,
+      "Major": 2,
+      "Minor": 1,
+      "Build": 9,
+      "Revision": 2410,
+      "Flags": 0,
+      "PublicKeyOrToken": 68432,
+      "Name": "SQLitePCLRaw.core",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 33,
+      "offset": 1816692,
+      "token": 587202593,
+      "Major": 4,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68441,
+      "Name": "System.Speech",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 34,
+      "offset": 1816720,
+      "token": 587202594,
+      "Major": 0,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 0,
+      "Name": "Vosk",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 35,
+      "offset": 1816748,
+      "token": 587202595,
+      "Major": 1,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68450,
+      "Name": "Owin",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 36,
+      "offset": 1816776,
+      "token": 587202596,
+      "Major": 5,
+      "Minor": 3,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68441,
+      "Name": "System.Web.Http",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 37,
+      "offset": 1816804,
+      "token": 587202597,
+      "Major": 10,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68351,
+      "Name": "System.Text.Json",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 38,
+      "offset": 1816832,
+      "token": 587202598,
+      "Major": 4,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68324,
+      "Name": "System.Xml",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 39,
+      "offset": 1816860,
+      "token": 587202599,
+      "Major": 4,
+      "Minor": 2,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68396,
+      "Name": "SharpDX.DirectInput",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 40,
+      "offset": 1816888,
+      "token": 587202600,
+      "Major": 4,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68324,
+      "Name": "System.Numerics",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 41,
+      "offset": 1816916,
+      "token": 587202601,
+      "Major": 1,
+      "Minor": 0,
+      "Build": 3,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68459,
+      "Name": "zlib.net",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 42,
+      "offset": 1816944,
+      "token": 587202602,
+      "Major": 1,
+      "Minor": 2,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 0,
+      "Name": "Fleck",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 43,
+      "offset": 1816972,
+      "token": 587202603,
+      "Major": 10,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68342,
+      "Name": "Microsoft.VisualBasic",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 44,
+      "offset": 1817000,
+      "token": 587202604,
+      "Major": 0,
+      "Minor": 8,
+      "Build": 5,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68468,
+      "Name": "ZstdSharp",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 45,
+      "offset": 1817028,
+      "token": 587202605,
+      "Major": 1,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68378,
+      "Name": "OpenTelemetry.Exporter.Console",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 46,
+      "offset": 1817056,
+      "token": 587202606,
+      "Major": 1,
+      "Minor": 0,
+      "Build": 5,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 0,
+      "Name": "Crc32C.NET",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 47,
+      "offset": 1817084,
+      "token": 587202607,
+      "Major": 0,
+      "Minor": 6,
+      "Build": 2,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 0,
+      "Name": "Gameloop.Vdf",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 48,
+      "offset": 1817112,
+      "token": 587202608,
+      "Major": 0,
+      "Minor": 2,
+      "Build": 1,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 0,
+      "Name": "Gameloop.Vdf.JsonConverter",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 49,
+      "offset": 1817140,
+      "token": 587202609,
+      "Major": 4,
+      "Minor": 0,
+      "Build": 5,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68351,
+      "Name": "System.Memory",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 50,
+      "offset": 1817168,
+      "token": 587202610,
+      "Major": 4,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68342,
+      "Name": "Microsoft.CSharp",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 51,
+      "offset": 1817196,
+      "token": 587202611,
+      "Major": 4,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68324,
+      "Name": "System.IO.Compression.FileSystem",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 52,
+      "offset": 1817224,
+      "token": 587202612,
+      "Major": 2,
+      "Minor": 1,
+      "Build": 9,
+      "Revision": 2410,
+      "Flags": 0,
+      "PublicKeyOrToken": 68477,
+      "Name": "SQLitePCLRaw.provider.dynamic_cdecl",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 53,
+      "offset": 1817252,
+      "token": 587202613,
+      "Major": 4,
+      "Minor": 2,
+      "Build": 2,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68441,
+      "Name": "Microsoft.Owin.Hosting",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 54,
+      "offset": 1817280,
+      "token": 587202614,
+      "Major": 5,
+      "Minor": 3,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68441,
+      "Name": "System.Web.Http.Owin",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 55,
+      "offset": 1817308,
+      "token": 587202615,
+      "Major": 0,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 0,
+      "Name": "EasyCompressor.ZstdSharp",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 56,
+      "offset": 1817336,
+      "token": 587202616,
+      "Major": 0,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 0,
+      "Name": "EasyCompressor",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 57,
+      "offset": 1817364,
+      "token": 587202617,
+      "Major": 2,
+      "Minor": 1,
+      "Build": 9,
+      "Revision": 2410,
+      "Flags": 0,
+      "PublicKeyOrToken": 68486,
+      "Name": "SQLitePCLRaw.batteries_v2",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 58,
+      "offset": 1817392,
+      "token": 587202618,
+      "Major": 4,
+      "Minor": 0,
+      "Build": 5,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68351,
+      "Name": "System.Buffers",
+      "Culture": "",
+      "HashValue": 0
+    },
+    {
+      "rid": 59,
+      "offset": 1817420,
+      "token": 587202619,
+      "Major": 3,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "Flags": 0,
+      "PublicKeyOrToken": 68387,
+      "Name": "protobuf-net",
+      "Culture": "",
+      "HashValue": 0
+    }
+  ]
+}

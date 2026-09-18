@@ -1,0 +1,210 @@
+{
+  "RESTService.IConnection+DefaultAudioDevices": {
+    "properties": [
+      {
+        "name": "Input",
+        "signature": {
+          "return": "string",
+          "args": []
+        },
+        "rid": 2818
+      },
+      {
+        "name": "Output",
+        "signature": {
+          "return": "string",
+          "args": []
+        },
+        "rid": 2819
+      }
+    ],
+    "attributes": [
+      {
+        "parent_table": 2,
+        "parent_rid": 1396,
+        "parent": "RESTService.IConnection+DefaultAudioDevices",
+        "attribute": "System.Runtime.CompilerServices.NullableAttribute::.ctor",
+        "first_string": "",
+        "blob": "0100000000",
+        "metadata_offset": 1578958
+      },
+      {
+        "parent_table": 2,
+        "parent_rid": 1396,
+        "parent": "RESTService.IConnection+DefaultAudioDevices",
+        "attribute": "Newtonsoft.Json.JsonObjectAttribute::.ctor",
+        "first_string": "\u0000",
+        "blob": "010001005450124e616d696e67537472617465677954797065808a4e6577746f6e736f66742e4a736f6e2e53657269616c697a6174696f6e2e43616d656c436173654e616d696e6753747261746567792c204e6577746f6e736f66742e4a736f6e2c2056657273696f6e3d31332e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d33306164346665366232613661656564",
+        "metadata_offset": 1578970
+      }
+    ]
+  },
+  "RESTService.IConnection+TargetedProcessInfo": {
+    "properties": [
+      {
+        "name": "GameID",
+        "signature": {
+          "return": "string",
+          "args": []
+        },
+        "rid": 2851
+      },
+      {
+        "name": "ProcessName",
+        "signature": {
+          "return": "string",
+          "args": []
+        },
+        "rid": 2852
+      },
+      {
+        "name": "CaptionName",
+        "signature": {
+          "return": "string",
+          "args": []
+        },
+        "rid": 2853
+      },
+      {
+        "name": "ClassName",
+        "signature": {
+          "return": "string",
+          "args": []
+        },
+        "rid": 2854
+      },
+      {
+        "name": "GameRequestId",
+        "signature": {
+          "return": "string",
+          "args": []
+        },
+        "rid": 2855
+      }
+    ],
+    "attributes": [
+      {
+        "parent_table": 2,
+        "parent_rid": 1402,
+        "parent": "RESTService.IConnection+TargetedProcessInfo",
+        "attribute": "System.Runtime.CompilerServices.NullableAttribute::.ctor",
+        "first_string": "",
+        "blob": "0100000000",
+        "metadata_offset": 1579102
+      },
+      {
+        "parent_table": 2,
+        "parent_rid": 1402,
+        "parent": "RESTService.IConnection+TargetedProcessInfo",
+        "attribute": "Newtonsoft.Json.JsonObjectAttribute::.ctor",
+        "first_string": "\u0000",
+        "blob": "010001005450124e616d696e67537472617465677954797065808a4e6577746f6e736f66742e4a736f6e2e53657269616c697a6174696f6e2e43616d656c436173654e616d696e6753747261746567792c204e6577746f6e736f66742e4a736f6e2c2056657273696f6e3d31332e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d33306164346665366232613661656564",
+        "metadata_offset": 1579114
+      }
+    ]
+  },
+  "RESTService.IConnection+ActiveProcessInfo": {
+    "properties": [
+      {
+        "name": "ProcessName",
+        "signature": {
+          "return": "string",
+          "args": []
+        },
+        "rid": 2856
+      },
+      {
+        "name": "CaptionName",
+        "signature": {
+          "return": "System.Collections.Generic.List`1<string>",
+          "args": []
+        },
+        "rid": 2857
+      },
+      {
+        "name": "ClassName",
+        "signature": {
+          "return": "System.Collections.Generic.List`1<string>",
+          "args": []
+        },
+        "rid": 2858
+      }
+    ],
+    "attributes": [
+      {
+        "parent_table": 2,
+        "parent_rid": 1403,
+        "parent": "RESTService.IConnection+ActiveProcessInfo",
+        "attribute": "System.Runtime.CompilerServices.NullableAttribute::.ctor",
+        "first_string": "",
+        "blob": "0100000000",
+        "metadata_offset": 1579126
+      },
+      {
+        "parent_table": 2,
+        "parent_rid": 1403,
+        "parent": "RESTService.IConnection+ActiveProcessInfo",
+        "attribute": "Newtonsoft.Json.JsonObjectAttribute::.ctor",
+        "first_string": "\u0000",
+        "blob": "010001005450124e616d696e67537472617465677954797065808a4e6577746f6e736f66742e4a736f6e2e53657269616c697a6174696f6e2e43616d656c436173654e616d696e6753747261746567792c204e6577746f6e736f66742e4a736f6e2c2056657273696f6e3d31332e302e302e302c2043756c747572653d6e65757472616c2c205075626c69634b6579546f6b656e3d33306164346665366232613661656564",
+        "metadata_offset": 1579138
+      }
+    ]
+  },
+  "MedalEncoder.ScreenUtils+ScreenInfo": {
+    "properties": [
+      {
+        "name": "DeviceName",
+        "signature": {
+          "return": "string",
+          "args": []
+        },
+        "rid": 3005
+      },
+      {
+        "name": "FriendlyName",
+        "signature": {
+          "return": "string",
+          "args": []
+        },
+        "rid": 3006
+      },
+      {
+        "name": "CurrentScreenshot",
+        "signature": {
+          "return": "string",
+          "args": []
+        },
+        "rid": 3007
+      },
+      {
+        "name": "IsPrimaryScreen",
+        "signature": {
+          "return": "bool",
+          "args": []
+        },
+        "rid": 3008
+      }
+    ],
+    "attributes": [
+      {
+        "parent_table": 2,
+        "parent_rid": 1922,
+        "parent": "MedalEncoder.ScreenUtils+ScreenInfo",
+        "attribute": "System.Runtime.CompilerServices.NullableAttribute::.ctor",
+        "first_string": "",
+        "blob": "0100000000",
+        "metadata_offset": 1587490
+      },
+      {
+        "parent_table": 2,
+        "parent_rid": 1922,
+        "parent": "MedalEncoder.ScreenUtils+ScreenInfo",
+        "attribute": "System.Reflection.ObfuscationAttribute::.ctor",
+        "first_string": "\u0000T",
+        "blob": "010002005402074578636c7564650154020e4170706c79546f4d656d6265727301",
+        "metadata_offset": 1587502
+      }
+    ]
+  }
+}

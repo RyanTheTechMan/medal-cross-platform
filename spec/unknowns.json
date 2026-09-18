@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "updatedOn": "2026-09-18",
+  "items": [
+    {"id": "wire.bitrate-unit", "status": "unresolved", "evidence": ["research/PROTOCOL.md", "research/evidence/settings_catalog.json"], "rule": "Do not map the UI value to encoder bits per second until traced."},
+    {"id": "wire.nested-dtos", "status": "unresolved", "evidence": ["research/evidence/recorder_metadata.json", "research/evidence/wire_dto_attributes.json"], "rule": "Metadata declarations are not complete on-wire schemas."},
+    {"id": "wire.event-order", "status": "unresolved", "evidence": ["research/evidence/client_handlers.json"], "rule": "Do not emit success-state events without a real backend transition."},
+    {"id": "wire.proactive-user", "status": "unresolved", "evidence": ["research/PROTOCOL.md"], "rule": "Trace the client proactive send and recorder pull behavior independently."},
+    {"id": "auth.hardware-capability-jwt", "status": "unresolved", "evidence": ["research/evidence/platform_guards.json"], "rule": "Do not fabricate hardware identity, tokens, or entitlements."},
+    {"id": "library.content-create-idempotency", "status": "unresolved", "evidence": ["research/FINDINGS.md", "research/evidence/protocol_results.json"], "rule": "Preserve the sole export and avoid blind retries until duplicate behavior is traced."},
+    {"id": "session.content-update-order", "status": "unresolved", "evidence": ["research/PROTOCOL.md"], "rule": "Full sessions remain unverified until the original client transition order is recovered."},
+    {"id": "audio.track-ordering", "status": "unresolved", "evidence": ["CODEX_MASTER_PROMPT.md"], "rule": "Do not infer editor-compatible track order from MP4 muxing alone."},
+    {"id": "conditional.broadcast", "status": "unresolved", "evidence": ["research/evidence/recorder_metadata.json"], "rule": "A declared toggleBroadcast method does not establish a backend or endpoint."},
+    {"id": "conditional.game-plugins-overlay", "status": "unresolved", "evidence": ["research/FINDINGS.md"], "rule": "Windows injection/plugin assets are not portable implementations."}
+  ]
+}
+

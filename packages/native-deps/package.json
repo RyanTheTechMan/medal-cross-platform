@@ -1,0 +1,17 @@
+{
+  "name": "@native-medal-port/native-deps",
+  "version": "0.0.0-development",
+  "private": true,
+  "description": "Pinned public native dependencies rebuilt for the target Electron runtime; never installed inside the imported application.",
+  "scripts": {
+    "rebuild:electron": "electron-rebuild --version 43.2.0 --arch arm64 --force --only better-sqlite3",
+    "test:sqlite-electron": "ELECTRON_RUN_AS_NODE=1 electron tests/sqlite-abi.cjs"
+  },
+  "dependencies": {
+    "better-sqlite3": "file:../../third_party/sources/better-sqlite3-v12.12.0.tar.gz",
+    "electron": "43.2.0"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "4.2.0"
+  }
+}
