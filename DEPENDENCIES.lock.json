@@ -16,11 +16,11 @@
     },
     {
       "name": "development-xcode",
-      "version": "27.0 beta 3",
-      "build": "27A5218g",
-      "sdk": "macOS 27.0",
-      "compiler": "Apple clang 21.0.0 (clang-2100.3.25.1)",
-      "path": "/Applications/Xcode-27.0.0-beta.3.app/Contents/Developer",
+      "version": "27.2 beta",
+      "build": "27B5019j",
+      "sdk": "macOS 27.2",
+      "compiler": "Apple clang 21.0.0 (clang-2100.3.34.2)",
+      "path": "/Applications/Xcode-beta.app/Contents/Developer",
       "releaseEligible": false
     }
   ],
@@ -51,7 +51,8 @@
       "version": "43.2.0",
       "npmIntegrity": "sha512-80zvrgG7ZRXD+tD0IyLvrnN9n+veSxadMRsMaC9wKKP3iUbtC7rGM8+dVuCmOb0Rrwwv8ESW4awnUZh9Hbp1fA==",
       "target": "darwin-arm64",
-      "verification": "pending downloaded artifact checksum and runtime process.versions report"
+      "darwinArm64ArchiveSha256": "ad4a0ae3c37ee05aa06c7e2ed0627608389790f0505a2b0d20319efbe33ffe28",
+      "verification": "Actual Electron process reported version 43.2.0, Node 24.18.0, modules ABI 148, darwin-arm64; real imported GUI and addon loaded."
     },
     {
       "name": "@electron/rebuild",
@@ -108,8 +109,8 @@
     }
   ],
   "unresolvedNativeDependencies": [
-    "Electron 43.2.0 darwin-arm64 artifact and official checksum verification",
-    "Electron-ABI rebuild and full API verification of matched better-sqlite3 12.12.0 source",
+    "Independent official checksum source verification for the cached Electron 43.2.0 darwin-arm64 archive",
+    "Full corruption/recovery verification of the Electron-ABI better-sqlite3 12.12.0 build",
     "native sqlite3 recovery CLI packaging",
     "native ffmpeg/ffprobe packaging and license configuration",
     "Velopack replacement/update implementation",

@@ -4,14 +4,18 @@ This file records observed limits, not excuses for successful no-op behavior.
 
 ## Environment
 
-- Stable Xcode 27 with the macOS 27 SDK is not installed. The user authorized using the available Xcode 27.0 beta 3 toolchain for implementation; release evidence still requires the stable-toolchain rerun specified by the project brief.
+- Stable Xcode 27 with the macOS 27 SDK is not installed. The user authorized Xcode 27.2 beta build 27B5019j / SDK 27.2 for implementation; beta-built artifacts remain development-only and release evidence still requires the specified stable-toolchain rerun.
 - No Developer ID Application identity, notarization credentials, or release provisioning evidence has been supplied or requested yet. Development/ad-hoc signing is not notarization.
 
 ## Current implementation state
 
-- The repository began as a prompt/research pack. No native Electron app, native helper, recorder, importer product, or packaged artifact has yet passed a native gate.
+- The real native Electron GUI and imported SQLite worker now run in isolated development profiles. The native helper/recorder, capture, media roundtrip and packaged artifact do not yet pass their gates.
 - The original Windows better_sqlite3 and Velopack `.node` files are PE x86-64 and unusable on arm64 macOS.
 - The inherited 12-test suite uses adapted dependencies and proves only its documented protocol/library subset.
+- The current development client still tries one Windows registry-based external-clip discovery command on macOS; A04 remains open until that path has an explicit platform adapter.
+- The current prepared FFmpeg/ffprobe files originate from a Homebrew GPL-enabled development build, and the SQLite CLI is a development copy of the system tool. They are not a self-contained or release-cleared A07 package.
+- With no native helper connected, the client currently waits for settings/shutdown notifications and logs a database-worker code-1 exit during quit. M2 must replace this condition with the real supervisor lifecycle.
+- The prepared development tree is ignored under `artifacts/`; it is not signed, notarized, redistributable, or a release candidate.
 
 ## Recovered-contract unknowns
 

@@ -1,0 +1,34 @@
+UpdateCTestConfiguration  from :/Users/ryan/Developer/medal-cross-platform/build-macos/DartConfiguration.tcl
+Parse Config file:/Users/ryan/Developer/medal-cross-platform/build-macos/DartConfiguration.tcl
+Test project /Users/ryan/Developer/medal-cross-platform/build-macos
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: native_port_macos_api_probe
+
+1: Test command: /Users/ryan/Developer/medal-cross-platform/build-macos/native/backends/macos/native_port_macos_api_probe
+1: Working Directory: /Users/ryan/Developer/medal-cross-platform/build-macos/native/backends/macos
+1: Test timeout computed to be: 1500
+1: {"ScreenCaptureKit.SCStreamConfiguration":true,"ScreenCaptureKit.captureMicrophone":true,"ScreenCaptureKit.SCRecordingOutputConfiguration":true,"ScreenCaptureKit.SCScreenshotConfiguration":true,"ScreenCaptureKit.SCContentSharingPickerConfiguration":true,"CoreAudio.CATapDescription":true,"CoreAudio.AudioHardwareCreateProcessTap":true,"CoreAudio.AudioHardwareDestroyProcessTap":true,"VideoToolbox.VTCompressionSessionCreate":true,"VideoToolbox.hardwareEncoderSpecificationKey":true,"VideoToolbox.HEVCHardwareDecode":true,"AudioToolbox.AudioConverterNew":true,"Metal.defaultDevice":true,"Carbon.RegisterEventHotKey":true}
+1/2 Test #1: native_port_macos_api_probe ......   Passed    0.13 sec
+test 2
+    Start 2: native_port_core_tests
+
+2: Test command: /Users/ryan/Developer/medal-cross-platform/build-macos/native/tests/native_port_core_tests
+2: Working Directory: /Users/ryan/Developer/medal-cross-platform/build-macos/native/tests
+2: Test timeout computed to be: 1500
+2: PASS media_time
+2: PASS json_rpc
+2: PASS settings
+2: PASS replay_store
+2: PASS native_port_core_tests 4/4
+2/2 Test #2: native_port_core_tests ...........   Passed    0.03 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =   0.17 sec
+ctest_exit=0

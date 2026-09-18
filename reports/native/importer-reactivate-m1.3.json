@@ -1,0 +1,10 @@
+{
+  "status": "prepared",
+  "idempotent": true,
+  "versionDirectory": "/Users/ryan/Developer/medal-cross-platform/artifacts/native-client/versions/2637.461.1-native-port-m1.3",
+  "manifest": "/Users/ryan/Developer/medal-cross-platform/artifacts/native-client/versions/2637.461.1-native-port-m1.3/native-port/patch-manifest.json",
+  "activation": {
+    "current": "versions/2637.461.1-native-port-m1.3",
+    "previous": "versions/2637.461.1-native-port-m1.2"
+  }
+}

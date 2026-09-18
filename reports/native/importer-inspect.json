@@ -1,0 +1,15 @@
+{
+  "status": "supported",
+  "version": "2637.461.1",
+  "sourceAudit": {
+    "files": 1582,
+    "bytes": 56596221
+  },
+  "hashes": {
+    "index.js": "89595fe5caf45a54d3cc8f098e60e092968631be350c81cff845b99d7866e0b4",
+    "main.min.js": "5a2a6dd5d1370a15577b0c09bc2d021059e2f9e7dba6a2e40cc41b4685e0c8ff",
+    "node_modules/velopack/lib/index.js": "535dee2558ceb19b41190bc113ba55f2f20f9b9f3bd105abb98d08808d2616e9",
+    "node_modules/velopack/lib/load.js": "4bc202eeec16337c9370b0945ec147b7fb0a845f1a8247fdbe34c455813270d1",
+    "package.json": "7cb6b1cc9898addfa4780406d32305d9c65085bb79fc2a73122b49fd61eac051"
+  }
+}

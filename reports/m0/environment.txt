@@ -1,4 +1,4 @@
-timestamp_utc=2026-09-18T17:35:12Z
+timestamp_utc=2026-09-18T18:09:35Z
 ProductName:		macOS
 ProductVersion:		27.2
 BuildVersion:		26B5086k
@@ -8,34 +8,25 @@ arch_command=arm64
 cpu=Apple M5 Max
 
 [selected developer tools]
-/Library/Developer/CommandLineTools
-xcode-select: error: tool 'xcodebuild' requires Xcode, but active developer directory '/Library/Developer/CommandLineTools' is a command line tools instance
-26.2
-/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
-Apple clang version 17.0.0 (clang-1700.6.4.2)
+/Applications/Xcode-beta.app/Contents/Developer
+Xcode 27.2
+Build version 27B5019j
+27.2
+/Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.2.sdk
+Apple clang version 21.0.0 (clang-2100.3.34.2)
 Target: arm64-apple-darwin27.2.0
 Thread model: posix
-InstalledDir: /Library/Developer/CommandLineTools/usr/bin
+InstalledDir: /Applications/Xcode-beta.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
 
-[xcode=/Applications/Xcode-26.6.0.app]
-Xcode 26.6
-Build version 17F113
-26.5
-/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk
-Apple clang version 21.0.0 (clang-2100.1.1.101)
+[xcode=/Applications/Xcode-beta.app]
+Xcode 27.2
+Build version 27B5019j
+27.2
+/Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.2.sdk
+Apple clang version 21.0.0 (clang-2100.3.34.2)
 Target: arm64-apple-darwin27.2.0
 Thread model: posix
-InstalledDir: /Applications/Xcode-26.6.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
-
-[xcode=/Applications/Xcode-27.0.0-beta.3.app]
-Xcode 27.0
-Build version 27A5218g
-27.0
-/Applications/Xcode-27.0.0-beta.3.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk
-Apple clang version 21.0.0 (clang-2100.3.25.1)
-Target: arm64-apple-darwin27.2.0
-Thread model: posix
-InstalledDir: /Applications/Xcode-27.0.0-beta.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+InstalledDir: /Applications/Xcode-beta.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
 
 [build and runtime tools]
 cmake version 4.3.1
@@ -62,3 +53,4 @@ e6477e89f968593fe4b8335f09fc25f81889dd412c28ff85522a0a37415decdb  inputs/Medal-p
 d33c6e3c0506c1f6b71e6158716fda3a9866bfacc41060f2ec29c4d792ca1312  inputs/v2638.2751.1.zip
 inputs/Medal-production-2637.461.1-Setup.exe mode=-rw-r--r-- size=176455976
 inputs/v2638.2751.1.zip mode=-rw-r--r-- size=121123951
+doctor_exit=0

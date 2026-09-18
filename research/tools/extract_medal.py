@@ -3,11 +3,13 @@
 Does not run Windows binaries, install anything, download dependencies or launch Medal.
 """
 from __future__ import annotations
-import argparse, hashlib, json, os, shutil, stat, struct, sys, tempfile, zipfile
+import argparse, hashlib, json, os, shutil, stat, struct, sys, tempfile, unicodedata, zipfile
 from pathlib import Path, PurePosixPath
 
 KNOWN_INSTALLER = 'e6477e89f968593fe4b8335f09fc25f81889dd412c28ff85522a0a37415decdb'
 MAX_TOTAL = 2 * 1024**3
+MAX_MEMBER = 512 * 1024**2
+MAX_COMPRESSION_RATIO = 200
 
 def sha256(path: Path) -> str:
     h = hashlib.sha256()
@@ -22,6 +24,22 @@ def safe_relative(name: str) -> Path:
     if not s or p.is_absolute() or any(x in ('..', '.') or ':' in x or '\x00' in x for x in p.parts):
         raise ValueError(f'Unsafe archive path: {name!r}')
     return Path(*p.parts)
+
+def collision_key(path: Path) -> str:
+    return unicodedata.normalize('NFC', path.as_posix()).casefold()
+
+def validate_zip_infos(infos: list[zipfile.ZipInfo]) -> None:
+    if sum(i.file_size for i in infos) > MAX_TOTAL: raise ValueError('Archive size limit exceeded')
+    names = set()
+    for i in infos:
+        relative = safe_relative(i.filename)
+        normalized = collision_key(relative)
+        if normalized in names: raise ValueError('Duplicate archive entry')
+        names.add(normalized)
+        if stat.S_ISLNK(i.external_attr >> 16): raise ValueError('Symlink entry is not supported')
+        if i.file_size > MAX_MEMBER: raise ValueError('Archive member size limit exceeded')
+        if i.file_size > 1024**2 and i.file_size / max(1, i.compress_size) > MAX_COMPRESSION_RATIO:
+            raise ValueError('Suspicious archive compression ratio')
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
@@ -41,13 +59,7 @@ def main() -> None:
     try:
         with zipfile.ZipFile(installer) as z:
             infos = z.infolist()
-            if sum(i.file_size for i in infos) > MAX_TOTAL: raise ValueError('Archive size limit exceeded')
-            names = set()
-            for i in infos:
-                normalized = str(safe_relative(i.filename))
-                if normalized in names: raise ValueError('Duplicate archive entry')
-                names.add(normalized)
-                if stat.S_ISLNK(i.external_attr >> 16): raise ValueError('Symlink entry is not supported')
+            validate_zip_infos(infos)
             report['archive_entries'] = len(infos)
             report['electron_version'] = z.read('lib/app/version').decode().strip()
             prefix = 'lib/app/resources/'
@@ -72,11 +84,11 @@ def main() -> None:
                     walk(info['files'], rel); continue
                 if 'link' in info: raise ValueError(f'ASAR link not supported: {rel}')
                 # Case-insensitive targets need this guard, even on Linux extraction hosts.
-                collision_key = str(rel).casefold()
-                if collision_key in seen: raise ValueError(f'Case-folding collision: {rel}')
-                seen.add(collision_key)
+                target_key = collision_key(rel)
+                if target_key in seen: raise ValueError(f'Case/Unicode collision: {rel}')
+                seen.add(target_key)
                 n = int(info['size'])
-                if n < 0 or n > MAX_TOTAL: raise ValueError('Invalid ASAR member size')
+                if n < 0 or n > MAX_MEMBER: raise ValueError('Invalid ASAR member size')
                 if info.get('unpacked'):
                     data = (tmp/'app.asar.unpacked'/rel).read_bytes()
                 else:

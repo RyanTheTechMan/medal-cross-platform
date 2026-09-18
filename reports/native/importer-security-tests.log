@@ -1,0 +1,12 @@
+test_collision_key_covers_case_and_unicode_normalization (tests.test_importer.ImporterSecurityTests.test_collision_key_covers_case_and_unicode_normalization) ... ok
+test_copy_audit_rejects_symlinks (tests.test_importer.ImporterSecurityTests.test_copy_audit_rejects_symlinks) ... ok
+test_patch_predicate_failure_is_non_mutating (tests.test_importer.ImporterSecurityTests.test_patch_predicate_failure_is_non_mutating) ... ok
+test_rejects_traversal_absolute_drive_and_nul_paths (tests.test_importer.ImporterSecurityTests.test_rejects_traversal_absolute_drive_and_nul_paths) ... ok
+test_unknown_build_refusal_preserves_active_install (tests.test_importer.ImporterSecurityTests.test_unknown_build_refusal_preserves_active_install) ... ok
+test_zip_policy_rejects_symlink_duplicate_and_bomb (tests.test_importer.ImporterSecurityTests.test_zip_policy_rejects_symlink_duplicate_and_bomb) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.332s
+
+OK
+unittest_exit=0

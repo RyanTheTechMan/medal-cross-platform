@@ -1,0 +1,7 @@
+{
+  "status": "rolled_back",
+  "activation": {
+    "current": "versions/2637.461.1-native-port-m1.2",
+    "previous": "versions/2637.461.1-native-port-m1.3"
+  }
+}

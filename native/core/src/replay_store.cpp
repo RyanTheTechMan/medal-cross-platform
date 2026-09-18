@@ -1,0 +1,177 @@
+#include "native_port/replay_store.hpp"
+
+#include <algorithm>
+#include <limits>
+#include <stdexcept>
+
+namespace native_port {
+
+namespace {
+
+[[nodiscard]] bool is_video(const std::shared_ptr<const EncodedPacket>& packet) noexcept {
+  return packet->track == TrackKind::video;
+}
+
+[[nodiscard]] bool is_decodable_video_start(const std::shared_ptr<const EncodedPacket>& packet) noexcept {
+  return is_video(packet) && packet->keyframe && !packet->depends_on_others && packet->codec_configuration &&
+         !packet->codec_configuration->empty();
+}
+
+}  // namespace
+
+ReplayStore::ReplayStore(ReplayLimits limits) : limits_(limits) {
+  if (limits_.maximum_duration <= std::chrono::nanoseconds::zero()) {
+    throw std::invalid_argument("replay duration limit must be positive");
+  }
+  if (limits_.maximum_bytes == 0U) {
+    throw std::invalid_argument("replay byte limit must be positive");
+  }
+}
+
+void ReplayStore::push(std::shared_ptr<const EncodedPacket> packet) {
+  if (!packet || !packet->data || packet->data->empty()) {
+    throw std::invalid_argument("encoded packet and payload must be present");
+  }
+  if (packet->monotonic_nanoseconds < 0) {
+    throw std::invalid_argument("packet monotonic timestamp must be non-negative");
+  }
+  if (packet->track == TrackKind::video && packet->keyframe &&
+      (!packet->codec_configuration || packet->codec_configuration->empty())) {
+    throw std::invalid_argument("video keyframe must carry decoder configuration");
+  }
+
+  std::scoped_lock lock(mutex_);
+  if (has_timestamp_ && packet->monotonic_nanoseconds < last_monotonic_nanoseconds_) {
+    throw std::invalid_argument("packets must be pushed in monotonic order");
+  }
+  has_timestamp_ = true;
+  last_monotonic_nanoseconds_ = packet->monotonic_nanoseconds;
+  occupied_bytes_ += packet->occupied_bytes();
+  packets_.push_back(std::move(packet));
+  enforce_limits_locked();
+}
+
+std::optional<ReplaySnapshot> ReplayStore::snapshot(std::chrono::nanoseconds requested_duration) const {
+  if (requested_duration <= std::chrono::nanoseconds::zero()) {
+    throw std::invalid_argument("requested replay duration must be positive");
+  }
+
+  std::scoped_lock lock(mutex_);
+  if (packets_.empty()) {
+    return std::nullopt;
+  }
+
+  const auto newest_generation = packets_.back()->configuration_generation;
+  const auto end = packets_.back()->monotonic_nanoseconds;
+  const auto requested_count = requested_duration.count();
+  const auto target = requested_count > end ? 0 : end - requested_count;
+
+  std::optional<std::size_t> first_generation_index;
+  std::optional<std::size_t> preceding_keyframe_index;
+  std::optional<std::size_t> following_keyframe_index;
+  for (std::size_t index = 0; index < packets_.size(); ++index) {
+    const auto& packet = packets_[index];
+    if (packet->configuration_generation != newest_generation) {
+      continue;
+    }
+    if (!first_generation_index) {
+      first_generation_index = index;
+    }
+    if (!is_decodable_video_start(packet)) {
+      continue;
+    }
+    if (packet->monotonic_nanoseconds <= target) {
+      preceding_keyframe_index = index;
+    } else if (!following_keyframe_index) {
+      following_keyframe_index = index;
+    }
+  }
+
+  const auto start_index = preceding_keyframe_index ? preceding_keyframe_index : following_keyframe_index;
+  if (!start_index || !first_generation_index) {
+    return std::nullopt;
+  }
+
+  ReplaySnapshot result;
+  result.requested_duration = requested_duration;
+  result.configuration_generation = newest_generation;
+  result.start_monotonic_nanoseconds = packets_[*start_index]->monotonic_nanoseconds;
+  result.end_monotonic_nanoseconds = end;
+  result.actual_duration = std::chrono::nanoseconds(end - result.start_monotonic_nanoseconds);
+  if (!preceding_keyframe_index) {
+    result.limitation = "requested interval predates the first retained keyframe in the active codec generation";
+  } else if (result.start_monotonic_nanoseconds < target) {
+    result.limitation = "fast export includes keyframe preroll";
+  }
+
+  for (std::size_t index = *start_index; index < packets_.size(); ++index) {
+    const auto& packet = packets_[index];
+    if (packet->configuration_generation != newest_generation) {
+      continue;
+    }
+    result.occupied_bytes += packet->occupied_bytes();
+    result.packets.push_back(packet);
+  }
+  return result;
+}
+
+void ReplayStore::clear() {
+  std::scoped_lock lock(mutex_);
+  packets_.clear();
+  occupied_bytes_ = 0;
+  last_monotonic_nanoseconds_ = 0;
+  has_timestamp_ = false;
+}
+
+std::size_t ReplayStore::occupied_bytes() const {
+  std::scoped_lock lock(mutex_);
+  return occupied_bytes_;
+}
+
+std::size_t ReplayStore::packet_count() const {
+  std::scoped_lock lock(mutex_);
+  return packets_.size();
+}
+
+std::chrono::nanoseconds ReplayStore::retained_duration() const {
+  std::scoped_lock lock(mutex_);
+  return retained_duration_locked();
+}
+
+void ReplayStore::enforce_limits_locked() {
+  while (!packets_.empty() &&
+         (occupied_bytes_ > limits_.maximum_bytes || retained_duration_locked() > limits_.maximum_duration)) {
+    occupied_bytes_ -= packets_.front()->occupied_bytes();
+    packets_.pop_front();
+  }
+  align_front_to_decodable_video_locked();
+  if (packets_.empty()) {
+    occupied_bytes_ = 0;
+  }
+}
+
+void ReplayStore::align_front_to_decodable_video_locked() {
+  const auto first_video = std::find_if(packets_.begin(), packets_.end(), is_video);
+  if (first_video == packets_.end() || is_decodable_video_start(*first_video)) {
+    return;
+  }
+  const auto first_keyframe = std::find_if(first_video, packets_.end(), is_decodable_video_start);
+  if (first_keyframe == packets_.end()) {
+    return;
+  }
+  const auto keyframe_time = (*first_keyframe)->monotonic_nanoseconds;
+  while (!packets_.empty() && packets_.front()->monotonic_nanoseconds < keyframe_time) {
+    occupied_bytes_ -= packets_.front()->occupied_bytes();
+    packets_.pop_front();
+  }
+}
+
+std::chrono::nanoseconds ReplayStore::retained_duration_locked() const {
+  if (packets_.size() < 2U) {
+    return std::chrono::nanoseconds::zero();
+  }
+  return std::chrono::nanoseconds(packets_.back()->monotonic_nanoseconds -
+                                  packets_.front()->monotonic_nanoseconds);
+}
+
+}  // namespace native_port

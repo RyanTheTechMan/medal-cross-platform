@@ -5,6 +5,8 @@ research/extracted*/
 research/tests/media/
 node_modules/
 .DS_Store
+__pycache__/
+*.pyc
 *.p12
 *.pfx
 *.key

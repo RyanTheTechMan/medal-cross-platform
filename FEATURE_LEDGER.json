@@ -3162,18 +3162,26 @@
       "source": "CODEX_MASTER_PROMPT.md",
       "contract_status": "proposed_product_requirement",
       "macos": {
-        "status": "investigating",
+        "status": "implemented_unverified",
         "implementation_files": [
-          "research/tools/extract_medal.py"
+          "research/tools/extract_medal.py",
+          "tools/native_port_importer.py",
+          "client_patch/supported-builds.json",
+          "tests/test_importer.py"
         ],
         "test_ids": [
-          "A01-evidence-subset"
+          "A01",
+          "A02",
+          "A03",
+          "A09"
         ],
         "report_paths": [
-          "reports/m0/extraction-report.json"
+          "reports/m0/extraction-report.json",
+          "reports/native/importer-security-tests.log",
+          "reports/native/importer-idempotent.json"
         ],
         "limitations": [
-          "The inherited read-only extractor was reproduced, but the product importer, exact patching, atomic activation, rollback, and uninstall behavior are not implemented."
+          "Atomic activation and idempotence passed; explicit rollback, DB migration compatibility and uninstall preservation remain unverified."
         ]
       },
       "linux": {
@@ -3196,16 +3204,22 @@
       "source": "CODEX_MASTER_PROMPT.md",
       "contract_status": "proposed_product_requirement",
       "macos": {
-        "status": "investigating",
+        "status": "implemented_unverified",
         "implementation_files": [
-          "DEPENDENCIES.lock.json"
+          "client_patch/native-port-bootstrap.cjs",
+          "client_patch/velopack-manual-adapter.js",
+          "tools/native_port_importer.py"
         ],
-        "test_ids": [],
+        "test_ids": [
+          "A04",
+          "A08"
+        ],
         "report_paths": [
-          "reports/m0/environment.txt"
+          "reports/native/electron-m1-gui-2.log",
+          "reports/native/importer-prepare-m1.3.json"
         ],
         "limitations": [
-          "Electron 43.2.0 darwin-arm64 is not yet installed or launched; stable Xcode 27 is absent."
+          "Actual arm64 GUI and isolated profile passed; Windows registry external-clip discovery still logs an error and multi-profile concurrency is not verified."
         ]
       },
       "linux": {
@@ -3227,14 +3241,22 @@
       "source": "CODEX_MASTER_PROMPT.md",
       "contract_status": "proposed_product_requirement",
       "macos": {
-        "status": "investigating",
-        "implementation_files": [],
-        "test_ids": [],
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "packages/native-deps/tests/sqlite-abi.cjs",
+          "client_patch/db-selftest-preload.cjs",
+          "tools/native_port_importer.py"
+        ],
+        "test_ids": [
+          "A05"
+        ],
         "report_paths": [
-          "reports/m0/environment.txt"
+          "reports/m0/electron-sqlite-abi.json",
+          "reports/native/electron-m1-db-write.log",
+          "reports/native/electron-m1-db-verify.log"
         ],
         "limitations": [
-          "The bundled wrapper and PE x86-64 addon were inspected; exact public source/native compatibility and a real Electron test remain unresolved."
+          "Real worker migrations, JSONB CRUD and close/reopen passed; deliberate corruption and CLI recovery remain unverified."
         ]
       },
       "linux": {
@@ -3254,16 +3276,22 @@
       "source": "CODEX_MASTER_PROMPT.md",
       "contract_status": "proposed_product_requirement",
       "macos": {
-        "status": "investigating",
+        "status": "implemented_unverified",
         "implementation_files": [
-          "DEPENDENCIES.lock.json"
+          "DEPENDENCIES.lock.json",
+          "client_patch/velopack-manual-adapter.js",
+          "tools/native_port_importer.py"
         ],
-        "test_ids": [],
+        "test_ids": [
+          "A06",
+          "A07"
+        ],
         "report_paths": [
-          "reports/m0/environment.txt"
+          "reports/m0/better-sqlite3-source-audit.txt",
+          "reports/native/electron-m1-gui-2.log"
         ],
         "limitations": [
-          "Both Velopack entry points and recorder/SQLite asset replacement paths are identified but not patched."
+          "Both client Velopack entry points and SQLite addon download fallback are controlled; recorder AssetManager and release-cleared self-contained tools remain open."
         ]
       },
       "linux": {
@@ -3306,11 +3334,23 @@
       "source": "CODEX_MASTER_PROMPT.md",
       "contract_status": "proposed_product_requirement",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "investigating",
+        "implementation_files": [
+          "native/core/include/native_port/json_rpc.hpp",
+          "native/core/src/json_rpc.cpp"
+        ],
+        "test_ids": [
+          "B02",
+          "B03",
+          "B04",
+          "B05"
+        ],
+        "report_paths": [
+          "reports/native/ctest-xcode-27.2-beta.log"
+        ],
+        "limitations": [
+          "Shared codec is implemented and unit-tested; no native helper is connected to actual Electron yet."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -3358,11 +3398,21 @@
       "source": "CODEX_MASTER_PROMPT.md",
       "contract_status": "proposed_product_requirement",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "investigating",
+        "implementation_files": [
+          "native/core/include/native_port/settings_store.hpp",
+          "native/core/src/settings_store.cpp"
+        ],
+        "test_ids": [
+          "B08",
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/ctest-xcode-27.2-beta.log"
+        ],
+        "limitations": [
+          "Exact 60-key storage and scoped overrides are unit-tested but not wired to a native helper or UI."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -3561,11 +3611,25 @@
       "source": "CODEX_MASTER_PROMPT.md",
       "contract_status": "proposed_product_requirement",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/replay_store.hpp",
+          "native/core/src/replay_store.cpp",
+          "native/core/include/native_port/encoded_packet.hpp"
+        ],
+        "test_ids": [
+          "R01",
+          "R02",
+          "R03",
+          "R04",
+          "R05"
+        ],
+        "report_paths": [
+          "reports/native/ctest-xcode-27.2-beta.log"
+        ],
+        "limitations": [
+          "Bounded generation-aware encoded packet storage is unit-tested; no real encoder packets or container export have been connected."
+        ]
       },
       "linux": {
         "status": "not_started",

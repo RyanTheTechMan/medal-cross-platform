@@ -1,0 +1,7 @@
+Change Dir: '/Users/ryan/Developer/medal-cross-platform/build-macos'
+
+Run Build Command(s): /opt/homebrew/bin/ninja -v
+[1/2] /usr/bin/c++  -I/Users/ryan/Developer/medal-cross-platform/native/core/include -isystem /opt/homebrew/include -O2 -g -DNDEBUG -std=c++20 -arch arm64 -mmacosx-version-min=27.0 -fPIE -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -MD -MT native/tests/CMakeFiles/native_port_core_tests.dir/core_tests.cpp.o -MF native/tests/CMakeFiles/native_port_core_tests.dir/core_tests.cpp.o.d -o native/tests/CMakeFiles/native_port_core_tests.dir/core_tests.cpp.o -c /Users/ryan/Developer/medal-cross-platform/native/tests/core_tests.cpp
+[2/2] : && /usr/bin/c++ -O2 -g -DNDEBUG -arch arm64 -mmacosx-version-min=27.0 -Wl,-search_paths_first -Wl,-headerpad_max_install_names native/tests/CMakeFiles/native_port_core_tests.dir/core_tests.cpp.o -o native/tests/native_port_core_tests  native/core/libnative_port_core.a && :
+
+build_exit=0

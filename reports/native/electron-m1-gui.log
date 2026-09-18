@@ -1,0 +1,10 @@
+[native-port] Electron 43.2.0, ABI 148, arm64
+Launching live application...
+Discovered writable path: /Users/ryan/Developer/medal-cross-platform/artifacts/profiles/m1-gui/store
+Discovered writable path: /Users/ryan/Developer/medal-cross-platform/artifacts/native-client/current/.updates
+Skip creating MedalOverlay class - OS is not Windows!
+[09/18 02:02:43][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [RecorderHandler2] [debug-env] NODE_ENV=production isDev=false MEDAL_ENCODER_EXE=(unset)
+[5800:0918/140243.732711:ERROR:ui/base/resource/resource_bundle.cc:1100] Failed to load /Users/ryan/Developer/medal-cross-platform/packages/native-deps/node_modules/electron/dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Resources/chrome_100_percent.pak
+Some features may not be available.
+[5800:0918/140243.732962:ERROR:ui/base/resource/resource_bundle.cc:1100] Failed to load /Users/ryan/Developer/medal-cross-platform/packages/native-deps/node_modules/electron/dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Resources/chrome_200_percent.pak
+Some features may not be available.
