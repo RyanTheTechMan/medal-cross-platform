@@ -76,3 +76,14 @@
 - Security/privacy/packaging impact: imported payload remains ignored/local; usage descriptions cover microphone, camera and audio capture while screen consent is exercised through the real ScreenCaptureKit picker. This does not grant consent or produce a redistributable package.
 - Tests required and actual results: strict/deep signature verification, the actual signed-client/helper protocol route, upstream-ID check and imported-icon hash check pass. Manual Screen Recording grant/deny/cancel/revoke/regrant tests remain pending under `reports/native/m3.2-tcc-prerequisite.md`.
 - Source references: `CODEX_MASTER_PROMPT.md` sections 7.1 and 10; `PLATFORM_CROSSCHECK.md` sections 3 and 6; `ACCEPTANCE_TESTS.md` M10.
+
+## Decision D008 — Layer automatic targeting, an in-app chooser and the system picker
+
+- Date / commit: 2026-09-18 / real-video capture checkpoint.
+- Problem and evidence: automatic Medal-style targeting is convenient, while the ScreenCaptureKit picker gives clear user-mediated authorization and handles privacy policy changes. A saved process name alone is neither a stable native source nor authorization.
+- Selected approach: automatically select only a still-valid authorized SourceRegistry target associated with the detected game/application; provide an in-app enumerated display/window/application chooser when broad Screen Recording authorization permits it; keep the native macOS picker as the first-consent and explicit alternative. Persist stable identities where the API permits, refresh on disappearance, and never convert an invalid window/application target into whole-display capture silently.
+- Alternatives and tradeoffs: system-picker-only behavior adds friction to automatic clipping; enumeration-only behavior can require broader permission and provides weaker per-selection consent. Supporting both adds state/UI work but matches user expectations and platform privacy boundaries.
+- Affected interfaces: future SourceRegistry, renderer source-selection controls and namespaced native capabilities. The current M3 test uses the system picker only.
+- Security/privacy/packaging impact: automatic capture remains bounded by prior authorization and explicit recording settings; autostart must not imply unconsented recording.
+- Tests required and actual results: basic picker-selected display and window capture pass. Automatic target reacquisition, in-app chooser, denial/cancel, stale target and no-desktop-fallback tests remain open.
+- Source references: `CODEX_MASTER_PROMPT.md` sections 6.3 and 7.2; `PLATFORM_CROSSCHECK.md` section 3; `ACCEPTANCE_TESTS.md` M02/M04/P10.

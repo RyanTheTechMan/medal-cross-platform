@@ -19,7 +19,7 @@ This file records observed limits, not excuses for successful no-op behavior.
 - The original client's renderer IPC wrapper resolves an explicit recorder wire error as `null` after logging it. Wire error `-32601` is verified, but renderer capability controls must prevent unsupported calls rather than depend on Promise rejection.
 - Device enumeration returns correct recovered outward shapes, but persistent stable-ID mapping, duplicate-name selection and hotplug behavior are not implemented.
 - The prepared tree and Apple-Development-signed app are ignored under `artifacts/`; they are not Developer-ID signed, notarized, redistributable, or release candidates.
-- ScreenCaptureKit source enumeration/picker/frame-state handling and hardware-required VideoToolbox H.264 encode are compiled but untested against an authorized real source. Audio outputs are configured but not yet consumed or AAC-encoded; no H.264/AAC recording exists.
+- ScreenCaptureKit display and individual-window capture plus hardware-required VideoToolbox H.264 pass short real runs. Source disappearance, geometry/scale/color attachments, minimized/offscreen behavior and long-duration performance remain unverified. Audio outputs are configured but not yet consumed or AAC-encoded; no H.264/AAC recording exists.
 - The temporary namespaced M3 controls run through the actual imported client's generic recorder IPC and WebSocket path. A normal renderer source-selection/status UI and recovered captureStarted/captureStopped event integration remain open.
 
 ## Recovered-contract unknowns

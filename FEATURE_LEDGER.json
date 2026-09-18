@@ -4358,10 +4358,13 @@
         ],
         "report_paths": [
           "reports/native/build-m3.0-xcode-27.2-beta.log",
-          "reports/native/m3.2-tcc-prerequisite.md"
+          "reports/native/m3.2-tcc-prerequisite.md",
+          "reports/native/m3.2-capture-display.json",
+          "reports/native/m3.2-capture-window.json",
+          "reports/native/m3.2-video-capture-result.md"
         ],
         "limitations": [
-          "ScreenCaptureKit source enumeration, picker and direct VideoToolbox feed compile, but no TCC-authorized display/window/application capture has run yet.",
+          "Real display and individual-window capture pass; source disappearance, application selection, geometry changes, minimized/offscreen behavior and extended runs remain unverified.",
           "The namespaced actual-client control surface is a test integration; the normal renderer source-selection UI is not implemented yet."
         ]
       },
@@ -4500,10 +4503,11 @@
           "reports/native/m3.2-development-app-build.json",
           "reports/native/m3.2-medal-identity.txt",
           "reports/native/m3.2-signed-protocol-selftest.json",
-          "reports/native/m3.2-tcc-prerequisite.md"
+          "reports/native/m3.2-tcc-prerequisite.md",
+          "reports/native/m3.2-video-capture-result.md"
         ],
         "limitations": [
-          "Stable team-backed Medal/recorder development identities, the imported Medal icon and usage descriptions are verified; no TCC prompt, denial, revocation or regrant test has run yet.",
+          "Stable identities and an authorized real ScreenCaptureKit picker flow pass; denial, cancellation, revocation, regrant and clean-account attribution remain unverified.",
           "This is local Apple Development signing, not Developer ID distribution, notarization or release packaging."
         ]
       },
@@ -4537,10 +4541,13 @@
           "P01"
         ],
         "report_paths": [
-          "reports/native/build-m3.0-xcode-27.2-beta.log"
+          "reports/native/build-m3.0-xcode-27.2-beta.log",
+          "reports/native/m3.2-capture-display.json",
+          "reports/native/m3.2-capture-window.json",
+          "reports/native/m3.2-video-capture-result.md"
         ],
         "limitations": [
-          "The backend requires hardware H.264 creation and verifies UsingHardwareAcceleratedVideoEncoder, but has not encoded a TCC-authorized real frame yet.",
+          "Hardware-required H.264 encoded real display/window frames and reported UsingHardwareAcceleratedVideoEncoder=true; additional resolutions, load/thermal behavior and fallback-disabled UI remain unverified.",
           "AAC is not implemented yet, so no real H.264/AAC file is claimed."
         ]
       },

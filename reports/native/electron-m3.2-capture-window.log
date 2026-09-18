@@ -1,0 +1,178 @@
+sandbox_extension_issue_file_to_process failed for /Users/ryan/Developer/medal-cross-platform/artifacts/macos-development-app/current: 1 (Operation not permitted)
+[native-port] Electron 43.2.0, ABI 148, arm64
+Launching live application...
+Discovered writable path: /Users/ryan/Developer/medal-cross-platform/artifacts/test-profiles/m3.2-capture-window/store
+Discovered writable path: /Users/ryan/Developer/medal-cross-platform/artifacts/macos-development-app/versions/2637.461.1-development-m3.2-d74f0019972726ca/Medal.app/Contents/Resources/app/.updates
+Skip creating MedalOverlay class - OS is not Windows!
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [RecorderHandler2] [debug-env] NODE_ENV=production isDev=false MEDAL_ENCODER_EXE=(unset)
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [MedalApp] Configuring hardware acceleration...
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [AppUpdater] Not an updatable install (packed locally, or running from source), skipping update checks
+Failed to retrieve device UUID, generated and persisted a fallback uuid
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [Main] startup phase (whenReady → bootstrapAuthObjectFromGuestDB) took 124ms
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [Telemetry] track "DesktopStartupPhase" [main]
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] Creating LaunchDarkly Client (context redacted)
+(node:51998) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `Electron --trace-deprecation ...` to show where the warning was created)
+info: [LaunchDarkly] LaunchDarkly client initialized
+info: [LaunchDarkly] Opening stream connection (URL redacted)
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [login-item-settings] Initialized login item settings
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [WARN] [Main] auto-launch: shouldStartHidden=false, argv=/Users/ryan/Developer/medal-cross-platform/artifacts/macos-development-app/versions/2637.461.1-development-m3.2-d74f0019972726ca/Medal.app/Contents/MacOS/Electron
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [MedalApp] Starting app...
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [MedalApp] Ensuring fs integrity...
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [shortcut] Skipping shortcut creation, using local environment or non-windows environment
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [MedalApp] Loaded remote configs...
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [InstallUtils] App installed for the first time, setting installed flag in store
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [Telemetry] track "Install Complete" [main]
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][PENDING] [Main] [INFO] [InstallUtils] App is an existing install
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][pending] [Main] [INFO] [MedalApp] Electron initialized...
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][pending] [Main] [INFO] [MedalApp] Tray menu initialized...
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][pending] [Main] [INFO] [MedalApp] Initializing main window...
+Starting medal renderer using renderer.min.html file
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][pending] [Main] [INFO] [PowerMonitor] Subscribed to PowerMonitor events
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][pending] [Main] [INFO] [Telemetry] track "updateSetting" [main]
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][pending] [Main] [INFO] [NetworkStatus] Network status event: online
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][pending] [Main] [INFO] [NetworkStatus] Network status updated: online
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] Window is ready to show
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] Main window ready!
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [DiscordBridge] Connecting to Discord RPC...
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] Window is within valid bounds of at least one display
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] Window is ready to show.
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] Finished starting up, time taken: 0.788s
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] Window is within valid bounds of at least one display
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] Building application menu...
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [RecorderHandler2] recorder port assigned: 10603
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [32mWebSocket server started[39m
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [RecorderComms] Started recorder WS server on 127.0.0.1:10603
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] local plugin API listening on 127.0.0.1:26905
+[09/18 03:07:26][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [RecorderHandler2] recorder state: inactive -> running
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [34mWebSocket client connected[39m
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: request handshake id=native-port:handshake payload=redacted[39m
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: request recordingReady id=native-port:ready payload=redacted[39m
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [RecorderHandler2] recorder state: running -> ready
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: request setKV id=native-port:displays payload=redacted[39m
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] setting activeDisplays (3 items)
+[51998:0918/150727.086723:ERROR:net/cert/internal/trust_store_mac.cc:807] Error parsing certificate:
+ERROR: GeneralNames is a sequence of 0 elements
+ERROR: Failed parsing subjectAltName
+
+[51998:0918/150727.086784:ERROR:net/cert/internal/trust_store_mac.cc:807] Error parsing certificate:
+ERROR: GeneralNames is a sequence of 0 elements
+ERROR: Failed parsing subjectAltName
+
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [DiscordBridge] Connected to Discord RPC!
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Renderer:main] [WARN] [UserStore] User not yet authenticated
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Renderer:main] [WARN] [UserStore] Potentially unexpected user response during hydration: null
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [Telemetry] track "Onboarding Sign Up With Screen Viewed" [ipc]
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: request setKV id=native-port:mics payload=redacted[39m
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] setting micDevices (12 items)
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: request setKV id=native-port:audio payload=redacted[39m
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] setting gameDevices (14 items)
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: request setKV id=native-port:capabilities payload=redacted[39m
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] setting nativePort.capabilities (value present)
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=1 payload=redacted[39m
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.enumerateSources id=2 payload=redacted[39m
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=2 payload=redacted[39m
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=3 payload=redacted[39m
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=3 payload=redacted[39m
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=4 payload=redacted[39m
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=4 payload=redacted[39m
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.presentSourcePicker id=5 payload=redacted[39m
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=5 payload=redacted[39m
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=6 payload=redacted[39m
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=6 payload=redacted[39m
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=7 payload=redacted[39m
+[09/18 03:07:27][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=7 payload=redacted[39m
+[09/18 03:07:28][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=8 payload=redacted[39m
+[09/18 03:07:28][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=8 payload=redacted[39m
+[09/18 03:07:28][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=9 payload=redacted[39m
+[09/18 03:07:28][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=9 payload=redacted[39m
+[09/18 03:07:28][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=10 payload=redacted[39m
+[09/18 03:07:28][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=10 payload=redacted[39m
+[09/18 03:07:28][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=11 payload=redacted[39m
+[09/18 03:07:28][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=11 payload=redacted[39m
+[09/18 03:07:28][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=12 payload=redacted[39m
+[09/18 03:07:28][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=12 payload=redacted[39m
+[09/18 03:07:28][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=13 payload=redacted[39m
+[09/18 03:07:28][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=13 payload=redacted[39m
+[09/18 03:07:28][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=14 payload=redacted[39m
+[09/18 03:07:28][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=14 payload=redacted[39m
+[09/18 03:07:28][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=15 payload=redacted[39m
+[09/18 03:07:28][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=15 payload=redacted[39m
+[09/18 03:07:28][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=16 payload=redacted[39m
+[09/18 03:07:28][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=16 payload=redacted[39m
+[09/18 03:07:29][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=17 payload=redacted[39m
+[09/18 03:07:29][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=17 payload=redacted[39m
+[09/18 03:07:29][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=18 payload=redacted[39m
+[09/18 03:07:29][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=18 payload=redacted[39m
+[09/18 03:07:29][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=19 payload=redacted[39m
+[09/18 03:07:29][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=19 payload=redacted[39m
+[09/18 03:07:29][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=20 payload=redacted[39m
+[09/18 03:07:29][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=20 payload=redacted[39m
+[09/18 03:07:29][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=21 payload=redacted[39m
+[09/18 03:07:29][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=21 payload=redacted[39m
+[09/18 03:07:29][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=22 payload=redacted[39m
+[09/18 03:07:29][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=22 payload=redacted[39m
+[09/18 03:07:29][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=23 payload=redacted[39m
+[09/18 03:07:29][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=23 payload=redacted[39m
+[09/18 03:07:29][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=24 payload=redacted[39m
+[09/18 03:07:29][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=24 payload=redacted[39m
+[09/18 03:07:29][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=25 payload=redacted[39m
+[09/18 03:07:29][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=25 payload=redacted[39m
+[09/18 03:07:29][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=26 payload=redacted[39m
+[09/18 03:07:29][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=26 payload=redacted[39m
+[09/18 03:07:30][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=27 payload=redacted[39m
+[09/18 03:07:30][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=27 payload=redacted[39m
+[09/18 03:07:30][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=28 payload=redacted[39m
+[09/18 03:07:30][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=28 payload=redacted[39m
+[09/18 03:07:30][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=29 payload=redacted[39m
+[09/18 03:07:30][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=29 payload=redacted[39m
+[09/18 03:07:30][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=30 payload=redacted[39m
+[09/18 03:07:30][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=30 payload=redacted[39m
+[09/18 03:07:30][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=31 payload=redacted[39m
+[09/18 03:07:30][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=31 payload=redacted[39m
+[09/18 03:07:30][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=32 payload=redacted[39m
+[09/18 03:07:30][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=32 payload=redacted[39m
+[09/18 03:07:30][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=33 payload=redacted[39m
+[09/18 03:07:30][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=33 payload=redacted[39m
+[09/18 03:07:30][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=34 payload=redacted[39m
+[09/18 03:07:30][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=34 payload=redacted[39m
+[09/18 03:07:30][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=35 payload=redacted[39m
+[09/18 03:07:30][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=35 payload=redacted[39m
+[09/18 03:07:30][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=36 payload=redacted[39m
+[09/18 03:07:30][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=36 payload=redacted[39m
+[09/18 03:07:31][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=37 payload=redacted[39m
+[09/18 03:07:31][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=37 payload=redacted[39m
+[09/18 03:07:31][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=38 payload=redacted[39m
+[09/18 03:07:31][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=38 payload=redacted[39m
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=39 payload=redacted[39m
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=39 payload=redacted[39m
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.stopCapture id=40 payload=redacted[39m
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=40 payload=redacted[39m
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=41 payload=redacted[39m
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=41 payload=redacted[39m
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=nativePort.captureStatus id=42 payload=redacted[39m
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket message received: response id=42 payload=redacted[39m
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [Telemetry] track "App Quit" [main]
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] Preparing to quit...
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] [Quit 2] Saving main window bounds...
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] Executing background tasks before quit...
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] [Quit 3] Ending game session
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] [Quit 3] Clearing server game state
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] [Quit 4] Killing record + shutting down API
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [RecorderHandler2] recorder state: ready -> inactive
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [RecorderHandler2] Signaling shutdown for the recorder...
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [90mWebSocket request sent: method=shutdown id=notification payload=redacted[39m
+info: [LaunchDarkly] Closing stream connection
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [33mWebSocket client disconnected with code: 1000, reason: shutdown[39m
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [34mRecorder initiated self-exit[39m
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [RecorderHandler2] recorder state: inactive -> inactive
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [RecorderHandler2] native recorder exited with code: 0
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [RecorderHandler2] recorder kill selfExit
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [Telemetry] track "recorderKill" [main]
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [RecorderHandler2] recorder state: inactive -> inactive
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] [Quit 5] Flushing telemetry...
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] Executed background tasks!
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] Closing windows...
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] Destroying main window
+[09/18 03:07:39][electron 43.2.0][production/2637.461.1/0.0.1][online] [Main] [INFO] [MedalApp] quit done in 253 ms
+before-quit completed, safely quitting now

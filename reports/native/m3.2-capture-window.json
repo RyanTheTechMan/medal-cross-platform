@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "kind": "window",
+  "startedAt": "2026-09-18T19:07:27.785Z",
+  "completedAt": "2026-09-18T19:07:39.265Z",
+  "sourceEnumeration": {
+    "applicationCount": 49,
+    "displayCount": 3,
+    "lastError": "",
+    "state": "complete",
+    "windowCount": 339
+  },
+  "capturing": {
+    "bitrateBitsPerSecond": 20000000,
+    "encodeFailures": 0,
+    "framesEncoded": 4,
+    "framesPerSecond": 60,
+    "framesReceived": 4,
+    "hardwareEncoder": true,
+    "height": 740,
+    "idleFrames": 0,
+    "inactiveFrames": 0,
+    "lastError": "",
+    "lastEvent": {
+      "bitrateBitsPerSecond": 20000000,
+      "encodeFailures": 0,
+      "framesEncoded": 0,
+      "framesPerSecond": 60,
+      "framesReceived": 1,
+      "hardwareEncoder": true,
+      "height": 740,
+      "idleFrames": 0,
+      "inactiveFrames": 0,
+      "lastError": "",
+      "reason": "capture_started",
+      "schemaVersion": 1,
+      "sourceEnumeration": {
+        "applicationCount": 49,
+        "displayCount": 3,
+        "lastError": "",
+        "state": "complete",
+        "windowCount": 339
+      },
+      "sourceKind": "window",
+      "state": "capturing",
+      "width": 1920
+    },
+    "replay": {
+      "occupiedBytes": 46939,
+      "packetCount": 4,
+      "retainedNanoseconds": 63740458
+    },
+    "schemaVersion": 1,
+    "sourceEnumeration": {
+      "applicationCount": 49,
+      "displayCount": 3,
+      "lastError": "",
+      "state": "complete",
+      "windowCount": 339
+    },
+    "sourceKind": "window",
+    "state": "capturing",
+    "width": 1920
+  },
+  "running": {
+    "bitrateBitsPerSecond": 20000000,
+    "encodeFailures": 0,
+    "framesEncoded": 455,
+    "framesPerSecond": 60,
+    "framesReceived": 455,
+    "hardwareEncoder": true,
+    "height": 740,
+    "idleFrames": 0,
+    "inactiveFrames": 0,
+    "lastError": "",
+    "lastEvent": {
+      "bitrateBitsPerSecond": 20000000,
+      "encodeFailures": 0,
+      "framesEncoded": 0,
+      "framesPerSecond": 60,
+      "framesReceived": 1,
+      "hardwareEncoder": true,
+      "height": 740,
+      "idleFrames": 0,
+      "inactiveFrames": 0,
+      "lastError": "",
+      "reason": "capture_started",
+      "schemaVersion": 1,
+      "sourceEnumeration": {
+        "applicationCount": 49,
+        "displayCount": 3,
+        "lastError": "",
+        "state": "complete",
+        "windowCount": 339
+      },
+      "sourceKind": "window",
+      "state": "capturing",
+      "width": 1920
+    },
+    "replay": {
+      "occupiedBytes": 2842395,
+      "packetCount": 455,
+      "retainedNanoseconds": 8064800083
+    },
+    "schemaVersion": 1,
+    "sourceEnumeration": {
+      "applicationCount": 49,
+      "displayCount": 3,
+      "lastError": "",
+      "state": "complete",
+      "windowCount": 339
+    },
+    "sourceKind": "window",
+    "state": "capturing",
+    "width": 1920
+  },
+  "stopped": {
+    "bitrateBitsPerSecond": 20000000,
+    "encodeFailures": 0,
+    "framesEncoded": 455,
+    "framesPerSecond": 60,
+    "framesReceived": 455,
+    "hardwareEncoder": false,
+    "height": 740,
+    "idleFrames": 0,
+    "inactiveFrames": 0,
+    "lastError": "",
+    "lastEvent": {
+      "bitrateBitsPerSecond": 20000000,
+      "encodeFailures": 0,
+      "framesEncoded": 455,
+      "framesPerSecond": 60,
+      "framesReceived": 455,
+      "hardwareEncoder": false,
+      "height": 740,
+      "idleFrames": 0,
+      "inactiveFrames": 0,
+      "lastError": "",
+      "reason": "requested",
+      "schemaVersion": 1,
+      "sourceEnumeration": {
+        "applicationCount": 49,
+        "displayCount": 3,
+        "lastError": "",
+        "state": "complete",
+        "windowCount": 339
+      },
+      "sourceKind": "window",
+      "state": "stopped",
+      "width": 1920
+    },
+    "replay": {
+      "occupiedBytes": 2842395,
+      "packetCount": 455,
+      "retainedNanoseconds": 8064800083
+    },
+    "schemaVersion": 1,
+    "sourceEnumeration": {
+      "applicationCount": 49,
+      "displayCount": 3,
+      "lastError": "",
+      "state": "complete",
+      "windowCount": 339
+    },
+    "sourceKind": "window",
+    "state": "stopped",
+    "width": 1920
+  }
+}
