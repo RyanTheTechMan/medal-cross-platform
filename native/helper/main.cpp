@@ -532,30 +532,21 @@ class HelperSession final {
         const auto duration_seconds =
             static_cast<double>(write_result.duration.count()) / 1'000'000'000.0;
         const auto capture_diagnostics = capture_->status();
-        const auto diagnostic_value = [&capture_diagnostics](std::string_view key) {
-          const auto found = capture_diagnostics.find(std::string(key));
-          return found == capture_diagnostics.end() ? nlohmann::json(nullptr) : *found;
+        const auto hotkey_result = nlohmann::json{
+            {"action", action.action},
+            {"inputs", action.inputs},
+            {"uuid", uuid},
+            {"fileName", output.filename().string()},
+            {"state", "registration_pending"},
+            {"requestedDurationSeconds", action.duration.count()},
+            {"actualDurationNanoseconds", write_result.duration.count()},
+            {"videoPacketCount", write_result.video_packets},
+            {"systemAudioPacketCount", write_result.system_audio_packets},
+            {"microphonePacketCount", write_result.microphone_packets},
+            {"captureDiagnostics", capture_diagnostics},
         };
-        set_hotkey_result({{"action", action.action},
-                           {"inputs", action.inputs},
-                           {"uuid", uuid},
-                           {"fileName", output.filename().string()},
-                           {"state", "registration_pending"},
-                           {"requestedDurationSeconds", action.duration.count()},
-                           {"actualDurationNanoseconds", write_result.duration.count()},
-                           {"videoPacketCount", write_result.video_packets},
-                           {"systemAudioPacketCount", write_result.system_audio_packets},
-                           {"microphonePacketCount", write_result.microphone_packets},
-                           {"captureDiagnostics",
-                            {{"state", diagnostic_value("state")},
-                             {"sourceKind", diagnostic_value("sourceKind")},
-                             {"framesReceived", diagnostic_value("framesReceived")},
-                             {"framesEncoded", diagnostic_value("framesEncoded")},
-                             {"idleFrames", diagnostic_value("idleFrames")},
-                             {"inactiveFrames", diagnostic_value("inactiveFrames")},
-                             {"lastFrameStatusCode", diagnostic_value("lastFrameStatusCode")},
-                             {"lastError", diagnostic_value("lastError")},
-                             {"audio", diagnostic_value("audio")}}}});
+        set_hotkey_result(hotkey_result);
+        persist_hotkey_diagnostics(uuid, hotkey_result);
         dispatch_to_network([this, uuid, output, now, duration_seconds] {
           (void)begin_registration(uuid, output, now, duration_seconds, std::nullopt, std::nullopt);
         });
@@ -1059,6 +1050,31 @@ class HelperSession final {
       throw std::runtime_error("native recorder profile path must be absolute");
     }
     return std::filesystem::weakly_canonical(profile);
+  }
+
+  void persist_hotkey_diagnostics(const std::string& uuid, const nlohmann::json& value) const {
+    const auto directory = profile_root() / "native-port" / "hotkey-diagnostics";
+    std::filesystem::create_directories(directory);
+    std::filesystem::permissions(directory, std::filesystem::perms::owner_all,
+                                 std::filesystem::perm_options::replace);
+    const auto destination = directory / (uuid + ".json");
+    const auto temporary = destination.string() + ".partial-" + std::to_string(::getpid());
+    {
+      std::ofstream stream(temporary, std::ios::binary | std::ios::trunc);
+      if (!stream) {
+        throw std::runtime_error("failed to create hotkey diagnostics journal");
+      }
+      stream << value.dump(2) << '\n';
+      stream.flush();
+      if (!stream) {
+        throw std::runtime_error("failed to write hotkey diagnostics journal");
+      }
+    }
+    std::filesystem::permissions(temporary,
+                                 std::filesystem::perms::owner_read |
+                                     std::filesystem::perms::owner_write,
+                                 std::filesystem::perm_options::replace);
+    std::filesystem::rename(temporary, destination);
   }
 
   [[nodiscard]] std::filesystem::path existing_profile_mp4(const nlohmann::json& params) const {

@@ -194,6 +194,53 @@ namespace {
   return !CFDictionaryContainsKey(dictionary, kCMSampleAttachmentKey_NotSync);
 }
 
+[[nodiscard]] SCDisplay* display_for_application(SCShareableContent* content,
+                                                 SCRunningApplication* application) {
+  if (content == nil || application == nil || content.displays.count == 0) {
+    return nil;
+  }
+
+  // An application-including filter still needs a display anchor.  Using
+  // `firstObject` is wrong on multi-monitor Macs: ScreenCaptureKit then emits
+  // complete frames for the selected display while the target game is on a
+  // different display, yielding a black video surface with a cursor overlay.
+  // Resolve the largest visible target window to the display whose global
+  // bounds contain the most of that window.
+  CGRect target_frame = CGRectNull;
+  CGFloat target_area = 0.0;
+  for (SCWindow* window in content.windows) {
+    if (window.owningApplication == nil ||
+        window.owningApplication.processID != application.processID || !window.isOnScreen) {
+      continue;
+    }
+    const CGRect frame = window.frame;
+    const CGFloat area = std::max<CGFloat>(0.0, CGRectGetWidth(frame)) *
+                         std::max<CGFloat>(0.0, CGRectGetHeight(frame));
+    if (area > target_area) {
+      target_area = area;
+      target_frame = frame;
+    }
+  }
+
+  SCDisplay* best = content.displays.firstObject;
+  CGFloat best_overlap = 0.0;
+  if (!CGRectIsNull(target_frame)) {
+    for (SCDisplay* display in content.displays) {
+      const CGRect overlap = CGRectIntersection(CGDisplayBounds(display.displayID), target_frame);
+      if (CGRectIsNull(overlap)) {
+        continue;
+      }
+      const CGFloat area = std::max<CGFloat>(0.0, CGRectGetWidth(overlap)) *
+                           std::max<CGFloat>(0.0, CGRectGetHeight(overlap));
+      if (area > best_overlap) {
+        best_overlap = area;
+        best = display;
+      }
+    }
+  }
+  return best;
+}
+
 }  // namespace
 
 class MacCaptureSession final : public CaptureSession {
@@ -438,7 +485,11 @@ class MacCaptureSession final : public CaptureSession {
         fail("source_disappeared", detail);
         return;
       }
-      SCDisplay* display = content.displays.firstObject;
+      SCDisplay* display = display_for_application(content, selected);
+      if (display == nil) {
+        fail("source_disappeared", "the selected application has no display anchor");
+        return;
+      }
       SCContentFilter* filter = [[SCContentFilter alloc]
           initWithDisplay:display
        includingApplications:@[ selected ]
