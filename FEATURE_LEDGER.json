@@ -1590,11 +1590,11 @@
       "source": "research/evidence/client_handlers.json",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": ["native/helper/main.cpp"],
+        "test_ids": ["M05", "M07"],
+        "report_paths": ["reports/native/m3.9-aac-mic-error-loop-fix.md"],
+        "limitations": ["The imported renderer receives the recovered audio-device-access-denied error shape once for a microphone encoder failure; a fresh successful microphone clip remains unverified."]
       },
       "linux": {
         "status": "not_started",
@@ -4540,8 +4540,8 @@
           "tools/native_port_importer.py"
         ],
         "test_ids": ["M05", "M07", "M10"],
-        "report_paths": ["reports/native/m3.9-permissions-onboarding.md"],
-        "limitations": ["Permission attribution is verified; actual microphone packets remain unverified until Medal's microphone setting is enabled for a fresh normal clip."]
+        "report_paths": ["reports/native/m3.9-permissions-onboarding.md", "reports/native/m3.9-aac-mic-error-loop-fix.md"],
+        "limitations": ["Permission attribution is verified and the repeated 96 kHz AAC converter failure is fixed; actual microphone packets remain unverified until Medal's microphone setting is enabled for a fresh normal clip."]
       },
       "linux": {
         "status": "not_started",

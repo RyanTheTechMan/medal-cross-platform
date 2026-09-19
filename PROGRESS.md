@@ -2,6 +2,8 @@
 
 ## Current gate and next runnable task
 
+- Gate: M3.9 microphone AAC error-loop fix is built, installed and live-checked. The native encoder now resamples device-native microphone input (including 96 kHz USB input) to 48 kHz AAC, microphone failure is isolated and reported once, and terminal capture failures are idempotent. After restart, the isolated profile remains `captureState=idle` with no `captureLastError` and no new recorder-error notifications. Evidence: `reports/native/m3.9-aac-mic-error-loop-fix.md`. Next runnable task: make one fresh normal Medal Desktop hotkey clip with Medal microphone enabled and validate its microphone track through AVFoundation, ffprobe and imported Medal playback.
+
 - Gate: M3.9 deterministic macOS permission onboarding/remediation is built and installed. The host/helper now carry the required hardened-runtime audio-input entitlement, status/request/remediation RPCs are wired through the imported client, and System Settings shows the signed `Medal.app` entry enabled for Microphone and Screen & System Audio Recording. The next runnable task is a fresh normal UI clip with Medal's microphone setting enabled, followed by independent media and playback validation.
 - Permission evidence: `reports/native/m3.9-permissions-onboarding.md`.
 

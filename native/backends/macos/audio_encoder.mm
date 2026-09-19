@@ -134,7 +134,12 @@ struct AacEncoder::Impl final {
     }
     dispose_converter();
     source = new_source;
-    output.mSampleRate = source.mSampleRate;
+    // ScreenCaptureKit can expose USB microphones at a device-native rate
+    // such as 96 kHz even when the stream requests 48 kHz. Keep Medal's AAC
+    // track at the compatibility rate and let AudioConverter resample input;
+    // constructing AAC directly at some device-native rates fails with
+    // kAudio_ParamError.
+    output.mSampleRate = 48'000;
     output.mFormatID = kAudioFormatMPEG4AAC;
     output.mFormatFlags = kMPEG4Object_AAC_LC;
     output.mChannelsPerFrame = source.mChannelsPerFrame;

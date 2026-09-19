@@ -425,6 +425,14 @@ class HelperSession final {
                       {"params", {{"deviceName", "Microphone"}, {"deviceType", "capture"}}}});
         return;
       }
+      if (state == "capturing" && reason == "microphone_encoder_failed") {
+        send_request("native-port:recorder-error:" + std::to_string(++capture_event_sequence_),
+                     "recorderError",
+                     {{"type", "audio-device-access-denied"},
+                      {"params", {{"deviceName", "Microphone"}, {"deviceType", "capture"}}},
+                      {"fallback", network_event.value("lastError", "Microphone AAC encoder failed")}});
+        return;
+      }
       if (state == "failed") {
         const auto failure = network_event.value("lastError", reason);
         nlohmann::json notification = {{"type", "recorder-failure"},

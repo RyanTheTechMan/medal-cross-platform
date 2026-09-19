@@ -766,8 +766,22 @@ class MacCaptureSession final : public CaptureSession {
     }
     std::string error;
     if (!audio_encoder->encode(sample, configuration_generation_.load(std::memory_order_relaxed), error)) {
-      fail(type == SCStreamOutputTypeMicrophone ? "microphone_encoder_failed" : "system_audio_encoder_failed",
-           std::move(error));
+      if (type == SCStreamOutputTypeMicrophone) {
+        const bool report = !microphone_failure_reported_.exchange(true, std::memory_order_relaxed);
+        {
+          std::scoped_lock lock(audio_encoder_mutex_);
+          microphone_encoder_.reset();
+        }
+        if (report) {
+          {
+            std::scoped_lock lock(mutex_);
+            last_error_ = std::move(error);
+          }
+          publish_event("capturing", "microphone_encoder_failed");
+        }
+      } else {
+        fail("system_audio_encoder_failed", std::move(error));
+      }
     }
   }
 
@@ -791,6 +805,7 @@ class MacCaptureSession final : public CaptureSession {
       state_ = "starting";
       configuration = configuration_;
     }
+    microphone_failure_reported_.store(false, std::memory_order_relaxed);
     if (microphone_permission_checked) {
       // A denied microphone must not turn an otherwise valid display/system
       // audio recording into a black/no-output failure.  Keep the user's
@@ -1215,12 +1230,19 @@ class MacCaptureSession final : public CaptureSession {
   }
 
   void fail(std::string reason, std::string message) {
+    bool transitioned = false;
     {
       std::scoped_lock lock(mutex_);
+      if (state_ == "failed") {
+        return;
+      }
       state_ = "failed";
       last_error_ = std::move(message);
+      transitioned = true;
     }
-    publish_event("failed", std::move(reason));
+    if (transitioned) {
+      publish_event("failed", std::move(reason));
+    }
   }
 
   void publish_event(std::string state, std::string reason) const {
@@ -1387,6 +1409,7 @@ class MacCaptureSession final : public CaptureSession {
   VTCompressionSessionRef encoder_{nullptr};
   std::shared_ptr<AacEncoder> system_audio_encoder_;
   std::shared_ptr<AacEncoder> microphone_encoder_;
+  std::atomic<bool> microphone_failure_reported_{false};
 };
 
 }  // namespace native_port
