@@ -1,4 +1,5 @@
 #import <AppKit/AppKit.h>
+#import <CoreGraphics/CoreGraphics.h>
 #import <CoreMedia/CoreMedia.h>
 #import <CoreVideo/CoreVideo.h>
 #import <ScreenCaptureKit/ScreenCaptureKit.h>
@@ -1074,6 +1075,7 @@ class MacCaptureSession final : public CaptureSession {
     return {
         {"schemaVersion", 1},
         {"state", state_},
+        {"screenCaptureAccess", CGPreflightScreenCaptureAccess() != false},
         {"width", capture_width_},
         {"height", capture_height_},
         {"geometry",
