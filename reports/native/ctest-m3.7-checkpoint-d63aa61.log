@@ -1,0 +1,17 @@
+Test project /Users/ryan/Developer/medal-cross-platform/build-macos
+    Start 1: native_port_macos_api_probe
+1/6 Test #1: native_port_macos_api_probe .................   Passed    0.06 sec
+    Start 2: native_port_macos_encoder_probe
+2/6 Test #2: native_port_macos_encoder_probe .............   Passed    0.35 sec
+    Start 3: native_port_macos_audio_encoder_probe
+3/6 Test #3: native_port_macos_audio_encoder_probe .......   Passed    0.03 sec
+    Start 4: native_port_macos_mp4_writer_probe
+4/6 Test #4: native_port_macos_mp4_writer_probe ..........   Passed    0.17 sec
+    Start 5: native_port_macos_hotkey_event_pump_probe
+5/6 Test #5: native_port_macos_hotkey_event_pump_probe ...   Passed    0.12 sec
+    Start 6: native_port_core_tests
+6/6 Test #6: native_port_core_tests ......................   Passed    0.01 sec
+
+100% tests passed, 0 tests failed out of 6
+
+Total Test time (real) =   0.75 sec
