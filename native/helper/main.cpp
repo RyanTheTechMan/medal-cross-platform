@@ -531,6 +531,11 @@ class HelperSession final {
                              .count();
         const auto duration_seconds =
             static_cast<double>(write_result.duration.count()) / 1'000'000'000.0;
+        const auto capture_diagnostics = capture_->status();
+        const auto diagnostic_value = [&capture_diagnostics](std::string_view key) {
+          const auto found = capture_diagnostics.find(std::string(key));
+          return found == capture_diagnostics.end() ? nlohmann::json(nullptr) : *found;
+        };
         set_hotkey_result({{"action", action.action},
                            {"inputs", action.inputs},
                            {"uuid", uuid},
@@ -540,7 +545,17 @@ class HelperSession final {
                            {"actualDurationNanoseconds", write_result.duration.count()},
                            {"videoPacketCount", write_result.video_packets},
                            {"systemAudioPacketCount", write_result.system_audio_packets},
-                           {"microphonePacketCount", write_result.microphone_packets}});
+                           {"microphonePacketCount", write_result.microphone_packets},
+                           {"captureDiagnostics",
+                            {{"state", diagnostic_value("state")},
+                             {"sourceKind", diagnostic_value("sourceKind")},
+                             {"framesReceived", diagnostic_value("framesReceived")},
+                             {"framesEncoded", diagnostic_value("framesEncoded")},
+                             {"idleFrames", diagnostic_value("idleFrames")},
+                             {"inactiveFrames", diagnostic_value("inactiveFrames")},
+                             {"lastFrameStatusCode", diagnostic_value("lastFrameStatusCode")},
+                             {"lastError", diagnostic_value("lastError")},
+                             {"audio", diagnostic_value("audio")}}}});
         dispatch_to_network([this, uuid, output, now, duration_seconds] {
           (void)begin_registration(uuid, output, now, duration_seconds, std::nullopt, std::nullopt);
         });
@@ -575,8 +590,40 @@ class HelperSession final {
       result.video_codec = *codec;
     }
     result.show_cursor = params.value("showCursor", result.show_cursor);
-    result.capture_system_audio = params.value("captureSystemAudio", result.capture_system_audio);
-    result.capture_microphone = params.value("captureMicrophone", result.capture_microphone);
+    // The imported client sends the recovered recorder settings on its normal
+    // Desktop/Game start route; the explicit capture* fields are only present
+    // in our namespaced capture self-test.  Resolve the production route from
+    // those settings instead of silently falling back to video-only capture.
+    if (params.contains("captureSystemAudio")) {
+      result.capture_system_audio = params.at("captureSystemAudio").get<bool>();
+    } else {
+      const auto game_audio_only = settings_.effective("GameAudioOnly", category);
+      const bool game_only = game_audio_only && game_audio_only->is_boolean() &&
+                             game_audio_only->get<bool>();
+      const auto audio_mode = settings_.effective("AudioModeConfig", category);
+      bool configured_system_audio = true;
+      if (audio_mode && audio_mode->is_object()) {
+        const auto type = audio_mode->value("type", std::string{});
+        configured_system_audio = type != "none" && type != "disabled";
+        if (audio_mode->contains("sources") && audio_mode->at("sources").is_array()) {
+          configured_system_audio = std::any_of(
+              audio_mode->at("sources").begin(), audio_mode->at("sources").end(),
+              [](const nlohmann::json& source) {
+                return source.is_object() && source.value("enabled", true);
+              });
+        }
+      }
+      // Whole-system audio is the truthful Desktop default.  GameAudioOnly
+      // is not silently broadened: process-isolated Core Audio capture is a
+      // separate capability and remains disabled until implemented.
+      result.capture_system_audio = configured_system_audio && !game_only;
+    }
+    if (params.contains("captureMicrophone")) {
+      result.capture_microphone = params.at("captureMicrophone").get<bool>();
+    } else {
+      const auto microphone = settings_.effective("MicEnabled", category);
+      result.capture_microphone = microphone && microphone->is_boolean() && microphone->get<bool>();
+    }
     result.preferred_source_kind = params.value("preferredSourceKind", result.preferred_source_kind);
     return result;
   }

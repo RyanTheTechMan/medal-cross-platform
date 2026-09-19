@@ -1115,6 +1115,7 @@ class MacCaptureSession final : public CaptureSession {
         {"encodeFailures", encode_failures_.load(std::memory_order_relaxed)},
         {"idleFrames", idle_frames_.load(std::memory_order_relaxed)},
         {"inactiveFrames", inactive_frames_.load(std::memory_order_relaxed)},
+        {"lastFrameStatusCode", static_cast<int>(last_frame_status_.load(std::memory_order_relaxed))},
         {"audio",
          {{"system", audio_status(system_audio, configuration_.capture_system_audio)},
           {"microphone", audio_status(microphone, configuration_.capture_microphone)}}},
