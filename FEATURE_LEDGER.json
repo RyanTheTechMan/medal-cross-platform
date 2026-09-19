@@ -692,10 +692,11 @@
         ],
         "report_paths": [
           "reports/native/m3.6-desktop-ui-roundtrip.md",
-          "reports/native/m3.7-process-target-model.md"
+          "reports/native/m3.7-process-target-model.md",
+          "reports/native/m3.7-auto-classification.md"
         ],
         "limitations": [
-          "PID/bundle/window-aware application targeting is implemented but not yet verified end to end; automatic game classification and target lifecycle monitoring remain unverified."
+          "PID/bundle/window-aware application targeting and the authenticated A Dance of Fire and Ice classification path are evidenced; Minecraft fallback, target disappearance/window recreation and complete lifecycle monitoring remain unverified."
         ]
       },
       "linux": {
@@ -735,7 +736,8 @@
         "report_paths": [
           "reports/native/ctest-m2.6-xcode-27.2-beta.log",
           "reports/native/m3.6-desktop-ui-roundtrip.md",
-          "reports/native/m3.7-process-target-model.md"
+          "reports/native/m3.7-process-target-model.md",
+          "reports/native/m3.7-auto-classification.md"
         ],
         "limitations": [
           "The original UI invoked the method and correctly represented no active manual target; typed target persistence and selection lifecycle are still unverified."
@@ -774,10 +776,11 @@
         "report_paths": [
           "reports/native/ctest-m2.6-xcode-27.2-beta.log",
           "reports/native/m3.6-desktop-ui-roundtrip.md",
-          "reports/native/m3.7-process-target-model.md"
+          "reports/native/m3.7-process-target-model.md",
+          "reports/native/m3.7-auto-classification.md"
         ],
         "limitations": [
-          "Real GUI applications rendered in the original Game chooser, including A Dance of Fire and Ice and Java while both games were open. The PID-aware enumeration/cache change still needs a fresh authenticated UI run; automatic game classification, exclusions and lifecycle monitoring remain separate gates."
+          "Real GUI applications rendered in the original Game chooser, and the authenticated run automatically classified A Dance of Fire and Ice. Minecraft fallback, exclusions and target lifecycle monitoring remain separate gates."
         ]
       },
       "linux": {
@@ -787,10 +790,11 @@
         ],
         "test_ids": [],
         "report_paths": [
-          "reports/native/m3.7-process-target-model.md"
+          "reports/native/m3.7-process-target-model.md",
+          "reports/native/m3.7-auto-classification.md"
         ],
         "limitations": [
-          "The recovered client handler and native state update are implemented, but a real authenticated /games/requests response and setGameRequestId round trip are still unverified."
+          "The authenticated A Dance of Fire and Ice run resolved and handed back category metadata through the original targetProcess/game-request flow; Minecraft fallback and target lifecycle remain unverified."
         ]
       },
       "direction": "electron_to_recorder",
@@ -813,10 +817,11 @@
         ],
         "test_ids": [],
         "report_paths": [
-          "reports/native/m3.7-process-target-model.md"
+          "reports/native/m3.7-process-target-model.md",
+          "reports/native/m3.7-auto-classification.md"
         ],
         "limitations": [
-          "The recovered client handler and native state update are implemented, but a real authenticated /games/requests response and setGameRequestId round trip are still unverified."
+          "The authenticated A Dance of Fire and Ice run resolved and handed back category metadata through the original targetProcess/game-request flow; Minecraft fallback and target lifecycle remain unverified."
         ]
       },
       "linux": {
@@ -1702,10 +1707,11 @@
           "C02"
         ],
         "report_paths": [
-          "reports/native/m3.6-desktop-ui-roundtrip.md"
+          "reports/native/m3.6-desktop-ui-roundtrip.md",
+          "reports/native/m3.7-auto-classification.md"
         ],
         "limitations": [
-          "Verified for the Screen Capture category start and clear state used by the original Desktop UI; arbitrary game-context metadata remains unverified."
+          "Verified for Screen Capture and the authenticated A Dance of Fire and Ice category start/clear state, including the recovered non-null members list; arbitrary game-context metadata and lifecycle failure ordering remain unverified."
         ]
       },
       "linux": {
@@ -2085,11 +2091,19 @@
       "source": "research/evidence/client_handlers.json",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "B08"
+        ],
+        "report_paths": [
+          "reports/native/m3.7-auto-classification.md"
+        ],
+        "limitations": [
+          "The original handler received native target success and the category game-state sequence for A Dance of Fire and Ice; Minecraft fallback, source disappearance and window recreation remain unverified."
+        ]
       },
       "linux": {
         "status": "not_started",

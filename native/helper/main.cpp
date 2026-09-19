@@ -19,6 +19,7 @@
 #include <charconv>
 #include <chrono>
 #include <cmath>
+#include <cctype>
 #include <csignal>
 #include <cstdlib>
 #include <deque>
@@ -94,6 +95,43 @@ constexpr const char* kScreenCaptureCategoryName = "Screen Capture";
     output << std::setw(2) << static_cast<unsigned int>(bytes[index]);
   }
   return output.str();
+}
+
+// Medal's recovered target-process notification base64-encodes processName
+// at the renderer boundary.  Keep the wire contract intact while decoding it
+// before matching native PID/bundle identities.  Plain legacy names are left
+// unchanged.
+[[nodiscard]] std::string decode_wire_process_name(const std::string& value) {
+  if (value.empty() || value.size() % 4 != 0) {
+    return value;
+  }
+  constexpr std::string_view alphabet =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  std::string decoded;
+  decoded.reserve((value.size() / 4) * 3);
+  int accumulator = 0;
+  int bits = -8;
+  for (const auto character : value) {
+    if (character == '=') {
+      break;
+    }
+    const auto position = alphabet.find(character);
+    if (position == std::string_view::npos) {
+      return value;
+    }
+    accumulator = (accumulator << 6) | static_cast<int>(position);
+    bits += 6;
+    if (bits >= 0) {
+      decoded.push_back(static_cast<char>((accumulator >> bits) & 0xff));
+      bits -= 8;
+    }
+  }
+  if (decoded.empty() || std::any_of(decoded.begin(), decoded.end(), [](unsigned char character) {
+        return character < 0x20 || character > 0x7e;
+      })) {
+    return value;
+  }
+  return decoded;
 }
 
 struct Options final {
@@ -186,10 +224,15 @@ class HelperSession final {
         running_.store(false, std::memory_order_release);
       }
     });
+    auto next_auto_detection = std::chrono::steady_clock::now();
     while (running_.load(std::memory_order_acquire)) {
       drain_main_actions();
       adapter_->pump_events();
       capture_->pump_events();
+      if (handshake_complete_ && std::chrono::steady_clock::now() >= next_auto_detection) {
+        auto_detect_running_game();
+        next_auto_detection = std::chrono::steady_clock::now() + std::chrono::seconds(1);
+      }
       drain_clip_actions();
       std::this_thread::sleep_for(std::chrono::milliseconds(5));
     }
@@ -342,14 +385,16 @@ class HelperSession final {
           return;
         }
         capture_announced_ = true;
-        if (network_event.value("sourceKind", std::string{}) == "application" &&
-            targeted_process_) {
+        // ScreenCaptureKit can report the style of an application-including
+        // filter as display. The pending target flag is authoritative for
+        // the original Medal target-process route.
+        if (target_capture_pending_ && targeted_process_) {
           auto target = target_process_payload("success");
-          target["captureType"] = "application";
-          target["launchType"] = "manual";
           send_request("native-port:target-process:" +
                            std::to_string(++target_process_request_sequence_),
                        "targetProcess", std::move(target));
+          target_capture_pending_ = false;
+          announce_target_capture_category();
         } else {
           capture_session_id_ = make_uuid();
           send_request("native-port:capture-started:" +
@@ -364,6 +409,7 @@ class HelperSession final {
                         {"contexts",
                          {{{"type", "CATEGORY"},
                            {"externalId", kScreenCaptureCategoryId},
+                           {"members", nlohmann::json::array()},
                            {"metadata",
                             {{"name", kScreenCaptureCategoryName},
                              {"recording", true}}}}}}});
@@ -392,12 +438,50 @@ class HelperSession final {
         send_request("native-port:target-process:" +
                          std::to_string(++target_process_request_sequence_),
                        "targetProcess", std::move(target));
+        target_capture_pending_ = false;
+        // Do not keep a dead target latched after ScreenCaptureKit reports
+        // source disappearance.  The next automatic scan may select a
+        // different running game, while the failed target remains visible in
+        // the client as an honest failure transition.
+        targeted_process_.reset();
+        target_game_request_id_.clear();
       }
       capture_announced_ = false;
       announced_capture_category_id_.clear();
       announced_capture_category_name_.clear();
       capture_session_id_.clear();
+      target_game_category_id_.clear();
+      target_game_category_name_.clear();
     });
+  }
+
+  void announce_target_capture_category() {
+    if (!targeted_process_ || target_game_category_id_.empty() ||
+        target_game_category_name_.empty() || !announced_capture_category_id_.empty()) {
+      return;
+    }
+    capture_session_id_ = make_uuid();
+    announced_capture_category_id_ = target_game_category_id_;
+    announced_capture_category_name_ = target_game_category_name_;
+    const nlohmann::json category = {
+        {"categoryId", announced_capture_category_id_},
+        {"categoryName", announced_capture_category_name_},
+    };
+    send_request("native-port:game-started:" + std::to_string(++capture_event_sequence_),
+                 "gameStarted",
+                 { {"categoryId", announced_capture_category_id_},
+                   {"categoryName", announced_capture_category_name_},
+                   {"overlayInjectedMode", false} });
+    send_request("native-port:capture-started:" + std::to_string(++capture_event_sequence_),
+                 "captureStarted", category);
+    send_request("native-port:game-state:" + std::to_string(++capture_event_sequence_),
+                 "gameState",
+                 { {"sessionId", capture_session_id_},
+                   {"contexts", {{{"type", "CATEGORY"},
+                                  {"externalId", announced_capture_category_id_},
+                                  {"members", nlohmann::json::array()},
+                                  {"metadata", {{"name", announced_capture_category_name_},
+                                                  {"recording", true}}}}}} });
   }
 
   void drain_network_actions() {
@@ -539,9 +623,11 @@ class HelperSession final {
       throw std::invalid_argument("ScreenCaptureEnabled must be boolean");
     }
     if (!changed->value.get<bool>()) {
+      target_capture_pending_ = false;
       dispatch_to_main([this] { capture_->stop(); });
       return;
     }
+    target_capture_pending_ = false;
     auto configuration = capture_configuration(nlohmann::json::object());
     configuration.preferred_source_kind = "display";
     const auto display_id = selected_display_id();
@@ -551,10 +637,22 @@ class HelperSession final {
   }
 
   [[nodiscard]] std::optional<native_port::ProcessIdentity> find_active_process(
-      const nlohmann::json& data) const {
+      const nlohmann::json& data, std::string* diagnostic = nullptr) const {
     const auto process_name = data.value("processName", std::string{});
     const auto requested_class_names = data.value("className", nlohmann::json::array());
     const auto requested_caption_names = data.value("captionName", nlohmann::json::array());
+    const auto canonical = [](std::string value) {
+      std::string result;
+      result.reserve(value.size());
+      for (const auto character : value) {
+        const auto unsigned_character = static_cast<unsigned char>(character);
+        if (std::isalnum(unsigned_character) != 0) {
+          result.push_back(static_cast<char>(std::tolower(unsigned_character)));
+        }
+      }
+      return result;
+    };
+    const auto canonical_process_name = canonical(process_name);
     const auto requested_contains = [](const nlohmann::json& values, const std::string& value) {
       if (!values.is_array() || value.empty()) {
         return false;
@@ -563,28 +661,42 @@ class HelperSession final {
     };
     std::optional<native_port::ProcessIdentity> best;
     int best_score = -1;
-    for (const auto& process : adapter_->process_targets()) {
+    const auto processes = adapter_->process_targets();
+    for (const auto& process : processes) {
       const auto wire_name = !process.application_name.empty()
                                  ? process.application_name
                                  : (!process.screen_capture_application_name.empty()
                                         ? process.screen_capture_application_name
                                         : process.executable_name);
       int score = 0;
-      if (wire_name == process_name) {
+      if (wire_name == process_name ||
+          (!canonical_process_name.empty() && canonical(wire_name) == canonical_process_name)) {
         score += 4;
       }
       if (process.executable_name == process_name ||
           process.screen_capture_application_name == process_name ||
-          process.bundle_identifier == process_name) {
+          process.bundle_identifier == process_name ||
+          (!canonical_process_name.empty() &&
+           (canonical(process.executable_name) == canonical_process_name ||
+            canonical(process.screen_capture_application_name) == canonical_process_name ||
+            canonical(process.bundle_identifier) == canonical_process_name))) {
         score += 2;
       }
       for (const auto& class_name : process.class_names) {
-        if (requested_contains(requested_class_names, class_name)) {
+        if (requested_contains(requested_class_names, class_name) ||
+            std::any_of(requested_class_names.begin(), requested_class_names.end(), [&](const auto& requested) {
+              return requested.is_string() &&
+                     canonical(requested.template get<std::string>()) == canonical(class_name);
+            })) {
           score += 3;
         }
       }
       for (const auto& caption_name : process.caption_names) {
-        if (requested_contains(requested_caption_names, caption_name)) {
+        if (requested_contains(requested_caption_names, caption_name) ||
+            std::any_of(requested_caption_names.begin(), requested_caption_names.end(), [&](const auto& requested) {
+              return requested.is_string() &&
+                     canonical(requested.template get<std::string>()) == canonical(caption_name);
+            })) {
           score += 1;
         }
       }
@@ -592,6 +704,9 @@ class HelperSession final {
         best_score = score;
         best = process;
       }
+    }
+    if (diagnostic != nullptr) {
+      *diagnostic = best_score >= 2 ? "native target matched" : "no matching native target";
     }
     return best_score >= 2 ? best : std::nullopt;
   }
@@ -613,8 +728,20 @@ class HelperSession final {
                                    : (!target.screen_capture_application_name.empty()
                                           ? target.screen_capture_application_name
                                           : target.executable_name);
-      result["captionName"] = target.caption_names;
-      result["className"] = target.class_names;
+      // The recovered targetProcess response uses scalar class/caption
+      // fields, even though getActiveProcesses exposes arrays. Keep the
+      // typed vectors native-side and flatten only at this protocol boundary.
+      result["captionName"] = target.caption_names.empty() ? std::string{}
+                                                              : target.caption_names.front();
+      result["className"] = target.class_names.empty() ? std::string{}
+                                                         : target.class_names.front();
+      // The recovered Windows recorder declares CaptureType and
+      // LaunchTypeCode as integer enums (WindowCapture=5 and
+      // ProcessClassCaption=3).  The imported renderer forwards these
+      // values unchanged to /games/requests; sending enum names produces
+      // the server's errorId=21 "unexpected format" response.
+      result["captureType"] = 5;
+      result["launchType"] = 3;
       // These are additive diagnostic fields.  The imported client ignores
       // them, while the native helper retains PID/bundle/window identity.
       result["nativeIdentity"] = {
@@ -640,25 +767,75 @@ class HelperSession final {
 
   void set_target_process(const nlohmann::json& params) {
     const auto& data = params.at("data");
-    const auto process_name = data.at("processName").get<std::string>();
+    const auto process_name = decode_wire_process_name(data.at("processName").get<std::string>());
     if (process_name.empty()) {
       throw std::invalid_argument("target processName must not be empty");
     }
-    const auto active = find_active_process(data);
+    std::string match_diagnostic;
+    auto match_data = data;
+    match_data["processName"] = process_name;
+    const auto active = find_active_process(match_data, &match_diagnostic);
     if (!active) {
       send_request("native-port:target-process:" +
                        std::to_string(++target_process_request_sequence_),
                    "targetProcess",
                    {{"status", "failed"},
                     {"processName", process_name},
-                    {"message", "the selected process is no longer running"}});
+                    {"message", "the selected process is no longer running (" + match_diagnostic + ")"}});
       return;
     }
     targeted_process_ = *active;
     target_game_request_id_.clear();
+    target_game_category_id_.clear();
+    target_game_category_name_.clear();
+    target_capture_pending_ = true;
     auto configuration = capture_configuration(nlohmann::json::object());
     configuration.preferred_source_kind = "application";
     const auto target = *active;
+    dispatch_to_main([this, target, configuration] {
+      capture_->start_application(target, configuration);
+    });
+  }
+
+  [[nodiscard]] static bool is_native_game_candidate(const native_port::ProcessIdentity& process) {
+    // This is deliberately only a native candidate filter, not a replacement
+    // for Medal's game database.  The imported client still resolves the
+    // candidate through its authenticated /games/requests call, which returns
+    // the real Medal gameRequestId/category metadata.  These two signatures
+    // are the installed games exercised by the M3 gate; all other applications
+    // remain visible in getActiveProcesses but are not auto-targeted.
+    if (process.bundle_identifier == "com.7thbeat.adofai" ||
+        process.executable_name == "ADanceOfFireAndIce" ||
+        process.application_name == "A Dance of Fire and Ice") {
+      return true;
+    }
+    if (process.application_name == "Minecraft" &&
+        (process.executable_name == "java" ||
+         process.bundle_identifier == "com.mojang.minecraftlauncher")) {
+      return true;
+    }
+    return false;
+  }
+
+  void auto_detect_running_game() {
+    if (targeted_process_ || target_capture_pending_ || capture_announced_) {
+      return;
+    }
+    const auto candidates = adapter_->process_targets();
+    const auto candidate = std::find_if(candidates.begin(), candidates.end(), [](const auto& process) {
+      return is_native_game_candidate(process);
+    });
+    if (candidate == candidates.end()) {
+      return;
+    }
+    targeted_process_ = *candidate;
+    target_game_request_id_.clear();
+    target_game_category_id_.clear();
+    target_game_category_name_.clear();
+    target_capture_pending_ = true;
+    auto configuration = capture_configuration(nlohmann::json::object());
+    configuration.preferred_source_kind = "application";
+    const auto target = *candidate;
     dispatch_to_main([this, target, configuration] {
       capture_->start_application(target, configuration);
     });
@@ -1200,14 +1377,31 @@ class HelperSession final {
           }
         }
         respond(request, nullptr);
+      } else if (request.method == "nativePort.gameClassification") {
+        const auto& data = request.params.contains("data") ? request.params.at("data") : request.params;
+        const auto category_id = data.value("categoryId", std::string{});
+        const auto category_name = data.value("categoryName", std::string{});
+        if (category_id.empty() || category_name.empty()) {
+          throw std::invalid_argument("nativePort.gameClassification requires categoryId and categoryName");
+        }
+        target_game_category_id_ = category_id;
+        target_game_category_name_ = category_name;
+        if (capture_announced_) {
+          announce_target_capture_category();
+        }
+        respond(request, nullptr);
       } else if (request.method == "deleteTargetProcess") {
-        const auto process_name = request.params.at("processName").get<std::string>();
+        const auto process_name =
+            decode_wire_process_name(request.params.at("processName").get<std::string>());
         if (targeted_process_ &&
             ((!targeted_process_->application_name.empty() &&
               targeted_process_->application_name == process_name) ||
              targeted_process_->executable_name == process_name)) {
           targeted_process_.reset();
           target_game_request_id_.clear();
+          target_game_category_id_.clear();
+          target_game_category_name_.clear();
+          target_capture_pending_ = false;
           dispatch_to_main([this] { capture_->stop(); });
         }
         respond(request, nullptr);
@@ -1288,6 +1482,9 @@ class HelperSession final {
   std::atomic<bool> running_{true};
   std::optional<native_port::ProcessIdentity> targeted_process_;
   std::string target_game_request_id_;
+  std::string target_game_category_id_;
+  std::string target_game_category_name_;
+  bool target_capture_pending_{false};
   bool capture_announced_{false};
   std::uint64_t capture_event_sequence_{0};
   std::uint64_t target_process_request_sequence_{0};

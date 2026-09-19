@@ -492,6 +492,14 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
     ))
     operations.append(exact_replace(
         main_path,
+        'async function hfe(e){if(Rr())return null;const{captionName:t,processName:n,className:r,launchType:i,captureType:s}=e;try{let o={processName:n,captureType:s,className:r,launchType:i,captionName:t};await oe.authObjectResolvers.promise;const a=(await gpe(o,oe.authObject))?.gameRequestId?.toString?.()??"";',
+        'async function hfe(e){if(Rr())return null;const{captionName:t,processName:n,className:r,launchType:i,captureType:s}=e;try{let o={processName:n,captureType:s,className:r,launchType:i,captionName:t};await oe.authObjectResolvers.promise;const a=(await gpe(o,oe.authObject))?.gameRequestId?.toString?.()??"";if(a){const c=await Ehe(n),l=c?await xd(c):null;l?.categoryName&&oe.WSHandler?.sendNotification("nativePort.gameClassification",{data:{categoryId:String(c),categoryName:l.categoryName,processName:n}})}',
+        1,
+        'resolve-authenticated-game-category-for-native-target',
+        'main.min.js',
+    ))
+    operations.append(exact_replace(
+        main_path,
         'oe.logger.info(`setting ${t} to ${JSON.stringify(n)}`)',
         'oe.logger.info(`setting ${t} (${Array.isArray(n)?n.length+" items":"value present"})`)',
         1,

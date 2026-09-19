@@ -415,8 +415,26 @@ class MacCaptureSession final : public CaptureSession {
           break;
         }
       }
+      // Some Unity/Java applications are present in ScreenCaptureKit's window
+      // list but are omitted from the top-level applications array.  Resolve
+      // the same native PID through its owning window before reporting source
+      // disappearance; this keeps the typed target identity authoritative.
+      if (selected == nil && target_pid.has_value()) {
+        for (SCWindow* window in content.windows) {
+          SCRunningApplication* owning = window.owningApplication;
+          if (owning != nil && static_cast<std::int64_t>(owning.processID) == *target_pid) {
+            selected = owning;
+            break;
+          }
+        }
+      }
       if (selected == nil || content.displays.count == 0) {
-        fail("source_disappeared", "the selected application is no longer available");
+        const auto pid_text = target_pid.has_value() ? std::to_string(*target_pid) : "none";
+        const auto detail = std::string("target application unavailable (pid=") + pid_text +
+                            ", screenCaptureApplications=" + std::to_string(content.applications.count) +
+                            ", screenCaptureWindows=" + std::to_string(content.windows.count) +
+                            ", displays=" + std::to_string(content.displays.count) + ")";
+        fail("source_disappeared", detail);
         return;
       }
       SCDisplay* display = content.displays.firstObject;
