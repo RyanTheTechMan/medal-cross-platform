@@ -7,6 +7,7 @@
 #include "native_port/capture_session.hpp"
 
 #include "audio_encoder.hpp"
+#include "native_port/capture_geometry.hpp"
 
 #include <algorithm>
 #include <atomic>
@@ -18,6 +19,7 @@
 #include <limits>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -41,6 +43,38 @@ namespace {
   }
   const char* description = error.localizedDescription.UTF8String;
   return description != nullptr ? description : "unknown macOS capture error";
+}
+
+[[nodiscard]] std::optional<double> frame_number(id value) {
+  if (value == nil) {
+    return std::nullopt;
+  }
+  CFTypeRef raw = (__bridge CFTypeRef)value;
+  if (CFGetTypeID(raw) != CFNumberGetTypeID()) {
+    return std::nullopt;
+  }
+  double converted = 0;
+  if (!CFNumberGetValue(static_cast<CFNumberRef>(raw), kCFNumberDoubleType, &converted)) {
+    return std::nullopt;
+  }
+  return converted;
+}
+
+[[nodiscard]] std::optional<CGRect> frame_content_rect(id value) {
+  if (value == nil) {
+    return std::nullopt;
+  }
+  if ([value isKindOfClass:[NSValue class]]) {
+    return [(NSValue*)value rectValue];
+  }
+  CFTypeRef raw = (__bridge CFTypeRef)value;
+  if (CFGetTypeID(raw) == CFDictionaryGetTypeID()) {
+    CGRect converted = CGRectZero;
+    if (CGRectMakeWithDictionaryRepresentation(static_cast<CFDictionaryRef>(raw), &converted)) {
+      return converted;
+    }
+  }
+  return std::nullopt;
 }
 
 [[nodiscard]] bool set_encoder_property(VTCompressionSessionRef encoder, CFStringRef key, CFTypeRef value,
@@ -163,8 +197,11 @@ namespace {
 
 class MacCaptureSession final : public CaptureSession {
  public:
-  MacCaptureSession(CaptureEventCallback event_callback, EncodedPacketCallback packet_callback)
-      : event_callback_(std::move(event_callback)), packet_callback_(std::move(packet_callback)) {
+  MacCaptureSession(CaptureEventCallback event_callback, EncodedPacketCallback packet_callback,
+                    CaptureClockCallback clock_callback)
+      : event_callback_(std::move(event_callback)),
+        packet_callback_(std::move(packet_callback)),
+        clock_callback_(std::move(clock_callback)) {
     @autoreleasepool {
       [NSApplication sharedApplication];
       [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
@@ -355,12 +392,32 @@ class MacCaptureSession final : public CaptureSession {
     CFArrayRef attachments = CMSampleBufferGetSampleAttachmentsArray(sample, false);
     if (attachments != nullptr && CFArrayGetCount(attachments) > 0) {
       NSDictionary* dictionary = (__bridge NSDictionary*)CFArrayGetValueAtIndex(attachments, 0);
-      NSNumber* status_number = dictionary[SCStreamFrameInfoStatus];
-      if (status_number != nullptr) {
-        frame_status = static_cast<SCFrameStatus>(status_number.integerValue);
+      if (const auto status_number = frame_number(dictionary[SCStreamFrameInfoStatus]); status_number) {
+        frame_status = static_cast<SCFrameStatus>(static_cast<NSInteger>(*status_number));
+      }
+      id content_rect_value = dictionary[SCStreamFrameInfoContentRect];
+      const auto scale_factor = frame_number(dictionary[SCStreamFrameInfoScaleFactor]);
+      const auto content_scale = frame_number(dictionary[SCStreamFrameInfoContentScale]);
+      if (const auto frame_rect = frame_content_rect(content_rect_value); frame_rect) {
+        std::scoped_lock lock(mutex_);
+        last_frame_content_x_ = frame_rect->origin.x;
+        last_frame_content_y_ = frame_rect->origin.y;
+        last_frame_content_width_ = frame_rect->size.width;
+        last_frame_content_height_ = frame_rect->size.height;
+        last_frame_scale_factor_ = scale_factor.value_or(0);
+        last_frame_content_scale_ = content_scale.value_or(0);
+      } else if (content_rect_value != nil) {
+        frame_geometry_attachment_parse_failures_.fetch_add(1, std::memory_order_relaxed);
       }
     }
     const auto previous_status = last_frame_status_.exchange(frame_status, std::memory_order_relaxed);
+    const CMTime sample_pts = CMSampleBufferGetPresentationTimeStamp(sample);
+    if ((frame_status == SCFrameStatusComplete || frame_status == SCFrameStatusIdle) &&
+        CMTIME_IS_VALID(sample_pts) && sample_pts.timescale > 0 && clock_callback_) {
+      const auto timeline_nanoseconds = rescale(
+          MediaTime{sample_pts.value, Rational{1, sample_pts.timescale}}, Rational{1, 1'000'000'000});
+      clock_callback_(std::max<std::int64_t>(0, timeline_nanoseconds));
+    }
     if (frame_status == SCFrameStatusIdle) {
       idle_frames_.fetch_add(1, std::memory_order_relaxed);
       if (previous_status != frame_status) {
@@ -389,7 +446,7 @@ class MacCaptureSession final : public CaptureSession {
       return;
     }
     frames_received_.fetch_add(1, std::memory_order_relaxed);
-    const CMTime pts = CMSampleBufferGetPresentationTimeStamp(sample);
+    const CMTime pts = sample_pts;
     CMTime duration = CMSampleBufferGetDuration(sample);
     if (!CMTIME_IS_VALID(duration) || duration.value <= 0) {
       duration = CMTimeMake(1, static_cast<std::int32_t>(configuration_.frames_per_second));
@@ -465,17 +522,11 @@ class MacCaptureSession final : public CaptureSession {
                                     : (info.style == SCShareableContentStyleWindow
                                            ? "window"
                                            : (info.style == SCShareableContentStyleApplication ? "application" : "unknown"));
-      const auto native_width = std::max(2.0, std::round(info.contentRect.size.width * info.pointPixelScale));
-      const auto native_height = std::max(2.0, std::round(info.contentRect.size.height * info.pointPixelScale));
-      const auto requested_width = static_cast<double>(configuration.width);
-      const auto requested_height = static_cast<double>(configuration.height);
-      const auto scale = std::min({1.0, requested_width / native_width, requested_height / native_height});
-      auto width = static_cast<std::size_t>(std::floor(native_width * scale));
-      auto height = static_cast<std::size_t>(std::floor(native_height * scale));
-      width -= width % 2U;
-      height -= height % 2U;
-      width = std::max<std::size_t>(width, 2U);
-      height = std::max<std::size_t>(height, 2U);
+      const auto geometry = fit_capture_geometry(
+          info.contentRect.size.width, info.contentRect.size.height, info.pointPixelScale,
+          configuration.width, configuration.height);
+      const auto width = geometry.encoded_width;
+      const auto height = geometry.encoded_height;
 
       SCStreamConfiguration* stream_configuration = [[SCStreamConfiguration alloc] init];
       stream_configuration.width = width;
@@ -538,6 +589,15 @@ class MacCaptureSession final : public CaptureSession {
         stream_ = new_stream;
         capture_width_ = width;
         capture_height_ = height;
+        source_width_points_ = geometry.source_width_points;
+        source_height_points_ = geometry.source_height_points;
+        source_point_pixel_scale_ = geometry.point_pixel_scale;
+        source_width_pixels_ = geometry.source_width_pixels;
+        source_height_pixels_ = geometry.source_height_pixels;
+        fitted_content_width_ = geometry.fitted_content_width;
+        fitted_content_height_ = geometry.fitted_content_height;
+        horizontal_padding_ = geometry.horizontal_padding;
+        vertical_padding_ = geometry.vertical_padding;
         source_kind_ = source_kind;
       }
       [new_stream startCaptureWithCompletionHandler:^(NSError* error) {
@@ -560,6 +620,7 @@ class MacCaptureSession final : public CaptureSession {
     destroy_encoder();
     first_video_packet_nanoseconds_.store(-1, std::memory_order_relaxed);
     last_video_packet_end_nanoseconds_.store(-1, std::memory_order_relaxed);
+    pts_dts_mismatches_.store(0, std::memory_order_relaxed);
     encoded_width_.store(static_cast<std::uint32_t>(width), std::memory_order_relaxed);
     encoded_height_.store(static_cast<std::uint32_t>(height), std::memory_order_relaxed);
     encoded_bitrate_.store(static_cast<std::uint32_t>(std::min<std::uint64_t>(
@@ -751,6 +812,10 @@ class MacCaptureSession final : public CaptureSession {
     packet->pts = media_time(CMSampleBufferGetPresentationTimeStamp(sample), 1'000'000'000, 0);
     packet->dts = media_time(CMSampleBufferGetDecodeTimeStamp(sample), packet->pts.time_base.denominator,
                              packet->pts.value);
+    if (rescale(packet->pts, Rational{1, 1'000'000'000}) !=
+        rescale(packet->dts, Rational{1, 1'000'000'000})) {
+      pts_dts_mismatches_.fetch_add(1, std::memory_order_relaxed);
+    }
     packet->duration = media_time(CMSampleBufferGetDuration(sample),
                                   static_cast<std::int32_t>(configuration_.frames_per_second), 1);
     const auto monotonic = rescale(packet->pts, Rational{1, 1'000'000'000});
@@ -846,6 +911,29 @@ class MacCaptureSession final : public CaptureSession {
         {"state", state_},
         {"width", capture_width_},
         {"height", capture_height_},
+        {"geometry",
+         {{"aspectPolicy", "fit_letterbox"},
+          {"sourceContentRectPoints",
+           {{"width", source_width_points_}, {"height", source_height_points_}}},
+          {"pointPixelScale", source_point_pixel_scale_},
+          {"sourcePixels", {{"width", source_width_pixels_}, {"height", source_height_pixels_}}},
+          {"requestedMedalResolution",
+           {{"width", configuration_.width}, {"height", configuration_.height}}},
+          {"fittedContentPixels",
+           {{"width", fitted_content_width_}, {"height", fitted_content_height_}}},
+          {"paddingPixels",
+           {{"horizontalTotal", horizontal_padding_}, {"verticalTotal", vertical_padding_}}},
+          {"finalEncodedPixels", {{"width", capture_width_}, {"height", capture_height_}}},
+          {"lastFrameAttachments",
+           {{"contentRect",
+             {{"x", last_frame_content_x_},
+              {"y", last_frame_content_y_},
+              {"width", last_frame_content_width_},
+              {"height", last_frame_content_height_}}},
+            {"scaleFactor", last_frame_scale_factor_},
+            {"contentScale", last_frame_content_scale_},
+            {"parseFailures",
+             frame_geometry_attachment_parse_failures_.load(std::memory_order_relaxed)}}}}},
         {"sourceKind", source_kind_},
         {"framesPerSecond", configuration_.frames_per_second},
         {"bitrateBitsPerSecond", configuration_.bitrate_bits_per_second},
@@ -853,6 +941,10 @@ class MacCaptureSession final : public CaptureSession {
         {"nativeVideoCodec", video_codec_name(configuration_.video_codec)},
         {"qualityPreset", quality_preset_},
         {"hardwareEncoder", hardware_encoder_},
+        {"gop",
+         {{"allowFrameReordering", false},
+          {"maximumKeyframeIntervalDurationSeconds", 2},
+          {"ptsDtsMismatchCount", pts_dts_mismatches_.load(std::memory_order_relaxed)}}},
         {"framesReceived", frames_received_.load(std::memory_order_relaxed)},
         {"framesEncoded", frames_encoded_.load(std::memory_order_relaxed)},
         {"encodeFailures", encode_failures_.load(std::memory_order_relaxed)},
@@ -873,6 +965,7 @@ class MacCaptureSession final : public CaptureSession {
 
   CaptureEventCallback event_callback_;
   EncodedPacketCallback packet_callback_;
+  CaptureClockCallback clock_callback_;
   mutable std::mutex mutex_;
   std::mutex encoder_mutex_;
   mutable std::mutex audio_encoder_mutex_;
@@ -882,14 +975,31 @@ class MacCaptureSession final : public CaptureSession {
   std::string last_error_;
   std::size_t capture_width_{0};
   std::size_t capture_height_{0};
+  double source_width_points_{0};
+  double source_height_points_{0};
+  double source_point_pixel_scale_{0};
+  std::size_t source_width_pixels_{0};
+  std::size_t source_height_pixels_{0};
+  std::size_t fitted_content_width_{0};
+  std::size_t fitted_content_height_{0};
+  std::size_t horizontal_padding_{0};
+  std::size_t vertical_padding_{0};
+  double last_frame_content_x_{0};
+  double last_frame_content_y_{0};
+  double last_frame_content_width_{0};
+  double last_frame_content_height_{0};
+  double last_frame_scale_factor_{0};
+  double last_frame_content_scale_{0};
   std::string source_kind_{"none"};
   std::atomic<std::uint64_t> configuration_generation_{0};
   std::atomic<VideoCodec> active_video_codec_{VideoCodec::h264};
   std::atomic<std::uint64_t> frames_received_{0};
   std::atomic<std::uint64_t> frames_encoded_{0};
   std::atomic<std::uint64_t> encode_failures_{0};
+  std::atomic<std::uint64_t> pts_dts_mismatches_{0};
   std::atomic<std::uint64_t> idle_frames_{0};
   std::atomic<std::uint64_t> inactive_frames_{0};
+  std::atomic<std::uint64_t> frame_geometry_attachment_parse_failures_{0};
   std::atomic<std::int64_t> first_video_packet_nanoseconds_{-1};
   std::atomic<std::int64_t> last_video_packet_end_nanoseconds_{-1};
   std::atomic<std::uint32_t> encoded_width_{0};
@@ -972,8 +1082,10 @@ class MacCaptureSession final : public CaptureSession {
 
 namespace native_port {
 std::unique_ptr<CaptureSession> make_capture_session(CaptureEventCallback event_callback,
-                                                     EncodedPacketCallback packet_callback) {
-  return std::make_unique<MacCaptureSession>(std::move(event_callback), std::move(packet_callback));
+                                                     EncodedPacketCallback packet_callback,
+                                                     CaptureClockCallback clock_callback) {
+  return std::make_unique<MacCaptureSession>(std::move(event_callback), std::move(packet_callback),
+                                             std::move(clock_callback));
 }
 
 }  // namespace native_port

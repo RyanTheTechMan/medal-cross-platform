@@ -2039,11 +2039,26 @@
       "source": "research/evidence/client_handlers.json",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "verified",
+        "implementation_files": [
+          "native/helper/main.cpp",
+          "native/core/include/native_port/clip_action.hpp",
+          "native/core/src/clip_action.cpp",
+          "native/backends/macos/mp4_writer.mm"
+        ],
+        "test_ids": [
+          "E04",
+          "E09"
+        ],
+        "report_paths": [
+          "reports/native/m3.5-hotkey-operational-result.json",
+          "reports/native/m3.5-hotkey-library-row.json",
+          "reports/native/m3.5-hotkey-restart-media-selftest.json",
+          "reports/native/m3.5-operational-replay-result.md"
+        ],
+        "limitations": [
+          "Verified for one guest/local H.264/AAC physical hotkey export: the original imported handler acknowledged contentCreate, probed media, generated a thumbnail and persisted the local contents row across restart. Authenticated contentId/upload, duplicate idempotency and original logged-in library UI remain unverified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -2229,17 +2244,21 @@
         "implementation_files": [
           "native/core/include/native_port/settings_store.hpp",
           "native/core/src/settings_store.cpp",
+          "native/core/include/native_port/capture_settings.hpp",
+          "native/core/src/capture_settings.cpp",
           "native/helper/main.cpp"
         ],
         "test_ids": [
-          "B09"
+          "B09",
+          "M03"
         ],
         "report_paths": [
-          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
-          "reports/native/m2.6-protocol-selftest.json"
+          "research/evidence/bitrate_conversion.json",
+          "reports/native/ctest-m3.5-hotkey-operational-final.log",
+          "reports/native/m3.5-hotkey-operational-result.json"
         ],
         "limitations": [
-          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+          "The pinned client forwards numeric Bitrate unchanged in decimal Mbps and the original recorder multiplies it by 1,000,000 for native bits/second. Fixed 1/7/15/27.5/100 mappings pass and the physical run applied 15,000,000 bits/second; broader visual-quality and per-game live-change coverage remains open."
         ]
       },
       "linux": {
@@ -2997,17 +3016,24 @@
         "implementation_files": [
           "native/core/include/native_port/settings_store.hpp",
           "native/core/src/settings_store.cpp",
+          "native/core/include/native_port/clip_action.hpp",
+          "native/core/src/clip_action.cpp",
+          "native/core/include/native_port/platform_adapter.hpp",
+          "native/backends/macos/platform_adapter.mm",
           "native/helper/main.cpp"
         ],
         "test_ids": [
-          "B09"
+          "B09",
+          "E01",
+          "E04"
         ],
         "report_paths": [
-          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
-          "reports/native/m2.6-protocol-selftest.json"
+          "reports/native/ctest-m3.5-hotkey-operational-final.log",
+          "reports/native/m3.5-hotkey-operational-result.json",
+          "reports/native/m3.5-operational-replay-result.md"
         ],
         "limitations": [
-          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+          "One physical Command+Shift+8 short-press carrying clip;length=5 is verified through contentCreate. F-keys, layout changes, conflicts, rebind rollback, suspension, restart, sleep/wake and press/release semantics remain unverified. OS registration rejection is surfaced rather than reported as success."
         ]
       },
       "linux": {
@@ -3637,17 +3663,23 @@
         "implementation_files": [
           "native/core/include/native_port/settings_store.hpp",
           "native/core/src/settings_store.cpp",
+          "native/core/include/native_port/capture_geometry.hpp",
+          "native/core/src/capture_geometry.cpp",
+          "native/core/include/native_port/capture_settings.hpp",
+          "native/core/src/capture_settings.cpp",
+          "native/backends/macos/screen_capture_session.mm",
           "native/helper/main.cpp"
         ],
         "test_ids": [
-          "B09"
+          "B09",
+          "M03"
         ],
         "report_paths": [
-          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
-          "reports/native/m2.6-protocol-selftest.json"
+          "reports/native/ctest-m3.5-hotkey-operational-final.log",
+          "reports/native/m3.5-hotkey-operational-result.json"
         ],
         "limitations": [
-          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+          "Source pixels, ScreenCaptureKit content rect/scale, requested Medal canvas, aspect-fit content and final even encoded dimensions are separated. One 2560x1440 source to exact 1920x1080 case passes; the full supported-resolution/aspect matrix remains unverified."
         ]
       },
       "linux": {
@@ -4609,8 +4641,11 @@
           "native/core/include/native_port/replay_store.hpp",
           "native/core/src/replay_store.cpp",
           "native/core/include/native_port/encoded_packet.hpp",
+          "native/core/include/native_port/clip_action.hpp",
+          "native/core/src/clip_action.cpp",
           "native/core/include/native_port/mp4_writer.hpp",
           "native/backends/macos/mp4_writer.mm",
+          "native/backends/macos/avfoundation_file_probe.mm",
           "native/helper/main.cpp"
         ],
         "test_ids": [
@@ -4628,11 +4663,16 @@
           "reports/native/m3.4-system-audio-capture.json",
           "reports/native/m3.4-mp4-writer-probe.json",
           "reports/native/m3.4-audio-mux-result.md",
-          "reports/native/m3.4-real-export-picker-timeout.json"
+          "reports/native/m3.4-real-export-picker-timeout.json",
+          "reports/native/m3.5-hotkey-operational-result.json",
+          "reports/native/m3.5-hotkey-avfoundation-validation.json",
+          "reports/native/m3.5-hotkey-ffprobe-validation.json",
+          "reports/native/m3.5-hotkey-restart-media-selftest.json",
+          "reports/native/m3.5-operational-replay-result.md"
         ],
         "limitations": [
-          "Bounded generation-aware multi-track packet storage and keyframe-aligned slicing are unit-tested; real H.264/HEVC video and AAC packets retain codec configuration and timestamps.",
-          "A synthetic encoded snapshot passes AVAssetWriter MP4 export and AVAssetReader readback without transcoding. The post-fix real captured MP4, clip;length=N action, restart/recovery, playback and thumbnail gates remain open."
+          "Bounded generation-aware timestamp retention and keyframe-aligned slicing are unit-tested; a physical clip;length=5 action survived 40 ScreenCaptureKit idle frames and retained configured H.264/AAC packets.",
+          "One real H.264/AAC MP4 passes AVFoundation decode, independent ffprobe, original contentCreate probe/thumbnail/library insertion and imported-Electron restart playback without transcoding. Crash/disk-pressure recovery, longer durations, microphone and HEVC end-to-end compatibility remain open."
         ]
       },
       "linux": {
@@ -4656,11 +4696,29 @@
       "source": "CODEX_MASTER_PROMPT.md",
       "contract_status": "proposed_product_requirement",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/helper/main.cpp",
+          "native/core/include/native_port/clip_action.hpp",
+          "native/core/src/clip_action.cpp",
+          "native/backends/macos/mp4_writer.mm",
+          "client_patch/media-selftest-preload.cjs",
+          "client_patch/native-port-bootstrap.cjs"
+        ],
+        "test_ids": [
+          "E04",
+          "E09"
+        ],
+        "report_paths": [
+          "reports/native/m3.5-hotkey-library-row.json",
+          "reports/native/m3.5-hotkey-restart-media-selftest.json",
+          "reports/native/m3.5-hotkey-post-restart-library-row.json",
+          "reports/native/m3.5-hotkey-post-restart-media-sha256.txt",
+          "reports/native/m3.5-operational-replay-result.md"
+        ],
+        "limitations": [
+          "The original guest contentCreate handler probed, thumbnailed and inserted one physical hotkey clip; imported Chromium played/sought it and both media plus the row persisted across restart. The visible original library/player is authentication-gated, and upload/idempotency/recovery remain unverified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -4749,11 +4807,23 @@
       "source": "CODEX_MASTER_PROMPT.md",
       "contract_status": "proposed_product_requirement",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/core/include/native_port/platform_adapter.hpp",
+          "native/backends/macos/platform_adapter.mm",
+          "native/helper/main.cpp",
+          "tools/native_port_importer.py"
+        ],
+        "test_ids": [
+          "E08"
+        ],
+        "report_paths": [
+          "reports/native/m3.5-hotkey-operational-result.json",
+          "reports/native/m3.5-operational-replay-result.md"
+        ],
+        "limitations": [
+          "Acknowledged clip feedback is verified once with the exact embedded ClipEffect.wav, traced volume and non-focus-stealing Medal-icon HUD. Screenshot capture and its feedback remain not started; Notification Center integration is intentionally not claimed."
+        ]
       },
       "linux": {
         "status": "not_started",

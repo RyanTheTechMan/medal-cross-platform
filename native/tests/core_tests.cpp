@@ -1,3 +1,6 @@
+#include "native_port/clip_action.hpp"
+#include "native_port/capture_geometry.hpp"
+#include "native_port/capture_settings.hpp"
 #include "native_port/json_rpc.hpp"
 #include "native_port/media_time.hpp"
 #include "native_port/replay_store.hpp"
@@ -5,6 +8,7 @@
 #include "native_port/video_codec.hpp"
 
 #include <chrono>
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <exception>
@@ -120,7 +124,22 @@ void test_settings() {
       {.key = "Bitrate", .value = 15, .category_id = std::nullopt},
       {.key = "Resolution", .value = {{"width", 1920}, {"height", 1080}}, .category_id = std::nullopt},
       {.key = "Codec", .value = "H265", .category_id = std::nullopt},
-      {.key = "Hotkeys", .value = {{"saveClip", "F8"}}, .category_id = std::nullopt},
+      {.key = "GlobalSoundAlerts", .value = true, .category_id = std::nullopt},
+      {.key = "ClipSavedSoundAlerts", .value = true, .category_id = std::nullopt},
+      {.key = "AudioNotificationVolume", .value = 0.65, .category_id = std::nullopt},
+      {.key = "ClipSound", .value = "default", .category_id = std::nullopt},
+      {.key = "ClipSoundPath", .value = nullptr, .category_id = std::nullopt},
+      {.key = "Hotkeys",
+       .value = {{"hotkeys",
+                  {{{"action", "clip;length=30"},
+                    {"device", "keyboard"},
+                    {"type", "short_press"},
+                    {"inputs", "F8"}},
+                   {{"action", "bookmark"},
+                    {"device", "keyboard"},
+                    {"type", "short_press"},
+                    {"inputs", "F8"}}}}},
+       .category_id = std::nullopt},
       {.key = "Bitrate", .value = 27.5, .category_id = "game-42"},
   });
   expect(settings.global("Bitrate") == nlohmann::json(15),
@@ -134,6 +153,8 @@ void test_settings() {
          "settings snapshot must preserve recovered key casing");
   expect(settings.global("Codec") == nlohmann::json("H265"),
          "the recovered Medal codec value must be preserved exactly");
+  expect(settings.global("AudioNotificationVolume") == nlohmann::json(0.65),
+         "the traced normalized notification volume must be preserved on the recorder wire");
 
   settings.delete_custom_game_settings("game-42", {"Bitrate"});
   expect(settings.effective("Bitrate", "game-42") == nlohmann::json(15),
@@ -155,6 +176,9 @@ void test_settings() {
   expect_throws<std::invalid_argument>([&settings] {
     settings.apply({{.key = "Codec", .value = "VP9", .category_id = std::nullopt}});
   }, "unknown codecs must not be accepted as successful settings");
+  expect_throws<std::invalid_argument>([&settings] {
+    settings.apply({{.key = "AudioNotificationVolume", .value = 65, .category_id = std::nullopt}});
+  }, "the UI percentage must not be mistaken for the normalized recorder wire value");
 
   expect(native_port::parse_video_codec("H264") == native_port::VideoCodec::h264,
          "H264 must map from the recovered Medal spelling");
@@ -162,6 +186,95 @@ void test_settings() {
          "H265 must map to the HEVC native codec");
   expect(native_port::parse_video_codec("AV1") == native_port::VideoCodec::av1,
          "AV1 must map from the recovered Medal spelling");
+}
+
+void test_clip_action() {
+  const nlohmann::json recovered = nlohmann::json::array(
+      {{{"action", "clip;length=30"},
+        {"device", "keyboard"},
+        {"type", "short_press"},
+        {"inputs", "F8"}},
+       {{"action", "bookmark"},
+        {"device", "keyboard"},
+        {"type", "short_press"},
+        {"inputs", "F8"}}});
+  const auto direct = native_port::parse_clip_hotkeys(recovered);
+  expect(direct.size() == 1 && direct.front().action == "clip;length=30" &&
+             direct.front().inputs == "F8" && direct.front().duration == 30s,
+         "the recovered clip;length=N action must parse without treating bookmark as a clip binding");
+  const auto wrapped = native_port::parse_clip_hotkeys({{"hotkeys", recovered}});
+  expect(wrapped.size() == 1 && wrapped.front().duration == 30s,
+         "the observed settings-RPC Hotkeys wrapper must parse");
+  expect_throws<std::invalid_argument>(
+      [] { (void)native_port::parse_clip_hotkeys({{"hotkeys", "F8"}}); },
+      "a malformed Hotkeys wrapper must be rejected");
+  expect_throws<std::invalid_argument>(
+      [] {
+        (void)native_port::parse_clip_hotkeys(nlohmann::json::array(
+            {{{"action", "clip;length=0"},
+              {"device", "keyboard"},
+              {"type", "short_press"},
+              {"inputs", "F8"}}}));
+      },
+      "a clip length outside the replay capacity must be rejected");
+}
+
+void test_capture_settings() {
+  native_port::SettingsStore settings;
+  settings.apply({
+      {.key = "Resolution", .value = {{"width", 2560}, {"height", 1440}}, .category_id = std::nullopt},
+      {.key = "TargetFPS", .value = 120, .category_id = std::nullopt},
+      {.key = "Bitrate", .value = 30, .category_id = std::nullopt},
+      {.key = "Codec", .value = "H265", .category_id = std::nullopt},
+      {.key = "ShowCursor", .value = false, .category_id = std::nullopt},
+      {.key = "Bitrate", .value = 7, .category_id = "game-7"},
+      {.key = "Codec", .value = "H264", .category_id = "game-7"},
+  });
+  const auto global = native_port::capture_configuration_from_settings(settings);
+  expect(global.width == 2560 && global.height == 1440 && global.frames_per_second == 120,
+         "official resolution and FPS settings must map directly to native capture");
+  expect(global.bitrate_bits_per_second == 30'000'000 &&
+             global.video_codec == native_port::VideoCodec::hevc && !global.show_cursor,
+         "the client Mbps, H265 and cursor values must map to native encoder units");
+  const auto game = native_port::capture_configuration_from_settings(settings, "game-7");
+  expect(game.bitrate_bits_per_second == 7'000'000 &&
+             game.video_codec == native_port::VideoCodec::h264 && game.width == 2560,
+         "per-game capture settings must override globals and inherit missing values");
+
+  struct BitrateCase final {
+    double wire_value;
+    std::uint64_t expected_bits_per_second;
+  };
+  for (const auto test : std::array{
+           BitrateCase{1.0, 1'000'000}, BitrateCase{7.0, 7'000'000},
+           BitrateCase{15.0, 15'000'000}, BitrateCase{27.5, 27'500'000},
+           BitrateCase{100.0, 100'000'000}}) {
+    native_port::SettingsStore fixed;
+    fixed.apply({{.key = "Bitrate", .value = test.wire_value, .category_id = std::nullopt}});
+    expect(native_port::capture_configuration_from_settings(fixed).bitrate_bits_per_second ==
+               test.expected_bits_per_second,
+           "pinned client/wire/recorder bitrate conversion must remain decimal Mbps to bps");
+  }
+}
+
+void test_capture_geometry() {
+  const auto ultrawide = native_port::fit_capture_geometry(2394, 1000, 2, 1920, 1080);
+  expect(ultrawide.source_width_pixels == 4788 && ultrawide.source_height_pixels == 2000,
+         "source points and ScreenCaptureKit pointPixelScale must remain independently observable");
+  expect(ultrawide.requested_width == 1920 && ultrawide.requested_height == 1080 &&
+             ultrawide.encoded_width == 1920 && ultrawide.encoded_height == 1080,
+         "the Medal Resolution setting must describe the final encoded canvas");
+  expect(ultrawide.fitted_content_width == 1920 && ultrawide.fitted_content_height == 802 &&
+             ultrawide.vertical_padding == 278,
+         "the observed 1920x802 dimensions must be identified as fitted source content, not output resolution");
+
+  const auto sixteen_nine = native_port::fit_capture_geometry(1920, 1080, 1, 1280, 720);
+  expect(sixteen_nine.fitted_content_width == 1280 && sixteen_nine.fitted_content_height == 720 &&
+             sixteen_nine.horizontal_padding == 0 && sixteen_nine.vertical_padding == 0,
+         "matching aspect ratios must require no padding");
+  expect_throws<std::invalid_argument>([] {
+    (void)native_port::fit_capture_geometry(1920, 1080, 1, 1919, 1080);
+  }, "odd 4:2:0 encoder canvases must be rejected rather than silently rounded");
 }
 
 void test_replay_store() {
@@ -213,6 +326,21 @@ void test_replay_store() {
   expect_throws<std::invalid_argument>([&store] {
     store.push(packet(3'000'000'000, true, 1, native_port::TrackKind::video, 10, nullptr));
   }, "a video keyframe without decoder configuration must be rejected");
+
+  native_port::ReplayStore idle_store({.maximum_duration = 30s, .maximum_bytes = 1'000});
+  idle_store.push(packet(0, true, 1, native_port::TrackKind::video, 10, configuration));
+  idle_store.push(packet(1'000'000'000, false));
+  idle_store.push(packet(2'000'000'000, true, 1, native_port::TrackKind::video, 10, configuration));
+  idle_store.push(packet(3'000'000'000, false));
+  idle_store.advance_clock(34'000'000'000);
+  const auto idle_snapshot = idle_store.snapshot(30s);
+  expect(idle_snapshot && idle_snapshot->start_monotonic_nanoseconds == 2'000'000'000,
+         "an idle capture interval must retain the latest independently decodable GOP");
+  expect(idle_snapshot->observed_end_monotonic_nanoseconds == 34'000'000'000 &&
+             idle_snapshot->actual_duration >= 30s && idle_snapshot->actual_duration < 32s,
+         "idle retention must use the capture timestamp and remain within one GOP of the request");
+  expect(idle_snapshot->limitation.find("entirely idle") != std::string::npos,
+         "idle replay duration extension must be reported explicitly");
 }
 
 }  // namespace
@@ -226,6 +354,9 @@ int main() {
       {"media_time", test_media_time},
       {"json_rpc", test_json_rpc},
       {"settings", test_settings},
+      {"clip_action", test_clip_action},
+      {"capture_settings", test_capture_settings},
+      {"capture_geometry", test_capture_geometry},
       {"replay_store", test_replay_store},
   };
 

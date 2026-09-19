@@ -1,0 +1,15 @@
+[1/2] Building OBJCXX object native/backends/macos/CMakeFiles/native_port_macos_avfoundation_file_probe.dir/avfoundation_file_probe.mm.o
+/Users/ryan/Developer/medal-cross-platform/native/backends/macos/avfoundation_file_probe.mm:248:51: warning: 'tracksWithMediaType:' is deprecated: first deprecated in macOS 15.0 - Use loadTracksWithMediaType:completionHandler: instead [-Wdeprecated-declarations]
+  248 |     NSArray<AVAssetTrack*>* video_tracks = [asset tracksWithMediaType:AVMediaTypeVideo];
+      |                                                   ^
+/Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/AVFoundation.framework/Headers/AVAsset.h:191:1: note: 'tracksWithMediaType:' has been explicitly marked deprecated here
+  191 | - (NSArray<AVAssetTrack *> *)tracksWithMediaType:(AVMediaType)mediaType
+      | ^
+/Users/ryan/Developer/medal-cross-platform/native/backends/macos/avfoundation_file_probe.mm:249:51: warning: 'tracksWithMediaType:' is deprecated: first deprecated in macOS 15.0 - Use loadTracksWithMediaType:completionHandler: instead [-Wdeprecated-declarations]
+  249 |     NSArray<AVAssetTrack*>* audio_tracks = [asset tracksWithMediaType:AVMediaTypeAudio];
+      |                                                   ^
+/Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/AVFoundation.framework/Headers/AVAsset.h:191:1: note: 'tracksWithMediaType:' has been explicitly marked deprecated here
+  191 | - (NSArray<AVAssetTrack *> *)tracksWithMediaType:(AVMediaType)mediaType
+      | ^
+2 warnings generated.
+[2/2] Linking OBJCXX executable native/backends/macos/native_port_macos_avfoundation_file_probe

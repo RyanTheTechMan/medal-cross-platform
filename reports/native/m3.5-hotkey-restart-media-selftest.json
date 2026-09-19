@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "videoFileName": "1f01abc7-53f0-451e-8eed-8c2ab2912929.mp4",
+  "thumbnailFileName": "1f01abc7-53f0-451e-8eed-8c2ab2912929.jpg",
+  "startedAt": "2026-09-19T04:09:55.088Z",
+  "video": {
+    "durationSeconds": 5.541667,
+    "width": 1920,
+    "height": 1080,
+    "seekedSeconds": 2.770833,
+    "h264AacCanPlayType": "probably"
+  },
+  "thumbnail": {
+    "width": 640,
+    "height": 360
+  },
+  "completedAt": "2026-09-19T04:09:55.651Z"
+}

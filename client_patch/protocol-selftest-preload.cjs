@@ -95,17 +95,80 @@ window.addEventListener('DOMContentLoaded', async () => {
       settings: [
         { key: 'TargetFPS', value: 60, categoryId: null },
         { key: 'Resolution', value: { width: 1920, height: 1080 }, categoryId: null },
+        { key: 'Bitrate', value: 15, categoryId: null },
+        { key: 'Codec', value: 'H265', categoryId: null },
+        { key: 'ShowCursor', value: false, categoryId: null },
+        { key: 'Hotkeys', value: { hotkeys: [
+          { action: 'clip;length=30', device: 'keyboard', type: 'short_press', inputs: 'F8' },
+          { action: 'bookmark', device: 'keyboard', type: 'short_press', inputs: 'F8' }
+        ] }, categoryId: null },
         { key: 'Codec', value: 'H264', categoryId: 'native-port-selftest-game' }
       ]
     })
     assert(settingsResult === null, 'settings Task must return null')
+    const globalCaptureConfiguration = await request('nativePort.effectiveCaptureConfiguration')
+    assert(globalCaptureConfiguration?.width === 1920 && globalCaptureConfiguration?.height === 1080,
+      'official Resolution must drive the native capture configuration')
+    assert(globalCaptureConfiguration?.framesPerSecond === 60,
+      'official TargetFPS must drive the native capture configuration')
+    assert(globalCaptureConfiguration?.bitrateBitsPerSecond === 15000000,
+      'official Mbps Bitrate must drive VideoToolbox bits per second')
+    assert(globalCaptureConfiguration?.videoCodec === 'H265' && globalCaptureConfiguration?.showCursor === false,
+      'official Codec and ShowCursor must drive the native capture configuration')
+    const gameCaptureConfiguration = await request('nativePort.effectiveCaptureConfiguration', {
+      categoryId: 'native-port-selftest-game'
+    })
+    assert(gameCaptureConfiguration?.videoCodec === 'H264' &&
+      gameCaptureConfiguration?.bitrateBitsPerSecond === 15000000,
+      'per-game settings must override and inherit the official capture settings')
+    const hotkeyStatus = await request('nativePort.captureStatus')
+    assert(hotkeyStatus?.hotkeys?.backend === 'Carbon.RegisterEventHotKey' &&
+      hotkeyStatus.hotkeys.permissionRequired === false &&
+      hotkeyStatus.hotkeys.registered?.length === 1 &&
+      hotkeyStatus.hotkeys.registered[0]?.action === 'clip;length=30' &&
+      hotkeyStatus.hotkeys.registered[0]?.inputs === 'F8',
+      'the recovered clip hotkey must be registered by the native macOS backend')
     assert(await request('deleteCustomGameSettings', {
       customGameSettings: [{ categoryId: 'native-port-selftest-game', settingKeys: ['Codec'] }]
     }) === null, 'deleteCustomGameSettings Task must return null')
     assert(await request('deleteAllCustomGameSettings', {
       categoryIds: ['native-port-selftest-game']
     }) === null, 'deleteAllCustomGameSettings Task must return null')
-    checks.push({ name: 'scoped-settings-and-deletion', passed: true })
+    checks.push({
+      name: 'official-capture-settings-hotkey-and-deletion',
+      passed: true,
+      globalCaptureConfiguration,
+      gameCaptureConfiguration,
+      hotkeys: hotkeyStatus.hotkeys
+    })
+
+    const contentSelfTestClip = process.env.NATIVE_PORT_PROTOCOL_SELFTEST_CLIP
+    if (contentSelfTestClip) {
+      const uuid = process.env.NATIVE_PORT_PROTOCOL_SELFTEST_UUID
+      const exportStatsDuration = Number(process.env.NATIVE_PORT_PROTOCOL_SELFTEST_DURATION_SECONDS)
+      let registration = await request('nativePort.registerExportedReplay', {
+        uuid,
+        createdAt: Date.now(),
+        clipLocation: contentSelfTestClip,
+        exportStatsDuration
+      })
+      const deadline = Date.now() + 60000
+      while (Date.now() < deadline && registration?.state === 'pending') {
+        await wait(100)
+        registration = await request('nativePort.registrationStatus', { uuid })
+      }
+      assert(registration?.state === 'acknowledged',
+        `contentCreate registration failed: ${JSON.stringify(registration)}`)
+      checks.push({
+        name: 'content-create-round-trip',
+        passed: true,
+        uuid,
+        fileName: registration.fileName,
+        state: registration.state,
+        contentId: registration.contentId ?? null,
+        exportStatsDuration
+      })
+    }
 
     let unknownRejected = false
     let unknownMessage = ''

@@ -17,6 +17,11 @@ namespace {
          !packet->codec_configuration->empty();
 }
 
+[[nodiscard]] std::int64_t packet_end_nanoseconds(const EncodedPacket& packet) {
+  const auto duration = rescale(packet.duration, Rational{1, 1'000'000'000});
+  return packet.monotonic_nanoseconds + std::max<std::int64_t>(0, duration);
+}
+
 }  // namespace
 
 ReplayStore::ReplayStore(ReplayLimits limits) : limits_(limits) {
@@ -46,11 +51,12 @@ void ReplayStore::push(std::shared_ptr<const EncodedPacket> packet) {
   std::scoped_lock lock(mutex_);
   if (has_timestamp_ &&
       packet->monotonic_nanoseconds <
-          newest_monotonic_nanoseconds_ - limits_.maximum_reorder_duration.count()) {
+          newest_observed_monotonic_nanoseconds_ - limits_.maximum_reorder_duration.count()) {
     throw std::invalid_argument("packet arrived outside the replay reorder window");
   }
   has_timestamp_ = true;
-  newest_monotonic_nanoseconds_ = std::max(newest_monotonic_nanoseconds_, packet->monotonic_nanoseconds);
+  newest_observed_monotonic_nanoseconds_ =
+      std::max(newest_observed_monotonic_nanoseconds_, packet->monotonic_nanoseconds);
   occupied_bytes_ += packet->occupied_bytes();
   const auto insertion = std::upper_bound(
       packets_.begin(), packets_.end(), packet->monotonic_nanoseconds,
@@ -58,6 +64,17 @@ void ReplayStore::push(std::shared_ptr<const EncodedPacket> packet) {
         return timestamp < existing->monotonic_nanoseconds;
       });
   packets_.insert(insertion, std::move(packet));
+  enforce_limits_locked();
+}
+
+void ReplayStore::advance_clock(std::int64_t monotonic_nanoseconds) {
+  if (monotonic_nanoseconds < 0) {
+    throw std::invalid_argument("capture clock timestamp must be non-negative");
+  }
+  std::scoped_lock lock(mutex_);
+  has_timestamp_ = true;
+  newest_observed_monotonic_nanoseconds_ =
+      std::max(newest_observed_monotonic_nanoseconds_, monotonic_nanoseconds);
   enforce_limits_locked();
 }
 
@@ -72,9 +89,10 @@ std::optional<ReplaySnapshot> ReplayStore::snapshot(std::chrono::nanoseconds req
   }
 
   const auto newest_generation = packets_.back()->configuration_generation;
-  const auto end = packets_.back()->monotonic_nanoseconds;
+  const auto observed_end = std::max(newest_observed_monotonic_nanoseconds_,
+                                     packets_.back()->monotonic_nanoseconds);
   const auto requested_count = requested_duration.count();
-  const auto target = requested_count > end ? 0 : end - requested_count;
+  const auto target = requested_count > observed_end ? 0 : observed_end - requested_count;
 
   std::optional<std::size_t> first_generation_index;
   std::optional<std::size_t> preceding_keyframe_index;
@@ -106,9 +124,25 @@ std::optional<ReplaySnapshot> ReplayStore::snapshot(std::chrono::nanoseconds req
   result.requested_duration = requested_duration;
   result.configuration_generation = newest_generation;
   result.start_monotonic_nanoseconds = packets_[*start_index]->monotonic_nanoseconds;
-  result.end_monotonic_nanoseconds = end;
-  result.actual_duration = std::chrono::nanoseconds(end - result.start_monotonic_nanoseconds);
-  if (!preceding_keyframe_index) {
+  result.observed_end_monotonic_nanoseconds = observed_end;
+
+  std::int64_t last_media_end = result.start_monotonic_nanoseconds;
+  for (std::size_t index = *start_index; index < packets_.size(); ++index) {
+    const auto& packet = packets_[index];
+    if (packet->configuration_generation == newest_generation) {
+      last_media_end = std::max(last_media_end, packet_end_nanoseconds(*packet));
+    }
+  }
+  const bool requested_interval_is_entirely_idle = last_media_end < target;
+  result.end_monotonic_nanoseconds = requested_interval_is_entirely_idle
+                                         ? last_media_end + requested_count
+                                         : observed_end;
+  result.actual_duration = std::chrono::nanoseconds(
+      result.end_monotonic_nanoseconds - result.start_monotonic_nanoseconds);
+  if (requested_interval_is_entirely_idle) {
+    result.limitation =
+        "requested interval is entirely idle; export extends the last encoded video sample and includes keyframe preroll";
+  } else if (!preceding_keyframe_index) {
     result.limitation = "requested interval predates the first retained keyframe in the active codec generation";
   } else if (result.start_monotonic_nanoseconds < target) {
     result.limitation = "fast export includes keyframe preroll";
@@ -129,7 +163,7 @@ void ReplayStore::clear() {
   std::scoped_lock lock(mutex_);
   packets_.clear();
   occupied_bytes_ = 0;
-  newest_monotonic_nanoseconds_ = 0;
+  newest_observed_monotonic_nanoseconds_ = 0;
   has_timestamp_ = false;
 }
 
@@ -149,12 +183,38 @@ std::chrono::nanoseconds ReplayStore::retained_duration() const {
 }
 
 void ReplayStore::enforce_limits_locked() {
-  while (!packets_.empty() &&
-         (occupied_bytes_ > limits_.maximum_bytes || retained_duration_locked() > limits_.maximum_duration)) {
+  while (!packets_.empty() && occupied_bytes_ > limits_.maximum_bytes) {
     occupied_bytes_ -= packets_.front()->occupied_bytes();
     packets_.pop_front();
   }
   align_front_to_decodable_video_locked();
+
+  if (!packets_.empty() && has_timestamp_) {
+    const auto cutoff = newest_observed_monotonic_nanoseconds_ - limits_.maximum_duration.count();
+    if (packets_.front()->monotonic_nanoseconds < cutoff) {
+      auto selected = packets_.end();
+      for (auto iterator = packets_.begin(); iterator != packets_.end(); ++iterator) {
+        if (is_decodable_video_start(*iterator) && (*iterator)->monotonic_nanoseconds >= cutoff) {
+          selected = iterator;
+          break;
+        }
+      }
+      if (selected == packets_.end()) {
+        for (auto iterator = packets_.begin(); iterator != packets_.end(); ++iterator) {
+          if (is_decodable_video_start(*iterator)) {
+            selected = iterator;
+          }
+        }
+      }
+      if (selected != packets_.end()) {
+        const auto keyframe_time = (*selected)->monotonic_nanoseconds;
+        while (!packets_.empty() && packets_.front()->monotonic_nanoseconds < keyframe_time) {
+          occupied_bytes_ -= packets_.front()->occupied_bytes();
+          packets_.pop_front();
+        }
+      }
+    }
+  }
   if (packets_.empty()) {
     occupied_bytes_ = 0;
   }

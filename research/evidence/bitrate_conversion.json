@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "scope": "pinned-client-2637.461.1-and-recorder-2638.2751.1",
+  "inputs": {
+    "clientMainSha256": "5a2a6dd5d1370a15577b0c09bc2d021059e2f9e7dba6a2e40cc41b4685e0c8ff",
+    "recorderExecutableSha256": "96afe76e120982f257a6eda99ce33bb0dc3e8013459d1fad8b85108375333a01"
+  },
+  "client": {
+    "function": "getRecorderValueToSend (minified symbol ry)",
+    "exactPredicateMatches": 1,
+    "bitrateCasePresent": false,
+    "defaultBranch": "return t",
+    "conclusion": "Bitrate numeric value crosses the client-to-recorder settings wire unchanged."
+  },
+  "recorder": {
+    "declaringType": "MedalEncoder.RecordingSession",
+    "method": "CreateConfig",
+    "methodToken": "0x0600125D",
+    "settingsGetterToken": "0x0600134E",
+    "backingFieldToken": "0x040013F7",
+    "il": [
+      {
+        "offset": 953,
+        "opcode": "call",
+        "operand": "0x0600134E"
+      },
+      {
+        "offset": 958,
+        "opcode": "ldloc.0",
+        "operand": null
+      },
+      {
+        "offset": 959,
+        "opcode": "callvirt",
+        "operand": "0x0A00048B"
+      },
+      {
+        "offset": 964,
+        "opcode": "conv.u4",
+        "operand": null
+      },
+      {
+        "offset": 965,
+        "opcode": "ldc.i4",
+        "operand": 1000000
+      },
+      {
+        "offset": 970,
+        "opcode": "mul",
+        "operand": null
+      }
+    ],
+    "conclusion": "The effective Bitrate setting is converted to UInt32 and multiplied by 1,000,000 for the native encoder configuration."
+  },
+  "mapping": {
+    "wireUnit": "decimal megabits per second",
+    "nativeUnit": "bits per second",
+    "formula": "nativeBitsPerSecond = round(wireValue * 1000000)",
+    "fixedExamples": [
+      {
+        "wire": 1,
+        "nativeBitsPerSecond": 1000000
+      },
+      {
+        "wire": 7,
+        "nativeBitsPerSecond": 7000000
+      },
+      {
+        "wire": 15,
+        "nativeBitsPerSecond": 15000000
+      },
+      {
+        "wire": 27.5,
+        "nativeBitsPerSecond": 27500000
+      },
+      {
+        "wire": 100,
+        "nativeBitsPerSecond": 100000000
+      }
+    ]
+  },
+  "researchDependencies": {
+    "dnfile": "0.18.0",
+    "dncil": "1.0.2"
+  }
+}

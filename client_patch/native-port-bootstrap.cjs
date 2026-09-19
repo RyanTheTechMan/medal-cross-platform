@@ -22,13 +22,18 @@ const configuredProfile = process.env.NATIVE_PORT_PROFILE_DIR
 if (configuredProfile && !path.isAbsolute(configuredProfile)) fail('NATIVE_PORT_PROFILE_DIR must be an absolute path')
 const profile = configuredProfile || path.join(app.getPath('appData'), 'Native Medal Development Profile')
 fs.mkdirSync(profile, { recursive: true, mode: 0o700 })
+process.env.NATIVE_PORT_PROFILE_DIR = profile
+const isolatedMedia = path.join(profile, 'Media')
+fs.mkdirSync(isolatedMedia, { recursive: true, mode: 0o700 })
 app.setPath('userData', profile)
 app.setPath('sessionData', path.join(profile, 'Session Data'))
 app.setPath('logs', path.join(profile, 'Logs'))
+app.setPath('videos', isolatedMedia)
 
 const configuredTools = process.env.NATIVE_PORT_TOOLS_DIR
 if (configuredTools && !path.isAbsolute(configuredTools)) fail('NATIVE_PORT_TOOLS_DIR must be an absolute path')
 const tools = configuredTools || path.join(__dirname, 'tools')
+process.env.NATIVE_PORT_TOOLS_DIR = tools
 for (const tool of ['ffmpeg', 'ffprobe', 'sqlite3']) {
   const candidate = path.join(tools, tool)
   const stat = fs.statSync(candidate, { throwIfNoEntry: false })
@@ -48,6 +53,13 @@ if (!recorderStat || !recorderStat.isFile() || (recorderStat.mode & 0o111) === 0
   fail(`missing native recorder ${recorder}`)
 }
 process.env.NATIVE_PORT_RECORDER_EXE = recorder
+const defaultClipSound = path.join(__dirname, 'assets', 'ClipEffect.wav')
+const medalIcon = path.join(path.dirname(__dirname), 'src', 'assets', 'icon', 'MedalApp.png')
+for (const [label, candidate] of [['default clip sound', defaultClipSound], ['Medal icon', medalIcon]]) {
+  if (!fs.statSync(candidate, { throwIfNoEntry: false })?.isFile()) fail(`missing ${label} ${candidate}`)
+}
+process.env.NATIVE_PORT_DEFAULT_CLIP_SOUND = defaultClipSound
+process.env.NATIVE_PORT_MEDAL_ICON = medalIcon
 process.env.NATIVE_PORT_SESSION_SECRET = crypto.randomBytes(32).toString('base64url')
 
 if (process.env.NATIVE_PORT_DISABLE_RECORDER === 'true') process.env.NO_RECORDER = '1'
@@ -96,6 +108,21 @@ if (protocolSelfTestReport) {
   if (relativeReport.startsWith('..') || path.isAbsolute(relativeReport)) {
     fail('NATIVE_PORT_PROTOCOL_SELFTEST_REPORT must stay inside the isolated profile')
   }
+  const contentSelfTestClip = process.env.NATIVE_PORT_PROTOCOL_SELFTEST_CLIP
+  if (contentSelfTestClip) {
+    if (!path.isAbsolute(contentSelfTestClip) || path.extname(contentSelfTestClip).toLowerCase() !== '.mp4') {
+      fail('NATIVE_PORT_PROTOCOL_SELFTEST_CLIP must be an absolute MP4 path')
+    }
+    const relativeClip = path.relative(profile, contentSelfTestClip)
+    if (relativeClip.startsWith('..') || path.isAbsolute(relativeClip) || !fs.statSync(contentSelfTestClip, { throwIfNoEntry: false })?.isFile()) {
+      fail('NATIVE_PORT_PROTOCOL_SELFTEST_CLIP must be an existing file inside the isolated profile')
+    }
+    const duration = Number(process.env.NATIVE_PORT_PROTOCOL_SELFTEST_DURATION_SECONDS)
+    if (!Number.isFinite(duration) || duration <= 0 || duration > 125) {
+      fail('NATIVE_PORT_PROTOCOL_SELFTEST_DURATION_SECONDS must be in (0, 125]')
+    }
+    process.env.NATIVE_PORT_PROTOCOL_SELFTEST_UUID = crypto.randomUUID()
+  }
   ipcMain.once('native-port:protocol-selftest-result', (_event, result) => {
     fs.mkdirSync(path.dirname(protocolSelfTestReport), { recursive: true, mode: 0o700 })
     const temporary = `${protocolSelfTestReport}.${process.pid}.tmp`
@@ -103,6 +130,7 @@ if (protocolSelfTestReport) {
     fs.renameSync(temporary, protocolSelfTestReport)
     global.nativePortProtocolSelfTestWindow?.destroy()
     global.nativePortProtocolSelfTestWindow = null
+    setTimeout(() => app.quit(), 250)
   })
   app.whenReady().then(() => {
     setTimeout(() => {
@@ -136,6 +164,22 @@ if (captureSelfTestReport) {
       !['H264', 'H265', 'AV1'].includes(process.env.NATIVE_PORT_CAPTURE_SELFTEST_CODEC)) {
     fail('NATIVE_PORT_CAPTURE_SELFTEST_CODEC must be H264, H265 or AV1')
   }
+  if (process.env.NATIVE_PORT_CAPTURE_SELFTEST_REGISTER === '1') {
+    if (process.env.NATIVE_PORT_CAPTURE_SELFTEST_EXPORT_MP4 !== '1') {
+      fail('NATIVE_PORT_CAPTURE_SELFTEST_REGISTER requires MP4 export')
+    }
+    process.env.NATIVE_PORT_CAPTURE_SELFTEST_UUID = crypto.randomUUID()
+  }
+  if (process.env.NATIVE_PORT_CAPTURE_SELFTEST_HOTKEY === '1' &&
+      (process.env.NATIVE_PORT_CAPTURE_SELFTEST_EXPORT_MP4 === '1' ||
+       process.env.NATIVE_PORT_CAPTURE_SELFTEST_REGISTER === '1')) {
+    fail('operational hotkey self-test cannot use private save/register test RPCs')
+  }
+  const hotkeyInputs = process.env.NATIVE_PORT_CAPTURE_SELFTEST_HOTKEY_INPUTS || 'F8'
+  if (!/^[A-Za-z0-9+ ]{1,64}$/.test(hotkeyInputs)) {
+    fail('NATIVE_PORT_CAPTURE_SELFTEST_HOTKEY_INPUTS contains unsupported characters')
+  }
+  process.env.NATIVE_PORT_CAPTURE_SELFTEST_HOTKEY_INPUTS = hotkeyInputs
   ipcMain.once('native-port:capture-selftest-result', (_event, result) => {
     fs.mkdirSync(path.dirname(captureSelfTestReport), { recursive: true, mode: 0o700 })
     const temporary = `${captureSelfTestReport}.${process.pid}.tmp`
@@ -148,7 +192,9 @@ if (captureSelfTestReport) {
   app.whenReady().then(() => {
     setTimeout(() => {
       const window = new BrowserWindow({
-        show: false,
+        show: process.env.NATIVE_PORT_CAPTURE_SELFTEST_HOTKEY === '1',
+        width: 620,
+        height: 240,
         webPreferences: {
           contextIsolation: true,
           nodeIntegration: false,
@@ -158,7 +204,53 @@ if (captureSelfTestReport) {
         }
       })
       global.nativePortCaptureSelfTestWindow = window
-      window.loadURL('data:text/html,<meta charset="utf-8"><title>Native capture self-test</title>')
+      const escapedHotkeyInputs = hotkeyInputs.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+      const title = process.env.NATIVE_PORT_CAPTURE_SELFTEST_HOTKEY === '1'
+        ? `<h2>Native Medal replay test</h2><p>Select the requested source in the macOS picker. After capture begins, wait eight seconds, then press <kbd>${escapedHotkeyInputs}</kbd> once.</p>`
+        : '<title>Native capture self-test</title>'
+      window.loadURL(`data:text/html,<meta charset="utf-8"><title>Native capture self-test</title><body style="font:16px system-ui;padding:24px">${title}</body>`)
+    }, 1500)
+  })
+}
+
+const mediaSelfTestReport = process.env.NATIVE_PORT_MEDIA_SELFTEST_REPORT
+if (mediaSelfTestReport) {
+  if (!path.isAbsolute(mediaSelfTestReport)) fail('NATIVE_PORT_MEDIA_SELFTEST_REPORT must be absolute')
+  const relativeReport = path.relative(profile, mediaSelfTestReport)
+  if (relativeReport.startsWith('..') || path.isAbsolute(relativeReport)) {
+    fail('NATIVE_PORT_MEDIA_SELFTEST_REPORT must stay inside the isolated profile')
+  }
+  for (const variable of ['NATIVE_PORT_MEDIA_SELFTEST_VIDEO', 'NATIVE_PORT_MEDIA_SELFTEST_THUMBNAIL']) {
+    const candidate = process.env[variable]
+    if (!candidate || !path.isAbsolute(candidate)) fail(`${variable} must be an absolute path`)
+    const relativeCandidate = path.relative(profile, candidate)
+    if (relativeCandidate.startsWith('..') || path.isAbsolute(relativeCandidate)) {
+      fail(`${variable} must stay inside the isolated profile`)
+    }
+  }
+  ipcMain.once('native-port:media-selftest-result', (_event, result) => {
+    fs.mkdirSync(path.dirname(mediaSelfTestReport), { recursive: true, mode: 0o700 })
+    const temporary = `${mediaSelfTestReport}.${process.pid}.tmp`
+    fs.writeFileSync(temporary, `${JSON.stringify(result, null, 2)}\n`, { mode: 0o600 })
+    fs.renameSync(temporary, mediaSelfTestReport)
+    global.nativePortMediaSelfTestWindow?.destroy()
+    global.nativePortMediaSelfTestWindow = null
+    setTimeout(() => app.quit(), 250)
+  })
+  app.whenReady().then(() => {
+    setTimeout(() => {
+      const window = new BrowserWindow({
+        show: false,
+        webPreferences: {
+          contextIsolation: true,
+          nodeIntegration: false,
+          sandbox: true,
+          partition: 'native-port-media-selftest',
+          preload: path.join(__dirname, 'media-selftest-preload.cjs')
+        }
+      })
+      global.nativePortMediaSelfTestWindow = window
+      window.loadFile(path.join(__dirname, 'media-selftest.html'))
     }, 1500)
   })
 }

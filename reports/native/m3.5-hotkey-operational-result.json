@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "actionRoute": "official Hotkeys setting -> clip;length=N",
+  "hotkeyInputs": "Command+Shift+8",
+  "hotkeyLengthSeconds": 5,
+  "videoCodec": "H264",
+  "bitrateMegabitsPerSecond": 15,
+  "captureSystemAudio": true,
+  "sourceEnumeration": {
+    "applicationCount": 47,
+    "displayCount": 3,
+    "lastError": "",
+    "state": "complete",
+    "windowCount": 290
+  },
+  "exportResult": {
+    "action": "clip;length=5",
+    "actualDurationNanoseconds": 5491769292,
+    "contentId": null,
+    "error": null,
+    "fileName": "1f01abc7-53f0-451e-8eed-8c2ab2912929.mp4",
+    "inputs": "Command+Shift+8",
+    "microphonePacketCount": 0,
+    "requestedDurationSeconds": 5,
+    "state": "acknowledged",
+    "systemAudioPacketCount": 255,
+    "uuid": "1f01abc7-53f0-451e-8eed-8c2ab2912929",
+    "videoPacketCount": 287
+  },
+  "registrationResult": {
+    "hardwareEncoder": true,
+    "bitrateBitsPerSecond": 15000000,
+    "framesPerSecond": 60,
+    "width": 1920,
+    "height": 1080,
+    "gop": {
+      "allowFrameReordering": false,
+      "maximumKeyframeIntervalDurationSeconds": 2,
+      "ptsDtsMismatchCount": 0
+    },
+    "geometry": {
+      "aspectPolicy": "fit_letterbox",
+      "finalEncodedPixels": {
+        "height": 1080,
+        "width": 1920
+      },
+      "fittedContentPixels": {
+        "height": 1080,
+        "width": 1920
+      },
+      "lastFrameAttachments": {
+        "contentRect": {
+          "height": 1080,
+          "width": 1920,
+          "x": 0,
+          "y": 0
+        },
+        "contentScale": 0.75,
+        "parseFailures": 0,
+        "scaleFactor": 1
+      },
+      "paddingPixels": {
+        "horizontalTotal": 0,
+        "verticalTotal": 0
+      },
+      "pointPixelScale": 1,
+      "requestedMedalResolution": {
+        "height": 1080,
+        "width": 1920
+      },
+      "sourceContentRectPoints": {
+        "height": 1440,
+        "width": 2560
+      },
+      "sourcePixels": {
+        "height": 1440,
+        "width": 2560
+      }
+    },
+    "audio": {
+      "microphone": {
+        "channelCount": 0,
+        "discontinuities": 0,
+        "enabled": false,
+        "encodeFailures": 0,
+        "endToVideoDriftNanoseconds": null,
+        "firstPacketNanoseconds": -1,
+        "inputSampleCount": 0,
+        "lastPacketEndNanoseconds": -1,
+        "packetsEncoded": 0,
+        "sampleRate": 0,
+        "startToVideoOffsetNanoseconds": null
+      },
+      "system": {
+        "channelCount": 2,
+        "discontinuities": 0,
+        "enabled": true,
+        "encodeFailures": 0,
+        "endToVideoDriftNanoseconds": -40352126,
+        "firstPacketNanoseconds": 9995153293791,
+        "inputSampleCount": 388800,
+        "lastPacketEndNanoseconds": 10003238626998,
+        "packetsEncoded": 379,
+        "sampleRate": 48000,
+        "startToVideoOffsetNanoseconds": 41133625
+      }
+    },
+    "hotkeys": {
+      "backend": "Carbon.RegisterEventHotKey",
+      "eventPumpFailures": 0,
+      "feedbackCount": 1,
+      "lastEventPumpOSStatus": 0,
+      "lastFeedback": {
+        "hudShown": true,
+        "soundPlayed": true,
+        "soundRequested": true,
+        "soundState": "playing",
+        "volume": 1
+      },
+      "permissionRequired": false,
+      "registered": [
+        {
+          "action": "clip;length=5",
+          "durationSeconds": 5,
+          "inputs": "Command+Shift+8"
+        }
+      ],
+      "triggerCount": 1
+    },
+    "idleFrames": 40,
+    "replay": {
+      "decodableSnapshot": {
+        "audioDiscardPaddingFrames": 0,
+        "audioEncoderDelayFrames": 2112,
+        "available": true,
+        "codec": "h264",
+        "configurationGeneration": 1,
+        "configuredAudioPacketCount": 379,
+        "configuredKeyframeCount": 5,
+        "endMonotonicNanoseconds": 10003262312458,
+        "keyframeCount": 5,
+        "limitation": "requested interval predates the first retained keyframe in the active codec generation",
+        "microphonePacketCount": 0,
+        "packetCount": 809,
+        "startMonotonicNanoseconds": 9995112160166,
+        "systemAudioPacketCount": 379,
+        "videoPacketCount": 430
+      },
+      "occupiedBytes": 11482699,
+      "packetCount": 809,
+      "retainedNanoseconds": 8150152292
+    }
+  }
+}

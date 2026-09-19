@@ -5,6 +5,7 @@ import importlib.util
 import os
 import shutil
 import stat
+import struct
 import tempfile
 import unittest
 import zipfile
@@ -95,6 +96,12 @@ class ImporterSecurityTests(unittest.TestCase):
                 importer.verify_supported_build(copied)
             self.assertEqual(os.readlink(managed / 'current'), 'versions/old')
             self.assertEqual((managed / 'current' / 'marker').read_text(), 'preserve me')
+
+    def test_wave_resource_scanner_honors_riff_bounds(self):
+        payload = b'WAVEfmt ' + b'\x00' * 16
+        valid = b'RIFF' + struct.pack('<I', len(payload)) + payload
+        truncated = b'RIFF' + struct.pack('<I', 4096) + b'WAVEshort'
+        self.assertEqual(importer.wave_resources(b'prefix' + valid + truncated), [valid])
 
 
 if __name__ == '__main__':

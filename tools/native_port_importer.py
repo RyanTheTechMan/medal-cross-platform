@@ -15,11 +15,13 @@ import os
 import plistlib
 import shutil
 import stat
+import struct
 import subprocess
 import sys
 import tempfile
 import unicodedata
 import uuid
+import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -29,9 +31,15 @@ BOOTSTRAP_PATH = ROOT / 'client_patch' / 'native-port-bootstrap.cjs'
 DB_SELFTEST_PATH = ROOT / 'client_patch' / 'db-selftest-preload.cjs'
 PROTOCOL_SELFTEST_PATH = ROOT / 'client_patch' / 'protocol-selftest-preload.cjs'
 CAPTURE_SELFTEST_PATH = ROOT / 'client_patch' / 'capture-selftest-preload.cjs'
+MEDIA_SELFTEST_PATH = ROOT / 'client_patch' / 'media-selftest-preload.cjs'
+MEDIA_SELFTEST_HTML_PATH = ROOT / 'client_patch' / 'media-selftest.html'
 UPDATE_ADAPTER_PATH = ROOT / 'client_patch' / 'velopack-manual-adapter.js'
 MAX_COPY_BYTES = 2 * 1024**3
 NATIVE_HELPER_BUNDLE_ID = 'com.squirrel.medal.medal.recorder'
+RECORDER_ARCHIVE_SHA256 = 'd33c6e3c0506c1f6b71e6158716fda3a9866bfacc41060f2ec29c4d792ca1312'
+RECORDER_EXECUTABLE_SHA256 = '96afe76e120982f257a6eda99ce33bb0dc3e8013459d1fad8b85108375333a01'
+DEFAULT_CLIP_SOUND_SHA256 = '11f5c8579bdeb0047f9f3db0185f9a6b437d021862dd8471157624b40540691d'
+MAX_RECORDER_EXECUTABLE_BYTES = 256 * 1024**2
 
 
 class ImportFailure(RuntimeError):
@@ -142,6 +150,153 @@ def copy_executable(source: Path, destination: Path) -> dict[str, object]:
     }
 
 
+def wave_resources(executable: bytes) -> list[bytes]:
+    """Return bounded RIFF/WAVE payloads embedded in the pinned .NET recorder.
+
+    This deliberately does not execute or load the Windows assembly. RIFF's
+    declared size is validated before a candidate is returned.
+    """
+    result: list[bytes] = []
+    start = 0
+    while True:
+        offset = executable.find(b'RIFF', start)
+        if offset < 0:
+            return result
+        start = offset + 4
+        if offset + 12 > len(executable) or executable[offset + 8:offset + 12] != b'WAVE':
+            continue
+        declared_size = struct.unpack_from('<I', executable, offset + 4)[0] + 8
+        if declared_size < 12 or offset + declared_size > len(executable):
+            continue
+        result.append(executable[offset:offset + declared_size])
+
+
+def install_default_clip_sound(recorder_archive: Path, destination: Path) -> dict[str, object]:
+    recorder_archive = recorder_archive.resolve(strict=True)
+    archive_hash = sha256(recorder_archive)
+    if archive_hash != RECORDER_ARCHIVE_SHA256:
+        raise ImportFailure(
+            f'unsupported recorder archive: expected {RECORDER_ARCHIVE_SHA256}, got {archive_hash}'
+        )
+    try:
+        with zipfile.ZipFile(recorder_archive) as archive:
+            candidates = [item for item in archive.infolist()
+                          if Path(item.filename.replace('\\', '/')).name == 'MedalEncoder.exe']
+            if len(candidates) != 1:
+                raise ImportFailure(
+                    f'pinned recorder archive must contain exactly one MedalEncoder.exe, found {len(candidates)}'
+                )
+            member = candidates[0]
+            if member.file_size <= 0 or member.file_size > MAX_RECORDER_EXECUTABLE_BYTES:
+                raise ImportFailure('pinned MedalEncoder.exe is outside the bounded extraction size')
+            executable = archive.read(member)
+    except zipfile.BadZipFile as error:
+        raise ImportFailure(f'recorder archive is not a valid ZIP: {error}') from error
+    executable_hash = hashlib.sha256(executable).hexdigest()
+    if executable_hash != RECORDER_EXECUTABLE_SHA256:
+        raise ImportFailure(
+            f'unsupported MedalEncoder.exe: expected {RECORDER_EXECUTABLE_SHA256}, got {executable_hash}'
+        )
+    matches = [wave for wave in wave_resources(executable)
+               if hashlib.sha256(wave).hexdigest() == DEFAULT_CLIP_SOUND_SHA256]
+    # The original recorder embeds byte-identical ClipEffect and BookmarkEffect
+    # resources. Requiring both occurrences is an additional layout predicate.
+    if len(matches) != 2 or matches[0] != matches[1]:
+        raise ImportFailure(
+            f'expected two identical pinned default clip sound resources, found {len(matches)}'
+        )
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_bytes(matches[0])
+    destination.chmod(0o644)
+    installed_hash = sha256(destination)
+    if installed_hash != DEFAULT_CLIP_SOUND_SHA256:
+        raise ImportFailure('installed default clip sound changed during extraction')
+    return {
+        'sourceArchive': str(recorder_archive),
+        'sourceArchiveSha256': archive_hash,
+        'sourceMember': member.filename,
+        'sourceMemberSha256': executable_hash,
+        'embeddedResource': 'MedalEncoder.Sound.Assets.ClipEffect.wav',
+        'resourceBytes': len(matches[0]),
+        'resourceSha256': DEFAULT_CLIP_SOUND_SHA256,
+        'destination': destination.relative_to(destination.parents[2]).as_posix(),
+        'installedSha256': installed_hash,
+    }
+
+
+def macho_dependencies(path: Path) -> list[Path]:
+    try:
+        output = subprocess.run(
+            ['/usr/bin/otool', '-L', str(path)], check=True, capture_output=True, text=True
+        ).stdout
+    except subprocess.CalledProcessError as error:
+        detail = (error.stderr or error.stdout or str(error)).strip()
+        raise ImportFailure(f'failed to inspect native media-tool dependencies for {path}: {detail}') from error
+    result: list[Path] = []
+    for line in output.splitlines()[1:]:
+        dependency = line.strip().split(' (', 1)[0]
+        if dependency.startswith('/opt/homebrew/'):
+            result.append(Path(dependency))
+    return result
+
+
+def run_install_name_tool(arguments: list[str]) -> None:
+    try:
+        subprocess.run(['/usr/bin/install_name_tool', *arguments], check=True, capture_output=True, text=True)
+    except subprocess.CalledProcessError as error:
+        detail = (error.stderr or error.stdout or str(error)).strip()
+        raise ImportFailure(f'install_name_tool failed: {detail}') from error
+
+
+def bundle_macos_media_libraries(stage_app: Path, tool_names: list[str]) -> list[dict[str, object]]:
+    """Copy and relink Homebrew's complete dylib closure into the signed app.
+
+    The development package must not resolve executable code from a mutable
+    package-manager prefix. System libraries/frameworks remain system-owned.
+    """
+    tools_directory = stage_app / 'native-port' / 'tools'
+    library_directory = stage_app / 'native-port' / 'lib'
+    library_directory.mkdir(parents=True, exist_ok=True)
+    queue: list[tuple[Path, bool]] = [(tools_directory / name, False) for name in tool_names]
+    copied: dict[Path, Path] = {}
+    records: list[dict[str, object]] = []
+    inspected: set[Path] = set()
+    while queue:
+        target, is_library = queue.pop(0)
+        if target in inspected:
+            continue
+        inspected.add(target)
+        for dependency in macho_dependencies(target):
+            source = dependency.resolve(strict=True)
+            destination = library_directory / source.name
+            existing_source = next((item for item, copied_path in copied.items()
+                                    if copied_path == destination), None)
+            if existing_source is not None and existing_source != source:
+                if sha256(existing_source) != sha256(source):
+                    raise ImportFailure(
+                        f'native media library basename collision: {existing_source} and {source}'
+                    )
+            elif source not in copied:
+                shutil.copyfile(source, destination)
+                destination.chmod(0o755)
+                copied[source] = destination
+                queue.append((destination, True))
+                records.append({
+                    'source': str(source),
+                    'sourceSha256': sha256(source),
+                    'destination': destination.relative_to(stage_app).as_posix(),
+                })
+            replacement = (f'@loader_path/{destination.name}' if is_library
+                           else f'@loader_path/../lib/{destination.name}')
+            run_install_name_tool(['-change', str(dependency), replacement, str(target)])
+        if is_library:
+            run_install_name_tool(['-id', f'@loader_path/{target.name}', str(target)])
+
+    for record in records:
+        record['installedSha256'] = sha256(stage_app / str(record['destination']))
+    return sorted(records, key=lambda item: str(item['destination']))
+
+
 def bundle_tree_sha256(bundle: Path) -> str:
     digest = hashlib.sha256()
     for target in sorted(bundle.rglob('*'), key=lambda item: item.relative_to(bundle).as_posix()):
@@ -248,6 +403,7 @@ def copy_signed_helper_bundle(source: Path, destination: Path) -> dict[str, obje
 
 
 def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite3: Path, ffmpeg: Path, ffprobe: Path,
+                       recorder_archive: Path,
                        source_hashes: dict[str, str], version: str, source_audit: dict[str, object]) -> dict[str, object]:
     operations: list[dict[str, object]] = []
     index_path = stage_app / 'index.js'
@@ -280,9 +436,17 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
     operations.append(exact_replace(
         main_path,
         'if(process.platform!=="win32")return bw.set(n,t),t;',
-        'if(process.platform!=="win32"){const i=process.env.NATIVE_PORT_TOOLS_DIR;if(!i||!At.default.isAbsolute(i))throw new Error("NATIVE_PORT_TOOLS_DIR must be absolute");const s=At.default.join(i,t);if(!await Ht.default.pathExists(s))throw new Error(`missing packaged native tool: ${s}`);return bw.set(n,s),s}',
+        'if(process.platform!=="win32"){const i=process.env.NATIVE_PORT_TOOLS_DIR;if(!i||!At.default.isAbsolute(i))throw new Error("NATIVE_PORT_TOOLS_DIR must be absolute");const s=At.default.join(i,t);return bw.set(n,s),s}',
         1,
         'absolute-native-media-tools',
+        'main.min.js',
+    ))
+    operations.append(exact_replace(
+        main_path,
+        'async function WN(e,t,n=oe.recorder?.namespacePath){if(oe.logger.info(Gt.default.grey(`generating thumbnail for "${e}"`)),process.platform==="win32"){if(!n)return oe.logger.info(Gt.default.grey(`bailing out of thumbnail generation for "${e}" due to missing namespace path!`)),!1;const r=await Ro(n);try{await Pa(r,["-v","error","-y","-i",e,"-fps_mode","passthrough","-vf","select=eq(n\\\\,0),scale=640:480:force_original_aspect_ratio=decrease","-frames:v","1",t])}catch(i){throw Ra(i,`Failed to generate thumbnail for "${At.default.basename(e)}"`)}return oe.logger.info(Gt.default.magenta(`thumbnail "${t}" generated successful style`)),!0}else return oe.logger.error(Gt.default.red("not generating thumbnail...")),!1}',
+        'async function WN(e,t,n=oe.recorder?.namespacePath){if(oe.logger.info(Gt.default.grey(`generating thumbnail for "${e}"`)),process.platform==="win32"&&!n)return oe.logger.info(Gt.default.grey(`bailing out of thumbnail generation for "${e}" due to missing namespace path!`)),!1;const r=await Ro(n);try{await Pa(r,["-v","error","-y","-i",e,"-fps_mode","passthrough","-vf","select=eq(n\\\\,0),scale=640:480:force_original_aspect_ratio=decrease","-frames:v","1",t])}catch(i){throw Ra(i,`Failed to generate thumbnail for "${At.default.basename(e)}"`)}return oe.logger.info(Gt.default.magenta(`thumbnail "${t}" generated successful style`)),!0}',
+        1,
+        'enable-native-thumbnail-generation',
         'main.min.js',
     ))
     operations.append(exact_replace(
@@ -356,6 +520,12 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
     shutil.copy2(DB_SELFTEST_PATH, stage_app / 'native-port' / 'db-selftest-preload.cjs')
     shutil.copy2(PROTOCOL_SELFTEST_PATH, stage_app / 'native-port' / 'protocol-selftest-preload.cjs')
     shutil.copy2(CAPTURE_SELFTEST_PATH, stage_app / 'native-port' / 'capture-selftest-preload.cjs')
+    shutil.copy2(MEDIA_SELFTEST_PATH, stage_app / 'native-port' / 'media-selftest-preload.cjs')
+    shutil.copy2(MEDIA_SELFTEST_HTML_PATH, stage_app / 'native-port' / 'media-selftest.html')
+    default_clip_sound = install_default_clip_sound(
+        recorder_archive,
+        stage_app / 'native-port' / 'assets' / 'ClipEffect.wav',
+    )
     adapter_destination = stage_app / 'node_modules' / 'velopack' / 'lib' / 'index.js'
     adapter_pre = sha256(adapter_destination)
     shutil.copy2(UPDATE_ADAPTER_PATH, adapter_destination)
@@ -381,11 +551,15 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
         copy_executable(ffmpeg, tools_destination / 'ffmpeg'),
         copy_executable(ffprobe, tools_destination / 'ffprobe'),
     ]
+    media_libraries = bundle_macos_media_libraries(stage_app, ['ffmpeg', 'ffprobe'])
+    for tool in tools:
+        installed = stage_app / str(tool['destination'])
+        tool['installedSha256'] = sha256(installed)
 
     manifest = {
         'schemaVersion': 1,
         'clientVersion': version,
-        'portBuild': 'development-m3.4',
+        'portBuild': 'development-m3.5',
         'target': 'darwin-arm64',
         'electron': {'version': '43.2.0', 'modulesAbi': '148'},
         'sourceAudit': source_audit,
@@ -397,6 +571,7 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
             'destination': 'lib/binding/node-v148-darwin-arm64/better_sqlite3.node',
         },
         'nativeHelper': helper,
+        'defaultClipSound': default_clip_sound,
         'clientPatchFiles': {
             'native-port/bootstrap.cjs': sha256(bootstrap_destination),
             'native-port/db-selftest-preload.cjs': sha256(stage_app / 'native-port' / 'db-selftest-preload.cjs'),
@@ -406,8 +581,15 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
             'native-port/capture-selftest-preload.cjs': sha256(
                 stage_app / 'native-port' / 'capture-selftest-preload.cjs'
             ),
+            'native-port/media-selftest-preload.cjs': sha256(
+                stage_app / 'native-port' / 'media-selftest-preload.cjs'
+            ),
+            'native-port/media-selftest.html': sha256(
+                stage_app / 'native-port' / 'media-selftest.html'
+            ),
         },
         'tools': tools,
+        'bundledMediaLibraries': media_libraries,
         'updatePolicy': 'manual_verified_import_only',
         'recorderPolicy': 'native_helper_only_no_download',
     }
@@ -482,6 +664,7 @@ def prepare(args: argparse.Namespace) -> dict[str, object]:
             args.sqlite3,
             args.ffmpeg,
             args.ffprobe,
+            args.recorder_archive,
             source_hashes,
             version,
             source_audit,
@@ -489,7 +672,7 @@ def prepare(args: argparse.Namespace) -> dict[str, object]:
         manifest_digest = hashlib.sha256(
             json.dumps(manifest, sort_keys=True, separators=(',', ':')).encode('utf-8')
         ).hexdigest()[:12]
-        version_name = f'{version}-native-port-m3.4-{manifest_digest}'
+        version_name = f'{version}-native-port-m3.5-{manifest_digest}'
         final_version = versions / version_name
         if final_version.exists():
             existing_manifest_path = final_version / 'native-port' / 'patch-manifest.json'
@@ -556,6 +739,10 @@ def parser() -> argparse.ArgumentParser:
     prepare_parser.add_argument('--sqlite3', type=Path, required=True)
     prepare_parser.add_argument('--ffmpeg', type=Path, required=True)
     prepare_parser.add_argument('--ffprobe', type=Path, required=True)
+    prepare_parser.add_argument(
+        '--recorder-archive', type=Path, required=True,
+        help='Pinned original recorder ZIP used read-only to extract the official default clip sound',
+    )
     prepare_parser.add_argument('--activate', action='store_true')
     prepare_parser.set_defaults(function=prepare)
 

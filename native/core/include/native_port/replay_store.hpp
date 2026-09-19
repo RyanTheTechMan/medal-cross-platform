@@ -26,6 +26,7 @@ struct ReplaySnapshot final {
   std::chrono::nanoseconds actual_duration{};
   std::int64_t start_monotonic_nanoseconds{0};
   std::int64_t end_monotonic_nanoseconds{0};
+  std::int64_t observed_end_monotonic_nanoseconds{0};
   std::uint64_t configuration_generation{0};
   std::size_t occupied_bytes{0};
   std::string limitation;
@@ -36,6 +37,9 @@ class ReplayStore final {
   explicit ReplayStore(ReplayLimits limits);
 
   void push(std::shared_ptr<const EncodedPacket> packet);
+  // Advances the capture timeline when ScreenCaptureKit reports an idle frame
+  // without producing a new encoded video packet.
+  void advance_clock(std::int64_t monotonic_nanoseconds);
   [[nodiscard]] std::optional<ReplaySnapshot> snapshot(std::chrono::nanoseconds requested_duration) const;
   void clear();
 
@@ -52,7 +56,7 @@ class ReplayStore final {
   mutable std::mutex mutex_;
   std::deque<std::shared_ptr<const EncodedPacket>> packets_;
   std::size_t occupied_bytes_{0};
-  std::int64_t newest_monotonic_nanoseconds_{0};
+  std::int64_t newest_observed_monotonic_nanoseconds_{0};
   bool has_timestamp_{false};
 };
 

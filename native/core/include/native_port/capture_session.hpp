@@ -27,6 +27,7 @@ struct CaptureConfiguration final {
 
 using CaptureEventCallback = std::function<void(nlohmann::json)>;
 using EncodedPacketCallback = std::function<void(std::shared_ptr<const EncodedPacket>)>;
+using CaptureClockCallback = std::function<void(std::int64_t)>;
 
 class CaptureSession {
  public:
@@ -40,6 +41,7 @@ class CaptureSession {
 };
 
 [[nodiscard]] std::unique_ptr<CaptureSession> make_capture_session(CaptureEventCallback event_callback,
-                                                                   EncodedPacketCallback packet_callback);
+                                                                   EncodedPacketCallback packet_callback,
+                                                                   CaptureClockCallback clock_callback);
 
 }  // namespace native_port

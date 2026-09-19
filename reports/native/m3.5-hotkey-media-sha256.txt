@@ -1,0 +1,2 @@
+c9e054797007323e936439848a53a09c898c0d50b100586118d452da92fdccd8  /Users/ryan/Developer/medal-cross-platform/artifacts/test-profiles/m3.5-hotkey-h264-system-audio-fixed/Clips/1f01abc7-53f0-451e-8eed-8c2ab2912929.mp4
+76c6bd020fab82a93edf905a19bd822e990b3f30ff374928e529f1f24105bbbe  /Users/ryan/Developer/medal-cross-platform/artifacts/test-profiles/m3.5-hotkey-h264-system-audio-fixed/Media/Medal/Thumbnails/1f01abc7-53f0-451e-8eed-8c2ab2912929.jpg

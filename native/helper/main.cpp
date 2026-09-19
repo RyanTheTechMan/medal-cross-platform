@@ -1,5 +1,6 @@
 #include "native_port/json_rpc.hpp"
 #include "native_port/capture_session.hpp"
+#include "native_port/capture_settings.hpp"
 #include "native_port/mp4_writer.hpp"
 #include "native_port/platform_adapter.hpp"
 #include "native_port/replay_store.hpp"
@@ -7,23 +8,32 @@
 
 #include <boost/asio/connect.hpp>
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/steady_timer.hpp>
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
 
 #include <atomic>
+#include <algorithm>
+#include <array>
 #include <cerrno>
 #include <charconv>
 #include <chrono>
+#include <cmath>
 #include <csignal>
 #include <cstdlib>
 #include <deque>
 #include <exception>
+#include <fstream>
 #include <functional>
 #include <filesystem>
 #include <iostream>
+#include <iomanip>
+#include <map>
 #include <mutex>
 #include <optional>
+#include <random>
 #include <set>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -42,6 +52,47 @@ namespace websocket = beast::websocket;
 using tcp = asio::ip::tcp;
 
 constexpr std::size_t kMaximumFrameBytes = 1024U * 1024U;
+
+[[nodiscard]] bool is_uuid(std::string_view value) noexcept {
+  if (value.size() != 36) {
+    return false;
+  }
+  for (std::size_t index = 0; index < value.size(); ++index) {
+    if (index == 8 || index == 13 || index == 18 || index == 23) {
+      if (value[index] != '-') {
+        return false;
+      }
+      continue;
+    }
+    const char character = value[index];
+    const bool hexadecimal = (character >= '0' && character <= '9') ||
+                             (character >= 'a' && character <= 'f') ||
+                             (character >= 'A' && character <= 'F');
+    if (!hexadecimal) {
+      return false;
+    }
+  }
+  return true;
+}
+
+[[nodiscard]] std::string make_uuid() {
+  std::array<unsigned char, 16> bytes{};
+  std::random_device random;
+  for (auto& byte : bytes) {
+    byte = static_cast<unsigned char>(random());
+  }
+  bytes[6] = static_cast<unsigned char>((bytes[6] & 0x0fU) | 0x40U);
+  bytes[8] = static_cast<unsigned char>((bytes[8] & 0x3fU) | 0x80U);
+  std::ostringstream output;
+  output << std::hex << std::setfill('0');
+  for (std::size_t index = 0; index < bytes.size(); ++index) {
+    if (index == 4 || index == 6 || index == 8 || index == 10) {
+      output << '-';
+    }
+    output << std::setw(2) << static_cast<unsigned int>(bytes[index]);
+  }
+  return output.str();
+}
 
 struct Options final {
   std::uint16_t electron_port{0};
@@ -116,6 +167,9 @@ class HelperSession final {
                                    {"reason", "replay_buffer_rejected_packet"},
                                    {"lastError", error.what()}};
           }
+        },
+        [this](std::int64_t monotonic_nanoseconds) {
+          replay_.advance_clock(monotonic_nanoseconds);
         });
   }
 
@@ -133,7 +187,9 @@ class HelperSession final {
     });
     while (running_.load(std::memory_order_acquire)) {
       drain_main_actions();
+      adapter_->pump_events();
       capture_->pump_events();
+      drain_clip_actions();
       std::this_thread::sleep_for(std::chrono::milliseconds(5));
     }
     drain_main_actions();
@@ -150,6 +206,18 @@ class HelperSession final {
   }
 
  private:
+  struct ClipRegistration final {
+    std::string uuid;
+    std::string request_id;
+    std::filesystem::path clip_location;
+    std::filesystem::path journal_path;
+    std::int64_t created_at_milliseconds{0};
+    double export_duration_seconds{0};
+    std::string state{"pending"};
+    std::string error;
+    nlohmann::json content_id{nullptr};
+  };
+
   void network_run() {
     const char* secret = std::getenv("NATIVE_PORT_SESSION_SECRET");
     if (secret == nullptr || std::string_view(secret).size() < 32U) {
@@ -184,14 +252,47 @@ class HelperSession final {
     socket_ = &socket;
 
     send_request("native-port:handshake", "handshake", {{"supportedVersions", {1}}, {"preferredVersion", 1}});
-    for (;;) {
-      beast::flat_buffer buffer;
-      socket.read(buffer);
-      const auto message = beast::buffers_to_string(buffer.data());
-      if (!handle_message(message)) {
-        break;
-      }
-    }
+
+    // Do not gate WebSocket reads on tcp::socket::available(). Beast may read
+    // more than one frame from TCP and retain the next frame in its own input
+    // buffer. Polling only the underlying socket can therefore strand a valid
+    // adjacent RPC until unrelated traffic arrives.
+    beast::flat_buffer buffer;
+    asio::steady_timer action_timer(context);
+    std::function<void()> begin_read;
+    std::function<void()> schedule_action_drain;
+    begin_read = [&] {
+      socket.async_read(buffer, [&](const boost::system::error_code& error, std::size_t) {
+        if (error == websocket::error::closed) {
+          context.stop();
+          return;
+        }
+        if (error) {
+          throw boost::system::system_error(error);
+        }
+        const auto message = beast::buffers_to_string(buffer.data());
+        buffer.consume(buffer.size());
+        if (!handle_message(message)) {
+          context.stop();
+          return;
+        }
+        begin_read();
+      });
+    };
+    schedule_action_drain = [&] {
+      drain_network_actions();
+      action_timer.expires_after(std::chrono::milliseconds(5));
+      action_timer.async_wait([&](const boost::system::error_code& error) {
+        if (!error) {
+          schedule_action_drain();
+        } else if (error != asio::error::operation_aborted) {
+          throw boost::system::system_error(error);
+        }
+      });
+    };
+    begin_read();
+    schedule_action_drain();
+    context.run();
     parent_monitor.request_stop();
     socket_ = nullptr;
     running_.store(false, std::memory_order_release);
@@ -221,22 +322,121 @@ class HelperSession final {
     }
   }
 
+  void dispatch_to_network(std::function<void()> action) {
+    std::scoped_lock lock(network_actions_mutex_);
+    network_actions_.push_back(std::move(action));
+  }
+
+  void drain_network_actions() {
+    std::deque<std::function<void()>> actions;
+    {
+      std::scoped_lock lock(network_actions_mutex_);
+      actions.swap(network_actions_);
+    }
+    for (auto& action : actions) {
+      action();
+    }
+  }
+
+  void enqueue_clip_action(const native_port::ClipHotkeyBinding& binding) {
+    std::scoped_lock lock(clip_actions_mutex_);
+    clip_actions_.push_back(binding);
+  }
+
+  void set_hotkey_result(nlohmann::json result) {
+    std::scoped_lock lock(hotkey_result_mutex_);
+    last_hotkey_result_ = std::move(result);
+  }
+
+  void drain_clip_actions() {
+    std::deque<native_port::ClipHotkeyBinding> actions;
+    {
+      std::scoped_lock lock(clip_actions_mutex_);
+      actions.swap(clip_actions_);
+    }
+    for (const auto& action : actions) {
+      try {
+        const auto snapshot = replay_.snapshot(action.duration);
+        if (!snapshot) {
+          throw std::runtime_error("no decodable replay snapshot is available for the clip hotkey");
+        }
+        const auto uuid = make_uuid();
+        const auto output_directory = profile_root() / "Clips";
+        std::filesystem::create_directories(output_directory);
+        std::filesystem::permissions(output_directory, std::filesystem::perms::owner_all,
+                                     std::filesystem::perm_options::replace);
+        const auto output = output_directory / (uuid + ".mp4");
+        const auto temporary = output.string() + ".partial-" + std::to_string(::getpid());
+        const auto write_result = native_port::write_mp4(temporary, *snapshot);
+        std::filesystem::rename(temporary, output);
+        const auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
+                             std::chrono::system_clock::now().time_since_epoch())
+                             .count();
+        const auto duration_seconds =
+            static_cast<double>(write_result.duration.count()) / 1'000'000'000.0;
+        set_hotkey_result({{"action", action.action},
+                           {"inputs", action.inputs},
+                           {"uuid", uuid},
+                           {"fileName", output.filename().string()},
+                           {"state", "registration_pending"},
+                           {"requestedDurationSeconds", action.duration.count()},
+                           {"actualDurationNanoseconds", write_result.duration.count()},
+                           {"videoPacketCount", write_result.video_packets},
+                           {"systemAudioPacketCount", write_result.system_audio_packets},
+                           {"microphonePacketCount", write_result.microphone_packets}});
+        dispatch_to_network([this, uuid, output, now, duration_seconds] {
+          (void)begin_registration(uuid, output, now, duration_seconds, std::nullopt, std::nullopt);
+        });
+      } catch (const std::exception& error) {
+        set_hotkey_result({{"action", action.action},
+                           {"inputs", action.inputs},
+                           {"state", "failed"},
+                           {"error", error.what()}});
+      }
+    }
+  }
+
   [[nodiscard]] native_port::CaptureConfiguration capture_configuration(const nlohmann::json& params) const {
-    native_port::CaptureConfiguration result;
+    std::optional<std::string> category;
+    if (params.contains("categoryId") && !params.at("categoryId").is_null()) {
+      category = params.at("categoryId").get<std::string>();
+      if (category->empty()) {
+        throw std::invalid_argument("categoryId must be null or a non-empty string");
+      }
+    }
+    auto result = native_port::capture_configuration_from_settings(
+        settings_, category ? std::optional<std::string_view>(*category) : std::nullopt);
     result.width = params.value("width", result.width);
     result.height = params.value("height", result.height);
     result.frames_per_second = params.value("framesPerSecond", result.frames_per_second);
     result.bitrate_bits_per_second = params.value("bitrateBitsPerSecond", result.bitrate_bits_per_second);
-    const auto codec = native_port::parse_video_codec(params.value("videoCodec", std::string("H264")));
-    if (!codec) {
-      throw std::invalid_argument("videoCodec must be H264, H265 or AV1");
+    if (params.contains("videoCodec")) {
+      const auto codec = native_port::parse_video_codec(params.at("videoCodec").get<std::string>());
+      if (!codec) {
+        throw std::invalid_argument("videoCodec must be H264, H265 or AV1");
+      }
+      result.video_codec = *codec;
     }
-    result.video_codec = *codec;
     result.show_cursor = params.value("showCursor", result.show_cursor);
     result.capture_system_audio = params.value("captureSystemAudio", result.capture_system_audio);
     result.capture_microphone = params.value("captureMicrophone", result.capture_microphone);
     result.preferred_source_kind = params.value("preferredSourceKind", result.preferred_source_kind);
     return result;
+  }
+
+  [[nodiscard]] nlohmann::json effective_capture_configuration(const nlohmann::json& params) const {
+    const auto configuration = capture_configuration(params);
+    return {
+        {"width", configuration.width},
+        {"height", configuration.height},
+        {"framesPerSecond", configuration.frames_per_second},
+        {"bitrateBitsPerSecond", configuration.bitrate_bits_per_second},
+        {"videoCodec", native_port::medal_video_codec_name(configuration.video_codec)},
+        {"showCursor", configuration.show_cursor},
+        {"captureSystemAudio", configuration.capture_system_audio},
+        {"captureMicrophone", configuration.capture_microphone},
+        {"preferredSourceKind", configuration.preferred_source_kind},
+    };
   }
 
   [[nodiscard]] nlohmann::json capture_status() const {
@@ -302,6 +502,11 @@ class HelperSession final {
       std::scoped_lock lock(capture_event_mutex_);
       result["lastEvent"] = last_capture_event_;
     }
+    result["hotkeys"] = adapter_->clip_hotkey_status();
+    {
+      std::scoped_lock lock(hotkey_result_mutex_);
+      result["lastClipAction"] = last_hotkey_result_;
+    }
     return result;
   }
 
@@ -365,6 +570,245 @@ class HelperSession final {
     }
   }
 
+  [[nodiscard]] std::filesystem::path profile_root() const {
+    const char* profile_text = std::getenv("NATIVE_PORT_PROFILE_DIR");
+    if (profile_text == nullptr || std::string_view(profile_text).empty()) {
+      throw std::runtime_error("native recorder requires an isolated profile path");
+    }
+    const std::filesystem::path profile(profile_text);
+    if (!profile.is_absolute()) {
+      throw std::runtime_error("native recorder profile path must be absolute");
+    }
+    return std::filesystem::weakly_canonical(profile);
+  }
+
+  [[nodiscard]] std::filesystem::path existing_profile_mp4(const nlohmann::json& params) const {
+    const auto requested_text = params.value("clipLocation", std::string{});
+    if (requested_text.empty()) {
+      throw std::invalid_argument("clipLocation is required");
+    }
+    const std::filesystem::path requested(requested_text);
+    if (!requested.is_absolute() || requested.extension() != ".mp4" ||
+        !std::filesystem::is_regular_file(requested)) {
+      throw std::invalid_argument("clipLocation must be an existing absolute MP4 file");
+    }
+    const auto canonical = std::filesystem::weakly_canonical(requested);
+    const auto profile = profile_root();
+    auto profile_iterator = profile.begin();
+    auto clip_iterator = canonical.begin();
+    while (profile_iterator != profile.end() && clip_iterator != canonical.end() &&
+           *profile_iterator == *clip_iterator) {
+      ++profile_iterator;
+      ++clip_iterator;
+    }
+    if (profile_iterator != profile.end()) {
+      throw std::invalid_argument("isolated contentCreate test clip must stay inside its profile");
+    }
+    return canonical;
+  }
+
+  void persist_registration(const ClipRegistration& registration) const {
+    const nlohmann::json value = {
+        {"schemaVersion", 1},
+        {"uuid", registration.uuid},
+        {"requestId", registration.request_id},
+        {"clipLocation", registration.clip_location.string()},
+        {"createdAt", registration.created_at_milliseconds},
+        {"exportStatsDuration", registration.export_duration_seconds},
+        {"state", registration.state},
+        {"error", registration.error.empty() ? nlohmann::json(nullptr)
+                                               : nlohmann::json(registration.error)},
+        {"contentId", registration.content_id},
+    };
+    std::filesystem::create_directories(registration.journal_path.parent_path());
+    std::filesystem::permissions(
+        registration.journal_path.parent_path(),
+        std::filesystem::perms::owner_all,
+        std::filesystem::perm_options::replace);
+    const auto temporary = registration.journal_path.string() + ".partial-" +
+                           std::to_string(::getpid());
+    {
+      std::ofstream stream(temporary, std::ios::binary | std::ios::trunc);
+      if (!stream) {
+        throw std::runtime_error("failed to create content registration journal");
+      }
+      stream << value.dump(2) << '\n';
+      stream.flush();
+      if (!stream) {
+        throw std::runtime_error("failed to write content registration journal");
+      }
+    }
+    std::filesystem::permissions(
+        temporary,
+        std::filesystem::perms::owner_read | std::filesystem::perms::owner_write,
+        std::filesystem::perm_options::replace);
+    std::filesystem::rename(temporary, registration.journal_path);
+  }
+
+  [[nodiscard]] nlohmann::json registration_json(const ClipRegistration& registration) const {
+    return {
+        {"found", true},
+        {"uuid", registration.uuid},
+        {"fileName", registration.clip_location.filename().string()},
+        {"state", registration.state},
+        {"error", registration.error.empty() ? nlohmann::json(nullptr)
+                                               : nlohmann::json(registration.error)},
+        {"contentId", registration.content_id},
+    };
+  }
+
+  [[nodiscard]] nlohmann::json register_test_replay(const nlohmann::json& params) {
+    const auto uuid = params.value("uuid", std::string{});
+    if (!is_uuid(uuid)) {
+      throw std::invalid_argument("uuid must be a canonical hexadecimal UUID");
+    }
+    if (registrations_.contains(uuid)) {
+      return registration_json(registrations_.at(uuid));
+    }
+    const auto clip_location = existing_profile_mp4(params);
+    const auto created_at = params.value("createdAt", std::int64_t{0});
+    const auto export_duration = params.value("exportStatsDuration", 0.0);
+    if (created_at <= 0 || !std::isfinite(export_duration) || export_duration <= 0.0 ||
+        export_duration > 125.0) {
+      throw std::invalid_argument("createdAt and a bounded positive exportStatsDuration are required");
+    }
+    return begin_registration(uuid, clip_location, created_at, export_duration,
+                              std::string("test-game"), std::string("NativePortIsolatedTest"));
+  }
+
+  [[nodiscard]] nlohmann::json begin_registration(
+      const std::string& uuid, const std::filesystem::path& clip_location,
+      std::int64_t created_at, double export_duration,
+      std::optional<std::string> game_category_id,
+      std::optional<std::string> process_name) {
+    if (registrations_.contains(uuid)) {
+      return registration_json(registrations_.at(uuid));
+    }
+    ClipRegistration registration{
+        .uuid = uuid,
+        .request_id = "native-port:content:" + uuid,
+        .clip_location = clip_location,
+        .journal_path = profile_root() / "native-port" / "content-outbox" / (uuid + ".json"),
+        .created_at_milliseconds = created_at,
+        .export_duration_seconds = export_duration,
+    };
+    persist_registration(registration);
+    registrations_.insert_or_assign(uuid, registration);
+    registration_request_ids_.insert_or_assign(registration.request_id, uuid);
+    nlohmann::json content = {
+        {"uuid", uuid},
+        {"createdAt", created_at},
+        {"clipLocation", clip_location.string()},
+        {"gameCategoryId", game_category_id ? nlohmann::json(*game_category_id)
+                                             : nlohmann::json(nullptr)},
+        {"clipType", "clip"},
+        {"captureType", "screen"},
+        {"metadata", {{"triggerType", "Manual"}, {"exportStatsDuration", export_duration}}},
+    };
+    if (process_name) {
+      content["processName"] = *process_name;
+    }
+    send_request(registration.request_id, "contentCreate", std::move(content));
+    return registration_json(registrations_.at(uuid));
+  }
+
+  [[nodiscard]] nlohmann::json registration_status(const nlohmann::json& params) const {
+    const auto uuid = params.value("uuid", std::string{});
+    const auto found = registrations_.find(uuid);
+    if (found == registrations_.end()) {
+      return {{"found", false}, {"uuid", uuid}};
+    }
+    return registration_json(found->second);
+  }
+
+  [[nodiscard]] native_port::ClipSavedFeedback clip_saved_feedback() const {
+    const auto boolean_setting = [this](std::string_view key, bool fallback) {
+      const auto value = settings_.global(key);
+      return value && value->is_boolean() ? value->get<bool>() : fallback;
+    };
+    const bool sound_enabled = boolean_setting("GlobalSoundAlerts", true) &&
+                               boolean_setting("ClipSavedSoundAlerts", true);
+    double volume = 1.0;
+    if (const auto configured = settings_.global("AudioNotificationVolume");
+        configured && configured->is_number()) {
+      volume = std::clamp(configured->get<double>(), 0.0, 1.5);
+    }
+    std::optional<std::string> sound_path;
+    if (const auto configured = settings_.global("ClipSoundPath");
+        configured && configured->is_string()) {
+      const auto candidate = configured->get<std::string>();
+      if (!candidate.empty() && candidate != "default") {
+        sound_path = candidate;
+      }
+    }
+    if (!sound_path) {
+      if (const char* official_default = std::getenv("NATIVE_PORT_DEFAULT_CLIP_SOUND");
+          official_default != nullptr && official_default[0] == '/') {
+        sound_path = official_default;
+      }
+    }
+    std::optional<std::string> icon_path;
+    if (const char* icon = std::getenv("NATIVE_PORT_MEDAL_ICON");
+        icon != nullptr && icon[0] == '/') {
+      icon_path = icon;
+    }
+    return native_port::ClipSavedFeedback{
+        .play_sound = sound_enabled && volume > 0.0,
+        .volume = volume,
+        .sound_path = std::move(sound_path),
+        .icon_path = std::move(icon_path),
+        .title = "Medal",
+        .message = "Clip saved",
+    };
+  }
+
+  void complete_registration(const std::string& request_id,
+                             const native_port::JsonRpcResponse& response) {
+    const auto request = registration_request_ids_.find(request_id);
+    if (request == registration_request_ids_.end()) {
+      return;
+    }
+    auto registration = registrations_.find(request->second);
+    if (registration == registrations_.end()) {
+      registration_request_ids_.erase(request);
+      return;
+    }
+    if (response.error) {
+      registration->second.state = "failed";
+      registration->second.error = response.error->value("message", "contentCreate returned a wire error");
+    } else if (!response.result || !response.result->is_object() ||
+               response.result->value("result", std::string{}) != "success" ||
+               !response.result->contains("data") || !response.result->at("data").is_object() ||
+               response.result->at("data").value("uuid", std::string{}) != registration->second.uuid) {
+      registration->second.state = "failed";
+      registration->second.error = "contentCreate returned an invalid or unsuccessful Medal envelope";
+    } else {
+      registration->second.state = "acknowledged";
+      registration->second.error.clear();
+      registration->second.content_id = response.result->at("data").value("contentId", nlohmann::json(nullptr));
+    }
+    persist_registration(registration->second);
+    bool acknowledged_hotkey = false;
+    {
+      std::scoped_lock lock(hotkey_result_mutex_);
+      if (last_hotkey_result_.value("uuid", std::string{}) == registration->second.uuid) {
+        last_hotkey_result_["state"] = registration->second.state;
+        last_hotkey_result_["error"] = registration->second.error.empty()
+                                                ? nlohmann::json(nullptr)
+                                                : nlohmann::json(registration->second.error);
+        last_hotkey_result_["contentId"] = registration->second.content_id;
+        acknowledged_hotkey = registration->second.state == "acknowledged";
+      }
+    }
+    if (acknowledged_hotkey) {
+      auto feedback = clip_saved_feedback();
+      dispatch_to_main([this, feedback = std::move(feedback)] {
+        adapter_->present_clip_saved_feedback(feedback);
+      });
+    }
+    registration_request_ids_.erase(request);
+  }
+
   void send_json(const nlohmann::json& value) {
     const auto encoded = value.dump();
     if (encoded.size() > kMaximumFrameBytes) {
@@ -406,6 +850,10 @@ class HelperSession final {
       return true;
     }
     const auto& id = std::get<std::string>(response.id);
+    if (id.starts_with("native-port:content:")) {
+      complete_registration(id, response);
+      return true;
+    }
     if (id != "native-port:handshake") {
       return true;
     }
@@ -466,6 +914,8 @@ class HelperSession final {
       } else if (request.method == "nativePort.enumerateSources") {
         dispatch_to_main([this] { capture_->enumerate_shareable_content(); });
         respond(request, {{"accepted", true}});
+      } else if (request.method == "nativePort.interactiveSessionPreflight") {
+        respond(request, adapter_->interactive_session_status());
       } else if (request.method == "nativePort.presentSourcePicker") {
         const auto configuration = capture_configuration(request.params);
         dispatch_to_main([this, configuration] { capture_->present_source_picker(configuration); });
@@ -475,8 +925,14 @@ class HelperSession final {
         respond(request, {{"accepted", true}});
       } else if (request.method == "nativePort.captureStatus") {
         respond(request, capture_status());
+      } else if (request.method == "nativePort.effectiveCaptureConfiguration") {
+        respond(request, effective_capture_configuration(request.params));
       } else if (request.method == "nativePort.saveReplay") {
         respond(request, save_test_replay(request.params));
+      } else if (request.method == "nativePort.registerExportedReplay") {
+        respond(request, register_test_replay(request.params));
+      } else if (request.method == "nativePort.registrationStatus") {
+        respond(request, registration_status(request.params));
       } else if (request.method == "nativePort.videoEncoderCapabilities") {
         respond(request, {{"gpuDevices", adapter_->gpu_devices()},
                           {"gpuCodecs", adapter_->gpu_codecs()},
@@ -521,6 +977,19 @@ class HelperSession final {
       updates.push_back(std::move(update));
     }
     settings_.apply(updates);
+    const bool global_hotkeys_changed = std::any_of(
+        updates.begin(), updates.end(), [](const auto& update) {
+          return update.key == "Hotkeys" && !update.category_id.has_value();
+        });
+    if (global_hotkeys_changed) {
+      const auto hotkeys = settings_.global("Hotkeys");
+      const auto bindings = hotkeys ? native_port::parse_clip_hotkeys(*hotkeys)
+                                    : std::vector<native_port::ClipHotkeyBinding>{};
+      adapter_->configure_clip_hotkeys(
+          bindings, [this](const native_port::ClipHotkeyBinding& binding) {
+            enqueue_clip_action(binding);
+          });
+    }
   }
 
   void respond(const native_port::JsonRpcRequest& request, nlohmann::json value) {
@@ -548,9 +1017,17 @@ class HelperSession final {
   nlohmann::json last_capture_event_{{"schemaVersion", 1}, {"state", "idle"}, {"reason", "initialized"}};
   std::mutex main_actions_mutex_;
   std::deque<std::function<void()>> main_actions_;
+  std::mutex network_actions_mutex_;
+  std::deque<std::function<void()>> network_actions_;
+  std::mutex clip_actions_mutex_;
+  std::deque<native_port::ClipHotkeyBinding> clip_actions_;
+  mutable std::mutex hotkey_result_mutex_;
+  nlohmann::json last_hotkey_result_{{"state", "not_triggered"}};
   std::mutex network_error_mutex_;
   std::exception_ptr network_error_;
   bool handshake_complete_{false};
+  std::map<std::string, ClipRegistration, std::less<>> registrations_;
+  std::map<std::string, std::string, std::less<>> registration_request_ids_;
 };
 
 }  // namespace

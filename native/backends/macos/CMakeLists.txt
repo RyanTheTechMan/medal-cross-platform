@@ -5,6 +5,7 @@ find_library(COREAUDIO_FRAMEWORK CoreAudio REQUIRED)
 find_library(COREMEDIA_FRAMEWORK CoreMedia REQUIRED)
 find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)
 find_library(METAL_FRAMEWORK Metal REQUIRED)
+find_library(QUARTZCORE_FRAMEWORK QuartzCore REQUIRED)
 find_library(SCREENCAPTUREKIT_FRAMEWORK ScreenCaptureKit REQUIRED)
 find_library(VIDEOTOOLBOX_FRAMEWORK VideoToolbox REQUIRED)
 find_library(CARBON_FRAMEWORK Carbon REQUIRED)
@@ -23,10 +24,12 @@ target_link_libraries(native_port_macos_adapter PUBLIC
   ${APPKIT_FRAMEWORK}
   ${AUDIOTOOLBOX_FRAMEWORK}
   ${AVFOUNDATION_FRAMEWORK}
+  ${CARBON_FRAMEWORK}
   ${COREAUDIO_FRAMEWORK}
   ${COREMEDIA_FRAMEWORK}
   ${COREVIDEO_FRAMEWORK}
   ${METAL_FRAMEWORK}
+  ${QUARTZCORE_FRAMEWORK}
   ${SCREENCAPTUREKIT_FRAMEWORK}
   ${VIDEOTOOLBOX_FRAMEWORK}
 )
@@ -93,9 +96,40 @@ target_link_libraries(native_port_macos_mp4_writer_probe PRIVATE
 target_compile_features(native_port_macos_mp4_writer_probe PRIVATE cxx_std_20)
 target_compile_options(native_port_macos_mp4_writer_probe PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
 
+add_executable(native_port_macos_hotkey_event_pump_probe hotkey_event_pump_probe.mm)
+target_include_directories(native_port_macos_hotkey_event_pump_probe PRIVATE
+  ${CMAKE_SOURCE_DIR}/native/core/include
+)
+target_link_libraries(native_port_macos_hotkey_event_pump_probe PRIVATE
+  native_port_macos_adapter
+  native_port_core
+  nlohmann_json::nlohmann_json
+  ${APPKIT_FRAMEWORK}
+  ${CARBON_FRAMEWORK}
+)
+target_compile_features(native_port_macos_hotkey_event_pump_probe PRIVATE cxx_std_20)
+target_compile_options(native_port_macos_hotkey_event_pump_probe PRIVATE
+  -fobjc-arc -Wall -Wextra -Wpedantic
+)
+
+add_executable(native_port_macos_avfoundation_file_probe avfoundation_file_probe.mm)
+target_link_libraries(native_port_macos_avfoundation_file_probe PRIVATE
+  nlohmann_json::nlohmann_json
+  ${AUDIOTOOLBOX_FRAMEWORK}
+  ${AVFOUNDATION_FRAMEWORK}
+  ${COREMEDIA_FRAMEWORK}
+  ${COREVIDEO_FRAMEWORK}
+  ${FOUNDATION_FRAMEWORK}
+)
+target_compile_features(native_port_macos_avfoundation_file_probe PRIVATE cxx_std_20)
+target_compile_options(native_port_macos_avfoundation_file_probe PRIVATE
+  -fobjc-arc -Wall -Wextra -Wpedantic
+)
+
 if(BUILD_TESTING)
   add_test(NAME native_port_macos_api_probe COMMAND native_port_macos_api_probe)
   add_test(NAME native_port_macos_encoder_probe COMMAND native_port_macos_encoder_probe)
   add_test(NAME native_port_macos_audio_encoder_probe COMMAND native_port_macos_audio_encoder_probe)
   add_test(NAME native_port_macos_mp4_writer_probe COMMAND native_port_macos_mp4_writer_probe)
+  add_test(NAME native_port_macos_hotkey_event_pump_probe COMMAND native_port_macos_hotkey_event_pump_probe)
 endif()

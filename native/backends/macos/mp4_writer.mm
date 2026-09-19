@@ -252,10 +252,15 @@ struct FeedState final {
 
 [[nodiscard]] CfRef<CMSampleBufferRef> sample_buffer(const EncodedPacket& packet,
                                                      CMFormatDescriptionRef format,
-                                                     std::int64_t start_monotonic_nanoseconds) {
+                                                     std::int64_t start_monotonic_nanoseconds,
+                                                     std::optional<std::int64_t> end_override_nanoseconds) {
   auto data = block_buffer(packet);
   const auto presentation_time = relative_time(packet.monotonic_nanoseconds, start_monotonic_nanoseconds);
-  const auto duration = media_time(packet.duration);
+  const auto duration = end_override_nanoseconds
+                            ? CMTimeMake(std::max<std::int64_t>(
+                                             1, *end_override_nanoseconds - packet.monotonic_nanoseconds),
+                                         1'000'000'000)
+                            : media_time(packet.duration);
   CMSampleTimingInfo timing{duration, presentation_time, presentation_time};
   const auto size = packet.data->size();
   CMSampleBufferRef raw = nullptr;
@@ -292,9 +297,11 @@ struct FeedState final {
 }
 
 void append_packet(AVAssetWriter* writer, WriterTrack& track, const EncodedPacket& packet,
-                   std::int64_t start_monotonic_nanoseconds) {
+                   std::int64_t start_monotonic_nanoseconds,
+                   std::optional<std::int64_t> end_override_nanoseconds = std::nullopt) {
   @try {
-    auto sample = sample_buffer(packet, track.format.get(), start_monotonic_nanoseconds);
+    auto sample = sample_buffer(packet, track.format.get(), start_monotonic_nanoseconds,
+                                end_override_nanoseconds);
     if (![track.input appendSampleBuffer:sample.get()]) {
       throw std::runtime_error("AVAssetWriter rejected an encoded packet: " + writer_error(writer));
     }
@@ -374,8 +381,14 @@ Mp4WriteResult write_mp4(const std::filesystem::path& output_path, const ReplayS
                 return;
               }
               try {
+                const bool is_last_video_packet =
+                    selected_track->track == TrackKind::video &&
+                    packet_index + 1 == selected_track->packets.size();
                 append_packet(writer, *selected_track, *selected_track->packets[packet_index],
-                              snapshot.start_monotonic_nanoseconds);
+                              snapshot.start_monotonic_nanoseconds,
+                              is_last_video_packet
+                                  ? std::optional<std::int64_t>(snapshot.end_monotonic_nanoseconds)
+                                  : std::nullopt);
                 ++packet_index;
               } catch (const std::exception& error) {
                 feed_state->fail(error.what());

@@ -1,0 +1,227 @@
+UpdateCTestConfiguration  from :/Users/ryan/Developer/medal-cross-platform/build-macos/DartConfiguration.tcl
+Parse Config file:/Users/ryan/Developer/medal-cross-platform/build-macos/DartConfiguration.tcl
+Test project /Users/ryan/Developer/medal-cross-platform/build-macos
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: native_port_macos_api_probe
+
+1: Test command: /Users/ryan/Developer/medal-cross-platform/build-macos/native/backends/macos/native_port_macos_api_probe
+1: Working Directory: /Users/ryan/Developer/medal-cross-platform/build-macos/native/backends/macos
+1: Test timeout computed to be: 1500
+1: {"ScreenCaptureKit.SCStreamConfiguration":true,"ScreenCaptureKit.captureMicrophone":true,"ScreenCaptureKit.SCRecordingOutputConfiguration":true,"ScreenCaptureKit.SCScreenshotConfiguration":true,"ScreenCaptureKit.SCContentSharingPickerConfiguration":true,"CoreAudio.CATapDescription":true,"CoreAudio.AudioHardwareCreateProcessTap":true,"CoreAudio.AudioHardwareDestroyProcessTap":true,"VideoToolbox.VTCompressionSessionCreate":true,"VideoToolbox.hardwareEncoderSpecificationKey":true,"VideoToolbox.HEVCHardwareDecode":true,"AudioToolbox.AudioConverterNew":true,"Metal.defaultDevice":true,"Carbon.RegisterEventHotKey":true}
+1/6 Test #1: native_port_macos_api_probe .................   Passed    0.06 sec
+test 2
+    Start 2: native_port_macos_encoder_probe
+
+2: Test command: /Users/ryan/Developer/medal-cross-platform/build-macos/native/backends/macos/native_port_macos_encoder_probe
+2: Working Directory: /Users/ryan/Developer/medal-cross-platform/build-macos/native/backends/macos
+2: Test timeout computed to be: 1500
+2: {
+2:   "codecs": [
+2:     {
+2:       "allowFrameReorderingStatus": 0,
+2:       "boundedFrameDelayObserved": true,
+2:       "callbackCount": 4,
+2:       "callbackFailureCount": 0,
+2:       "callbackReceived": true,
+2:       "callbackStatus": 0,
+2:       "callbacksBeforeComplete": 4,
+2:       "codec": "h264",
+2:       "codecMismatchCount": 0,
+2:       "completeStatus": 0,
+2:       "configurationAtom": "avcC",
+2:       "configurationPresent": true,
+2:       "droppedFrameCount": 0,
+2:       "encodeStatus": 0,
+2:       "fourcc": "avc1",
+2:       "frameDropped": false,
+2:       "hardwareConfirmed": true,
+2:       "hardwarePropertyStatus": 0,
+2:       "highQualityPresetAdvertised": true,
+2:       "lowLatencySettingsAccepted": true,
+2:       "prepareStatus": 0,
+2:       "presetCopyStatus": 0,
+2:       "qualityPriorityStatus": 0,
+2:       "readySampleCount": 4,
+2:       "realTimeStatus": 0,
+2:       "recordingReady": true,
+2:       "registeredEncoders": [
+2:         {
+2:           "encoderId": "com.apple.videotoolbox.videoencoder.ave.avc",
+2:           "encoderName": "Apple H.264 (HW)",
+2:           "hardwareAccelerated": true
+2:         },
+2:         {
+2:           "encoderId": "com.apple.videotoolbox.videoencoder.h264",
+2:           "encoderName": "Apple H.264 (SW)",
+2:           "hardwareAccelerated": false
+2:         }
+2:       ],
+2:       "sampleBytes": 437,
+2:       "sampleCodec": "avc1",
+2:       "sampleReady": true,
+2:       "sessionCreateStatus": 0,
+2:       "supported": true,
+2:       "supportedPropertyStatus": 0
+2:     },
+2:     {
+2:       "allowFrameReorderingStatus": 0,
+2:       "boundedFrameDelayObserved": true,
+2:       "callbackCount": 4,
+2:       "callbackFailureCount": 0,
+2:       "callbackReceived": true,
+2:       "callbackStatus": 0,
+2:       "callbacksBeforeComplete": 4,
+2:       "codec": "hevc",
+2:       "codecMismatchCount": 0,
+2:       "completeStatus": 0,
+2:       "configurationAtom": "hvcC",
+2:       "configurationPresent": true,
+2:       "droppedFrameCount": 0,
+2:       "encodeStatus": 0,
+2:       "fourcc": "hvc1",
+2:       "frameDropped": false,
+2:       "hardwareConfirmed": true,
+2:       "hardwarePropertyStatus": 0,
+2:       "highQualityPresetAdvertised": true,
+2:       "lowLatencySettingsAccepted": true,
+2:       "prepareStatus": 0,
+2:       "presetCopyStatus": 0,
+2:       "qualityPriorityStatus": 0,
+2:       "readySampleCount": 4,
+2:       "realTimeStatus": 0,
+2:       "recordingReady": true,
+2:       "registeredEncoders": [
+2:         {
+2:           "encoderId": "com.apple.videotoolbox.videoencoder.ave.hevc",
+2:           "encoderName": "Apple HEVC (HW)",
+2:           "hardwareAccelerated": true
+2:         },
+2:         {
+2:           "encoderId": "com.apple.videotoolbox.videoencoder.hevc.vcp",
+2:           "encoderName": "Apple HEVC (SW)",
+2:           "hardwareAccelerated": false
+2:         }
+2:       ],
+2:       "sampleBytes": 804,
+2:       "sampleCodec": "hvc1",
+2:       "sampleReady": true,
+2:       "sessionCreateStatus": 0,
+2:       "supported": true,
+2:       "supportedPropertyStatus": 0
+2:     },
+2:     {
+2:       "allowFrameReorderingStatus": null,
+2:       "callbackFailureCount": 0,
+2:       "callbackReceived": false,
+2:       "callbackStatus": null,
+2:       "callbacksBeforeComplete": 0,
+2:       "codec": "av1",
+2:       "codecMismatchCount": 0,
+2:       "completeStatus": null,
+2:       "configurationAtom": "av1C",
+2:       "configurationPresent": false,
+2:       "droppedFrameCount": 0,
+2:       "encodeStatus": null,
+2:       "fourcc": "av01",
+2:       "frameDropped": false,
+2:       "hardwareConfirmed": false,
+2:       "highQualityPresetAdvertised": false,
+2:       "prepareStatus": null,
+2:       "qualityPriorityStatus": null,
+2:       "readySampleCount": 0,
+2:       "realTimeStatus": null,
+2:       "recordingReady": false,
+2:       "registeredEncoders": [],
+2:       "sampleBytes": 0,
+2:       "sampleCodec": "",
+2:       "sampleReady": false,
+2:       "sessionCreateStatus": -12908,
+2:       "supported": false
+2:     }
+2:   ],
+2:   "encoderListStatus": 0,
+2:   "height": 720,
+2:   "probe": "VideoToolbox hardware-required four-frame real-time encode",
+2:   "schemaVersion": 2,
+2:   "width": 1280
+2: }
+2/6 Test #2: native_port_macos_encoder_probe .............   Passed    0.35 sec
+test 3
+    Start 3: native_port_macos_audio_encoder_probe
+
+3: Test command: /Users/ryan/Developer/medal-cross-platform/build-macos/native/backends/macos/native_port_macos_audio_encoder_probe
+3: Working Directory: /Users/ryan/Developer/medal-cross-platform/build-macos/native/backends/macos
+3: Test timeout computed to be: 1500
+3: {
+3:   "audioSpecificConfig": "1190",
+3:   "channelCount": 2,
+3:   "discontinuityCount": 0,
+3:   "encodeSucceeded": true,
+3:   "error": "",
+3:   "failureCount": 0,
+3:   "firstPacketNanoseconds": 0,
+3:   "formatCreateStatus": 0,
+3:   "inputSampleCount": 48000,
+3:   "lastPacketEndNanoseconds": 981333333,
+3:   "packetCount": 46,
+3:   "payloadBytes": 3277,
+3:   "probe": "AudioToolbox AAC-LC synthetic PCM encode",
+3:   "sampleRate": 48000,
+3:   "schemaVersion": 1,
+3:   "status": "passed"
+3: }
+3/6 Test #3: native_port_macos_audio_encoder_probe .......   Passed    0.03 sec
+test 4
+    Start 4: native_port_macos_mp4_writer_probe
+
+4: Test command: /Users/ryan/Developer/medal-cross-platform/build-macos/native/backends/macos/native_port_macos_mp4_writer_probe
+4: Working Directory: /Users/ryan/Developer/medal-cross-platform/build-macos/native/backends/macos
+4: Test timeout computed to be: 1500
+4: {
+4:   "audioPacketCount": 93,
+4:   "bytesWritten": 10993,
+4:   "error": "",
+4:   "outputPath": "/var/folders/4_/9rk8skfj4rbdk1xzhw4klf9c0000gn/T/native-port-mp4-writer-probe-20276.mp4",
+4:   "probe": "VideoToolbox and AudioToolbox encoded replay to AVAssetWriter MP4",
+4:   "readableAudioSampleCount": 4,
+4:   "readableVideoSampleCount": 64,
+4:   "schemaVersion": 1,
+4:   "status": "passed",
+4:   "videoPacketCount": 60,
+4:   "writeSystemAudioPacketCount": 93,
+4:   "writeVideoPacketCount": 60
+4: }
+4/6 Test #4: native_port_macos_mp4_writer_probe ..........   Passed    0.18 sec
+test 5
+    Start 5: native_port_macos_hotkey_event_pump_probe
+
+5: Test command: /Users/ryan/Developer/medal-cross-platform/build-macos/native/backends/macos/native_port_macos_hotkey_event_pump_probe
+5: Working Directory: /Users/ryan/Developer/medal-cross-platform/build-macos/native/backends/macos
+5: Test timeout computed to be: 1500
+5: {"backend":"Carbon.RegisterEventHotKey","eventPumpFailures":0,"feedbackCount":0,"lastEventPumpOSStatus":0,"lastFeedback":{"state":"not_presented"},"permissionRequired":false,"registered":[{"action":"clip;length=5","durationSeconds":5,"inputs":"Command+Shift+8"}],"triggerCount":1}
+5/6 Test #5: native_port_macos_hotkey_event_pump_probe ...   Passed    0.11 sec
+test 6
+    Start 6: native_port_core_tests
+
+6: Test command: /Users/ryan/Developer/medal-cross-platform/build-macos/native/tests/native_port_core_tests
+6: Working Directory: /Users/ryan/Developer/medal-cross-platform/build-macos/native/tests
+6: Test timeout computed to be: 1500
+6: PASS media_time
+6: PASS json_rpc
+6: PASS settings
+6: PASS clip_action
+6: PASS capture_settings
+6: PASS capture_geometry
+6: PASS replay_store
+6: PASS native_port_core_tests 7/7
+6/6 Test #6: native_port_core_tests ......................   Passed    0.01 sec
+
+100% tests passed, 0 tests failed out of 6
+
+Total Test time (real) =   0.75 sec

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "updatedOn": "2026-09-18",
+  "updatedOn": "2026-09-19",
   "items": [
-    {"id": "wire.bitrate-unit", "status": "unresolved", "evidence": ["research/PROTOCOL.md", "research/evidence/settings_catalog.json"], "rule": "Do not map the UI value to encoder bits per second until traced."},
+    {"id": "wire.bitrate-unit", "status": "resolved", "evidence": ["research/PROTOCOL.md", "research/evidence/bitrate_conversion.json", "research/tools/trace_bitrate.py", "native/tests/core_tests.cpp"], "rule": "For the pinned builds, preserve the numeric wire value in decimal Mbps and map nativeBitsPerSecond = round(wireValue * 1000000); reject changed source hashes or predicates."},
     {"id": "wire.nested-dtos", "status": "unresolved", "evidence": ["research/evidence/recorder_metadata.json", "research/evidence/wire_dto_attributes.json"], "rule": "Metadata declarations are not complete on-wire schemas."},
     {"id": "wire.event-order", "status": "unresolved", "evidence": ["research/evidence/client_handlers.json"], "rule": "Do not emit success-state events without a real backend transition."},
     {"id": "wire.proactive-user", "status": "unresolved", "evidence": ["research/PROTOCOL.md"], "rule": "Trace the client proactive send and recorder pull behavior independently."},
@@ -14,4 +14,3 @@
     {"id": "conditional.game-plugins-overlay", "status": "unresolved", "evidence": ["research/FINDINGS.md"], "rule": "Windows injection/plugin assets are not portable implementations."}
   ]
 }
-

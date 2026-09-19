@@ -1,8 +1,10 @@
 #include "native_port/settings_store.hpp"
+#include "native_port/clip_action.hpp"
 #include "native_port/video_codec.hpp"
 
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <mutex>
 #include <stdexcept>
 
@@ -81,9 +83,12 @@ void validate_setting(const SettingUpdate& update) {
     throw std::invalid_argument("categoryId must be null or a non-empty string");
   }
   if (update.key == "Bitrate") {
-    // The unit remains unresolved. Preserve only; no native encoder conversion occurs here.
     if (!update.value.is_number()) {
-      throw std::invalid_argument("Bitrate must remain a numeric recovered value");
+      throw std::invalid_argument("Bitrate must be a numeric Mbps value");
+    }
+    const auto value = update.value.get<double>();
+    if (!std::isfinite(value) || value < 1.0 || value > 100.0) {
+      throw std::invalid_argument("Bitrate must be between 1 and 100 Mbps");
     }
   }
   if (update.key == "Resolution") {
@@ -91,13 +96,45 @@ void validate_setting(const SettingUpdate& update) {
         !update.value.at("width").is_number_integer() || !update.value.at("height").is_number_integer()) {
       throw std::invalid_argument("Resolution requires integer width and height");
     }
+    const auto width = update.value.at("width").get<std::int64_t>();
+    const auto height = update.value.at("height").get<std::int64_t>();
+    if (width < 64 || width > 7680 || height < 64 || height > 4320) {
+      throw std::invalid_argument("Resolution is outside the supported 64x64 through 7680x4320 range");
+    }
+  }
+  if (update.key == "TargetFPS" &&
+      (!update.value.is_number_integer() || update.value.get<std::int64_t>() < 1 ||
+       update.value.get<std::int64_t>() > 240)) {
+    throw std::invalid_argument("TargetFPS must be an integer from 1 through 240");
+  }
+  if (update.key == "ShowCursor" && !update.value.is_boolean()) {
+    throw std::invalid_argument("ShowCursor must be boolean");
+  }
+  if ((update.key == "GlobalSoundAlerts" || update.key == "ClipSavedSoundAlerts") &&
+      !update.value.is_boolean()) {
+    throw std::invalid_argument(update.key + " must be boolean");
+  }
+  if (update.key == "AudioNotificationVolume") {
+    if (!update.value.is_number()) {
+      throw std::invalid_argument("AudioNotificationVolume must be the normalized numeric wire value");
+    }
+    const auto value = update.value.get<double>();
+    if (!std::isfinite(value) || value < 0.0 || value > 1.5) {
+      throw std::invalid_argument("AudioNotificationVolume must be between 0 and 1.5 on the recorder wire");
+    }
+  }
+  if (update.key == "ClipSound" && !update.value.is_string()) {
+    throw std::invalid_argument("ClipSound must be a string");
+  }
+  if (update.key == "ClipSoundPath" && !update.value.is_null() && !update.value.is_string()) {
+    throw std::invalid_argument("ClipSoundPath must be null or a string");
   }
   if (update.key == "Codec" &&
       (!update.value.is_string() || !parse_video_codec(update.value.get<std::string>()))) {
     throw std::invalid_argument("Codec must be one of the recovered H264, H265 or AV1 values");
   }
-  if (update.key == "Hotkeys" && !update.value.is_object()) {
-    throw std::invalid_argument("Hotkeys must preserve its nested object shape");
+  if (update.key == "Hotkeys") {
+    (void)parse_clip_hotkeys(update.value);
   }
 }
 
