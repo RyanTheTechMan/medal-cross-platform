@@ -2,8 +2,8 @@
 
 ## Current gate and next runnable task
 
-- Gate: M3.7 automatic target classification is now evidenced in the authenticated original UI for A Dance of Fire and Ice. Screen Recording consent was manually approved for the deterministic `Medal.app` identity; the pre-consent failure remains recorded separately. Native target capture now emits the original category events and a valid `gameState` context with `members: []`.
-- Next runnable task: from the one current signed app instance, close A Dance of Fire and Ice while leaving Minecraft open and verify source disappearance/automatic Minecraft fallback, then repeat the normal Desktop start → physical `Command+Shift+8` → `contentCreate` → library/thumbnail/playback/full-restart workflow after the target changes.
+- Gate: M3.7 automatic target classification is evidenced in the authenticated original UI for A Dance of Fire and Ice. The currently installed `/Applications/Medal.app` has also been rebuilt with the complete packaged FFmpeg/ffprobe dylib closure after the original client's probe/thumbnail stage failed on a missing `libavdevice.62.3.100.dylib`; that failed evidence remains preserved.
+- Next runnable task: with the one current signed app instance recording Minecraft, press the configured physical `F8` clip hotkey (`Fn+F8` when required) and verify the repaired normal Desktop → native replay → `contentCreate` → client probe/thumbnail/library/playback path. Then run source disappearance/automatic fallback and full restart persistence.
 - Expected observation: Java-launched Minecraft is presented as `Minecraft` when its visible ScreenCaptureKit/CoreGraphics window title identifies it; the native capture filter still uses the PID. Target lifecycle and game-only audio remain open gates. The previous `/gameState` HTTP 400 (`members must not be null`) is fixed by the recovered non-null member array and the successful post-consent log is retained.
 
 ## Implemented changes
@@ -86,6 +86,7 @@
 - M3.6 Desktop UI: all three ScreenCaptureKit previews rendered in the original Desktop selector; the original Start/Stop controls drove a real native display capture and state transitioned `ready -> capturing -> ready` with `gameState` set/cleared. Regressions remain 6/6 CTest and 7/7 importer tests. See `reports/native/m3.6-desktop-ui-roundtrip.md`.
 - M3.7 target lifecycle build: rebuilt/imported native client `2637.461.1-native-port-m3.5-cf586e7f8a7b` and signed app `2637.461.1-development-m3.5-4ce42e71e69ffe60`; build exit 0 and 6/6 CTest pass. The exact source-loss fallback run remains pending user closure of A Dance of Fire and Ice. See `reports/native/m3.7-target-lifecycle.md`.
 - Pinned bitrate trace: system Python first failed with missing `dnfile`; rerunning with the existing isolated `artifacts/research-python` target and pinned `requirements-bitrate.txt` exited 0 and reproduced `research/evidence/bitrate_conversion.json`. No global package installation occurred.
+- M3.7 media-tool closure repair: the rebuilt prepared client copied 17 Homebrew FFmpeg dylibs, including `libavdevice.62.3.100.dylib`; the signed app was reinstalled to `/Applications/Medal.app` and strict/deep verification passed. The prior client probe/thumbnail failure and the repair evidence are recorded in `reports/native/m3.7-ffmpeg-closure-install.md` and the two JSON build/import reports beside it. A fresh physical hotkey round trip is still pending.
 
 ## Failed or blocked gates
 
