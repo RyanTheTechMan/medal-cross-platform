@@ -218,7 +218,11 @@ def sign_inside_out(app: Path, identity: str) -> None:
     recorder = resources / 'app' / 'native-port' / 'bin' / 'NativeMedalRecorder.app'
     if not recorder.is_dir():
         raise BuildFailure(f'prepared client is missing its recorder bundle: {recorder}')
-    sign(identity, recorder)
+    # TCC attributes delegated microphone requests to the signed host as the
+    # responsible process.  Sign both identities with the same explicit
+    # audio-input entitlement; this does not grant consent and still requires
+    # the normal user approval prompt.
+    sign(identity, recorder, ENTITLEMENTS)
     sign(identity, app, ENTITLEMENTS)
     run(['/usr/bin/codesign', '--verify', '--deep', '--strict', '--verbose=2', str(app)], stderr=True)
 

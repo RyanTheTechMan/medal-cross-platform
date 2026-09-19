@@ -4330,6 +4330,7 @@
           "M07"
         ],
         "report_paths": [
+          "reports/native/m3.9-permissions-onboarding.md",
           "reports/native/m3.4-system-audio-tcc-prerequisite.md",
           "reports/native/m3.4-audio-encoder-probe.json",
           "reports/native/m3.4-system-audio-capture.json",
@@ -4337,7 +4338,7 @@
         ],
         "limitations": [
           "A short signed-client system-audio run passed with 378 stereo 48 kHz AAC packets and zero failures/discontinuities; the 30-minute A/V drift gate remains open.",
-          "The microphone has a separate native output and encoder but microphone permission/capture has not been requested or tested."
+          "The microphone has a separate native output and encoder. TCC onboarding and the signed host/helper attribution are verified, but a fresh normal UI clip with Medal's microphone setting enabled has not yet proved microphone AAC packets and audible playback."
         ]
       },
       "linux": {
@@ -4530,11 +4531,17 @@
       "source": "CODEX_MASTER_PROMPT.md",
       "contract_status": "proposed_product_requirement",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/backends/macos/screen_capture_session.mm",
+          "native/backends/macos/platform_adapter.mm",
+          "native/helper/main.cpp",
+          "packaging/macos/electron-development.entitlements.plist",
+          "tools/native_port_importer.py"
+        ],
+        "test_ids": ["M05", "M07", "M10"],
+        "report_paths": ["reports/native/m3.9-permissions-onboarding.md"],
+        "limitations": ["Permission attribution is verified; actual microphone packets remain unverified until Medal's microphone setting is enabled for a fresh normal clip."]
       },
       "linux": {
         "status": "not_started",
@@ -4638,6 +4645,7 @@
           "M10"
         ],
         "report_paths": [
+          "reports/native/m3.9-permissions-onboarding.md",
           "reports/native/m3.0-recorder-signing.txt",
           "reports/native/m3.2-development-app-build.json",
           "reports/native/m3.2-medal-identity.txt",
@@ -4648,7 +4656,7 @@
           "reports/native/m3.4-system-audio-capture.json"
         ],
         "limitations": [
-          "Stable identities and an authorized real ScreenCaptureKit display/window picker flow pass. A separate short system-audio run passed without requesting microphone permission; denial, cancellation, revocation, regrant and clean-account attribution remain unverified.",
+          "Stable identities, deterministic host/helper attribution, normal TCC request/status/remediation paths and authorized real ScreenCaptureKit display/window flow pass. Microphone packet capture, denial/revocation/regrant and clean-account regrant behavior remain unverified.",
           "This is local Apple Development signing, not Developer ID distribution, notarization or release packaging."
         ]
       },

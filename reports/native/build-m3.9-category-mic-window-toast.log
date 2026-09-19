@@ -1,0 +1,10 @@
+[1/7] Building OBJCXX object native/backends/macos/CMakeFiles/native_port_macos_hotkey_event_pump_probe.dir/hotkey_event_pump_probe.mm.o
+[2/7] Building OBJCXX object native/backends/macos/CMakeFiles/native_port_macos_adapter.dir/platform_adapter.mm.o
+[3/7] Linking OBJCXX static library native/backends/macos/libnative_port_macos_adapter.a
+[4/7] Linking CXX executable native/backends/macos/native_port_macos_mp4_writer_probe
+[5/7] Linking CXX executable native/backends/macos/native_port_macos_hotkey_event_pump_probe
+[6/7] Building CXX object native/helper/CMakeFiles/native_medal_recorder.dir/main.cpp.o
+[7/7] Linking CXX executable native/helper/native_medal_recorder.app/Contents/MacOS/native_medal_recorder; Signing the stable Native Medal Recorder development identity
+/Users/ryan/Developer/medal-cross-platform/build-macos/native/helper/native_medal_recorder.app: replacing existing signature
+/Users/ryan/Developer/medal-cross-platform/build-macos/native/helper/native_medal_recorder.app: valid on disk
+/Users/ryan/Developer/medal-cross-platform/build-macos/native/helper/native_medal_recorder.app: satisfies its Designated Requirement

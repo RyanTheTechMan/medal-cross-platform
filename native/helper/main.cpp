@@ -418,6 +418,28 @@ class HelperSession final {
         }
         return;
       }
+      if (state == "starting" && reason == "microphone_permission_denied") {
+        send_request("native-port:recorder-error:" + std::to_string(++capture_event_sequence_),
+                     "recorderError",
+                     {{"type", "audio-device-access-denied"},
+                      {"params", {{"deviceName", "Microphone"}, {"deviceType", "capture"}}}});
+        return;
+      }
+      if (state == "failed") {
+        const auto failure = network_event.value("lastError", reason);
+        nlohmann::json notification = {{"type", "recorder-failure"},
+                                       {"fallback", failure}};
+        if (reason == "microphone_permission_required") {
+          notification = {{"type", "audio-device-access-denied"},
+                          {"params", {{"deviceName", "Microphone"}, {"deviceType", "capture"}}},
+                          {"fallback", failure}};
+        } else if (reason == "screen_recording_permission_required") {
+          notification = {{"type", "screen-recording-permission-required"},
+                          {"fallback", failure}};
+        }
+        send_request("native-port:recorder-error:" + std::to_string(++capture_event_sequence_),
+                     "recorderError", std::move(notification));
+      }
       if (state != "stopped" && state != "failed" && state != "cancelled") {
         return;
       }
@@ -569,8 +591,26 @@ class HelperSession final {
         };
         set_hotkey_result(hotkey_result);
         persist_hotkey_diagnostics(uuid, hotkey_result);
-        dispatch_to_network([this, uuid, output, now, duration_seconds] {
-          (void)begin_registration(uuid, output, now, duration_seconds, std::nullopt, std::nullopt);
+        // The imported client already resolved the running target through its
+        // authenticated game-request/category path.  Carry that same category
+        // into contentCreate; otherwise the original library quite correctly
+        // files the clip under Discover even though the active-session UI said
+        // Minecraft.  Snapshot the identity before handing the request to the
+        // network queue because source-disappearance cleanup clears these
+        // members asynchronously.
+        const auto category_id = !target_game_category_id_.empty()
+                                     ? std::optional<std::string>(target_game_category_id_)
+                                     : (!announced_capture_category_id_.empty()
+                                            ? std::optional<std::string>(announced_capture_category_id_)
+                                            : std::nullopt);
+        const auto process_name = targeted_process_
+                                      ? std::optional<std::string>(
+                                            !targeted_process_->application_name.empty()
+                                                ? targeted_process_->application_name
+                                                : targeted_process_->executable_name)
+                                      : std::nullopt;
+        dispatch_to_network([this, uuid, output, now, duration_seconds, category_id, process_name] {
+          (void)begin_registration(uuid, output, now, duration_seconds, category_id, process_name);
         });
       } catch (const std::exception& error) {
         set_hotkey_result({{"action", action.action},
@@ -635,7 +675,22 @@ class HelperSession final {
       result.capture_microphone = params.at("captureMicrophone").get<bool>();
     } else {
       const auto microphone = settings_.effective("MicEnabled", category);
-      result.capture_microphone = microphone && microphone->is_boolean() && microphone->get<bool>();
+      // Medal's recovered default is MicEnabled=true.  The imported client
+      // does not always include an unchanged default in its initial settings
+      // envelope, so absence must not silently turn the native microphone
+      // track off.  An explicit false (global or per-game) still wins.
+      result.capture_microphone = microphone && microphone->is_boolean()
+                                      ? microphone->get<bool>()
+                                      : true;
+    }
+    if (result.capture_microphone) {
+      const auto selected_microphone = settings_.effective("SelectedMicDevice", category);
+      if (selected_microphone && selected_microphone->is_string()) {
+        const auto name = selected_microphone->get<std::string>();
+        if (!name.empty() && name != "Auto") {
+          result.microphone_device_name = name;
+        }
+      }
     }
     result.preferred_source_kind = params.value("preferredSourceKind", result.preferred_source_kind);
     return result;
@@ -902,6 +957,7 @@ class HelperSession final {
         {"handshakeComplete", handshake_complete_},
         {"captureState", capture_state},
         {"captureSourceKind", capture_->status().value("sourceKind", std::string{})},
+        {"captureLastError", capture_->status().value("lastError", std::string{})},
         {"captureAnnounced", capture_announced_},
         {"targetCapturePending", target_capture_pending_},
         {"targetPid", targeted_process_ ? nlohmann::json(targeted_process_->pid) : nlohmann::json(nullptr)},
@@ -1019,6 +1075,9 @@ class HelperSession final {
         {"showCursor", configuration.show_cursor},
         {"captureSystemAudio", configuration.capture_system_audio},
         {"captureMicrophone", configuration.capture_microphone},
+        {"microphoneDeviceName", configuration.microphone_device_name
+                                      ? nlohmann::json(*configuration.microphone_device_name)
+                                      : nlohmann::json(nullptr)},
         {"preferredSourceKind", configuration.preferred_source_kind},
     };
   }
@@ -1483,6 +1542,8 @@ class HelperSession final {
                  {{"key", "encoderOptions"}, {"value", adapter_->encoder_options()}});
     send_request("native-port:capabilities", "setKV",
                  {{"key", "nativePort.capabilities"}, {"value", adapter_->capabilities()}});
+    send_request("native-port:permissions", "setKV",
+                 {{"key", "nativePort.permissions"}, {"value", adapter_->permission_status()}});
     return true;
   }
 
@@ -1525,6 +1586,14 @@ class HelperSession final {
         respond(request, {{"accepted", true}});
       } else if (request.method == "nativePort.interactiveSessionPreflight") {
         respond(request, adapter_->interactive_session_status());
+      } else if (request.method == "nativePort.permissionStatus") {
+        respond(request, adapter_->permission_status());
+      } else if (request.method == "nativePort.requestPermissions") {
+        dispatch_to_main([this] { adapter_->request_permissions(); });
+        respond(request, {{"accepted", true}, {"status", adapter_->permission_status()}});
+      } else if (request.method == "nativePort.openPermissionSettings") {
+        dispatch_to_main([this] { adapter_->open_permission_settings(); });
+        respond(request, {{"accepted", true}});
       } else if (request.method == "nativePort.presentSourcePicker") {
         const auto configuration = capture_configuration(request.params);
         dispatch_to_main([this, configuration] { capture_->present_source_picker(configuration); });

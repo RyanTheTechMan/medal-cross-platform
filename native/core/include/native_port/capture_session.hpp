@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 
 #include <nlohmann/json.hpp>
@@ -23,6 +24,10 @@ struct CaptureConfiguration final {
   bool show_cursor{true};
   bool capture_system_audio{false};
   bool capture_microphone{false};
+  // Empty selects the macOS/default input device.  When Medal's
+  // SelectedMicDevice is a concrete device label, the macOS adapter resolves
+  // that label to ScreenCaptureKit's device UID before starting the stream.
+  std::optional<std::string> microphone_device_name;
   std::string preferred_source_kind{"display"};
 };
 

@@ -1,4 +1,5 @@
 #import <AppKit/AppKit.h>
+#import <AVFoundation/AVFoundation.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <CoreMedia/CoreMedia.h>
 #import <CoreVideo/CoreVideo.h>
@@ -44,6 +45,24 @@ namespace {
   }
   const char* description = error.localizedDescription.UTF8String;
   return description != nullptr ? description : "unknown macOS capture error";
+}
+
+[[nodiscard]] NSString* microphone_capture_device_uid(
+    const std::optional<std::string>& requested_name) {
+  if (!requested_name || requested_name->empty()) {
+    return nil;
+  }
+  NSString* requested = [NSString stringWithUTF8String:requested_name->c_str()];
+  if (requested == nil || requested.length == 0) {
+    return nil;
+  }
+  for (AVCaptureDevice* device in [AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio]) {
+    if ([device.localizedName caseInsensitiveCompare:requested] == NSOrderedSame ||
+        [device.uniqueID caseInsensitiveCompare:requested] == NSOrderedSame) {
+      return device.uniqueID;
+    }
+  }
+  return nil;
 }
 
 [[nodiscard]] std::optional<double> frame_number(id value) {
@@ -765,12 +784,24 @@ class MacCaptureSession final : public CaptureSession {
     owner->did_encode(status, info_flags, sample_buffer);
   }
 
-  void start_stream(SCContentFilter* filter) {
+  void start_stream(SCContentFilter* filter, bool microphone_permission_checked = false) {
     CaptureConfiguration configuration;
     {
       std::scoped_lock lock(mutex_);
       state_ = "starting";
       configuration = configuration_;
+    }
+    if (microphone_permission_checked) {
+      // A denied microphone must not turn an otherwise valid display/system
+      // audio recording into a black/no-output failure.  Keep the user's
+      // requested setting in configuration_ for the next retry, but disable
+      // only this stream and report the denial explicitly.
+      configuration.capture_microphone = false;
+      {
+        std::scoped_lock lock(mutex_);
+        last_error_ = "Microphone permission is not granted; recording continues without microphone audio until it is enabled in System Settings";
+      }
+      publish_event("starting", "microphone_permission_denied");
     }
     publish_event("starting", "source_selected");
 
@@ -786,6 +817,38 @@ class MacCaptureSession final : public CaptureSession {
            "(com.squirrel.medal.medal.recorder); approve it in System Settings > "
            "Privacy & Security > Screen & System Audio Recording, then restart capture");
       return;
+    }
+
+    // ScreenCaptureKit exposes microphone samples through the same stream, but
+    // macOS still gates the input device behind the normal microphone TCC
+    // decision.  Ask only after the user has enabled microphone capture in
+    // Medal, and leave a precise failure in the capture state when access is
+    // denied or restricted.  Never substitute system audio for a denied mic.
+    if (configuration.capture_microphone) {
+      const auto microphone_status =
+          [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
+      if (microphone_status == AVAuthorizationStatusNotDetermined) {
+        [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio
+                                  completionHandler:^(BOOL granted) {
+          dispatch_async(dispatch_get_main_queue(), ^{
+            if (granted) {
+              start_stream(filter);
+            } else {
+              start_stream(filter, true);
+            }
+          });
+        }];
+        return;
+      }
+      if (microphone_status == AVAuthorizationStatusDenied ||
+          microphone_status == AVAuthorizationStatusRestricted) {
+        configuration.capture_microphone = false;
+        {
+          std::scoped_lock lock(mutex_);
+          last_error_ = "Microphone permission is not granted; recording continues without microphone audio until it is enabled in System Settings";
+        }
+        publish_event("starting", "microphone_permission_denied");
+      }
     }
 
     @autoreleasepool {
@@ -827,6 +890,12 @@ class MacCaptureSession final : public CaptureSession {
       stream_configuration.showsCursor = configuration.show_cursor;
       stream_configuration.capturesAudio = configuration.capture_system_audio;
       stream_configuration.captureMicrophone = configuration.capture_microphone;
+      if (configuration.capture_microphone) {
+        if (NSString* device_uid = microphone_capture_device_uid(configuration.microphone_device_name);
+            device_uid != nil) {
+          stream_configuration.microphoneCaptureDeviceID = device_uid;
+        }
+      }
       stream_configuration.excludesCurrentProcessAudio = YES;
       stream_configuration.sampleRate = 48'000;
       stream_configuration.channelCount = 2;
@@ -1197,6 +1266,15 @@ class MacCaptureSession final : public CaptureSession {
         {"schemaVersion", 1},
         {"state", state_},
         {"screenCaptureAccess", CGPreflightScreenCaptureAccess() != false},
+        {"microphonePermission", [&] {
+          switch ([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio]) {
+            case AVAuthorizationStatusAuthorized: return std::string("authorized");
+            case AVAuthorizationStatusDenied: return std::string("denied");
+            case AVAuthorizationStatusRestricted: return std::string("restricted");
+            case AVAuthorizationStatusNotDetermined: return std::string("not_determined");
+          }
+          return std::string("unknown");
+        }()},
         {"width", capture_width_},
         {"height", capture_height_},
         {"geometry",

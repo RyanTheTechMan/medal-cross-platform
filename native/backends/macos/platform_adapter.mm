@@ -1,4 +1,5 @@
 #import <AVFoundation/AVFoundation.h>
+#import <AppKit/AppKit.h>
 #import <Carbon/Carbon.h>
 #import <CoreAudio/CoreAudio.h>
 #import <CoreGraphics/CoreGraphics.h>
@@ -736,6 +737,57 @@ class MacPlatformAdapter final : public PlatformAdapter {
     }
   }
 
+  nlohmann::json permission_status() const override {
+    @autoreleasepool {
+      const auto microphone = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
+      const auto microphone_name = [&] {
+        switch (microphone) {
+          case AVAuthorizationStatusAuthorized: return std::string("authorized");
+          case AVAuthorizationStatusDenied: return std::string("denied");
+          case AVAuthorizationStatusRestricted: return std::string("restricted");
+          case AVAuthorizationStatusNotDetermined: return std::string("not_determined");
+        }
+        return std::string("unknown");
+      }();
+      return {
+          {"screenRecording", {{"granted", CGPreflightScreenCaptureAccess()},
+                                {"bundleIdentifier", "com.squirrel.medal.medal.recorder"}}},
+          {"microphone", {{"status", microphone_name},
+                           {"granted", microphone == AVAuthorizationStatusAuthorized},
+                           {"bundleIdentifier", "com.squirrel.medal.medal.recorder"}}},
+          {"camera", {{"status", "not_requested"},
+                        {"granted", false},
+                        {"bundleIdentifier", "com.squirrel.medal.medal.recorder"}}},
+          {"remediation", "Approve the signed Medal host/helper entries in System Settings > Privacy & Security, then restart capture."},
+      };
+    }
+  }
+
+  void request_permissions() override {
+    @autoreleasepool {
+      // These are the normal macOS TCC prompts.  We never alter the TCC
+      // database or treat a denial as success.  Camera remains opt-in and is
+      // requested only when a camera overlay is enabled.
+      if (!CGPreflightScreenCaptureAccess()) {
+        CGRequestScreenCaptureAccess();
+      }
+      if ([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio] ==
+          AVAuthorizationStatusNotDetermined) {
+        [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio completionHandler:^(BOOL) {}];
+      }
+    }
+  }
+
+  void open_permission_settings() override {
+    @autoreleasepool {
+      // Use the documented System Settings deep link.  This does not reset or
+      // modify TCC; the user still has to enable the signed host/helper rows.
+      NSURL* url = [NSURL URLWithString:
+          @"x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone"];
+      [[NSWorkspace sharedWorkspace] openURL:url];
+    }
+  }
+
   void pump_events() override {
     constexpr std::size_t kMaximumEventsPerPump = 32;
     const EventTypeSpec hotkey_event_type{
@@ -785,6 +837,9 @@ class MacPlatformAdapter final : public PlatformAdapter {
 
       constexpr CGFloat kWidth = 330.0;
       constexpr CGFloat kHeight = 82.0;
+      if (feedback_panel_ != nil) {
+        [feedback_panel_ orderOut:nil];
+      }
       NSPanel* panel = [[NSPanel alloc]
           initWithContentRect:NSMakeRect(0.0, 0.0, kWidth, kHeight)
                     styleMask:NSWindowStyleMaskBorderless
@@ -794,6 +849,8 @@ class MacPlatformAdapter final : public PlatformAdapter {
       panel.backgroundColor = [NSColor colorWithCalibratedWhite:0.08 alpha:0.96];
       panel.hasShadow = YES;
       panel.level = NSStatusWindowLevel;
+      panel.alphaValue = 1.0;
+      panel.releasedWhenClosed = NO;
       panel.ignoresMouseEvents = YES;
       panel.collectionBehavior = NSWindowCollectionBehaviorCanJoinAllSpaces |
                                  NSWindowCollectionBehaviorFullScreenAuxiliary;
@@ -831,7 +888,21 @@ class MacPlatformAdapter final : public PlatformAdapter {
       message.textColor = [NSColor colorWithCalibratedWhite:0.82 alpha:1.0];
       [content addSubview:message];
 
-      NSScreen* screen = NSScreen.mainScreen != nil ? NSScreen.mainScreen : NSScreen.screens.firstObject;
+      // Place the HUD on the display where the user is currently working.  A
+      // helper process has no key window of its own, so NSScreen.mainScreen
+      // can otherwise resolve to an unrelated monitor and make a successful
+      // toast appear to be missing.
+      const NSPoint mouse_location = [NSEvent mouseLocation];
+      NSScreen* screen = nil;
+      for (NSScreen* candidate in NSScreen.screens) {
+        if (NSPointInRect(mouse_location, candidate.frame)) {
+          screen = candidate;
+          break;
+        }
+      }
+      if (screen == nil) {
+        screen = NSScreen.mainScreen != nil ? NSScreen.mainScreen : NSScreen.screens.firstObject;
+      }
       if (screen != nil) {
         const NSRect visible = screen.visibleFrame;
         [panel setFrameOrigin:NSMakePoint(NSMaxX(visible) - kWidth - 24.0,

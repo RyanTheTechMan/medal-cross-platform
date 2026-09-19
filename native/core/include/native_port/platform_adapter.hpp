@@ -40,6 +40,15 @@ class PlatformAdapter {
   [[nodiscard]] virtual std::vector<std::string> encoder_options() const = 0;
   [[nodiscard]] virtual nlohmann::json capabilities() const = 0;
   [[nodiscard]] virtual nlohmann::json interactive_session_status() const = 0;
+  // TCC is scoped to the actual signed bundle that opens the device.  The
+  // macOS adapter reports both host/helper state and can request the normal
+  // user-facing prompts; other backends may leave these as no-ops.
+  [[nodiscard]] virtual nlohmann::json permission_status() const { return nlohmann::json::object(); }
+  virtual void request_permissions() {}
+  // Open the normal per-user macOS privacy panes after a persisted denial.
+  // Backends must not alter the privacy database or claim that access was
+  // granted; this is only a remediation affordance.
+  virtual void open_permission_settings() {}
   // The native helper owns its main loop instead of entering a framework run
   // function, so platform event delivery must be pumped explicitly.
   virtual void pump_events() = 0;

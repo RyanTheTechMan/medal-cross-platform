@@ -9,7 +9,7 @@ This file records observed limits, not excuses for successful no-op behavior.
 
 ## Current implementation state
 
-- The real native Electron GUI, imported SQLite worker and native C++ helper run together in isolated profiles and as a hardened, team-signed local development app. TCC-authorized ScreenCaptureKit display/window video passes; microphone, camera and input-monitoring permission have not been requested.
+- The real native Electron GUI, imported SQLite worker and native C++ helper run together in isolated profiles and as a hardened, team-signed local development app. Deterministic TCC onboarding now attributes the nested helper to the signed `Medal.app` host, and the real System Settings panes show `Medal.app` enabled for Microphone and Screen & System Audio Recording. Camera remains opt-in; a fresh normal clip with Medal's microphone setting enabled is still needed to verify microphone packets/playback, and revocation/regrant is not yet tested.
 - The original Windows better_sqlite3 and Velopack `.node` files are PE x86-64 and unusable on arm64 macOS.
 - The inherited 12-test suite uses adapted dependencies and proves only its documented protocol/library subset.
 - The current development client still tries one Windows registry-based external-clip discovery command on macOS; A04 remains open until that path has an explicit platform adapter.

@@ -468,6 +468,31 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
     ))
     operations.append(exact_replace(
         main_path,
+        'titleBarStyle:"hidden",trafficLightPosition:{x:-100,y:-100}',
+        'titleBarStyle:"hiddenInset",trafficLightPosition:{x:12,y:12}',
+        1,
+        'restore-macos-window-traffic-lights',
+        'main.min.js',
+    ))
+    operations.append(exact_replace(
+        main_path,
+        'this.#h(),this.#e=null,this.#t=null,this.#n=null,this.onUserAuthChange(oe.authObject)',
+        'this.#h(),this.sendRequest("nativePort.permissionStatus").then(e=>{const t=e?.microphone?.status,r=!e?.screenRecording?.granted,o=t==="denied"||t==="restricted";((r||o)&&this.sendNotification("recorderError",{type:"microphone-permission-required",fallback:"Medal needs Microphone and Screen Recording access. Open System Settings > Privacy & Security, enable the signed Medal entries, then restart Medal."})),(t==="not_determined"||r)&&this.sendRequest("nativePort.requestPermissions").catch(()=>{}),o&&this.sendRequest("nativePort.openPermissionSettings").catch(()=>{});try{require("electron").systemPreferences?.askForMediaAccess?.("microphone")?.catch?.(()=>{})}catch{}}).catch(()=>{}),this.#e=null,this.#t=null,this.#n=null,this.onUserAuthChange(oe.authObject)',
+        1,
+        'request-and-surface-macos-tcc-prerequisites',
+        'main.min.js',
+    ))
+    renderer_path = stage_app / 'renderer.min.js'
+    operations.append(exact_replace(
+        renderer_path,
+        'XT=K.div`\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 67px;',
+        'XT=K.div`\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 67px;\n  transform: translateY(12px);',
+        1,
+        'offset-macos-medal-logo-below-traffic-lights',
+        'renderer.min.js',
+    ))
+    operations.append(exact_replace(
+        main_path,
         'verifyClient:({origin:t})=>!t',
         'verifyClient:({origin:t,req:n})=>!t&&n.headers["x-native-port-secret"]===process.env.NATIVE_PORT_SESSION_SECRET',
         1,

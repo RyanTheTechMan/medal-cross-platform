@@ -2,6 +2,9 @@
 
 ## Current gate and next runnable task
 
+- Gate: M3.9 deterministic macOS permission onboarding/remediation is built and installed. The host/helper now carry the required hardened-runtime audio-input entitlement, status/request/remediation RPCs are wired through the imported client, and System Settings shows the signed `Medal.app` entry enabled for Microphone and Screen & System Audio Recording. The next runnable task is a fresh normal UI clip with Medal's microphone setting enabled, followed by independent media and playback validation.
+- Permission evidence: `reports/native/m3.9-permissions-onboarding.md`.
+
 - Gate: M3.8m bounded targeted-window geometry is built and installed. The native path now treats Medal Resolution as a maximum for desktop-independent windows and encodes the fitted window dimensions instead of adding a fixed-canvas border. The prior M3.8l normal route remains verified; a fresh physical post-install F8 clip is pending to confirm the resized Minecraft window's final dimensions.
 - Next runnable task: inspect one post-install bounded-window clip, then verify target-window recreation/fullscreen transitions and source disappearance while Minecraft moves between monitors; after that exercise A Dance of Fire and Ice and the explicit game-audio-only process-tap disposition.
 - Expected observation: Java-launched Minecraft is presented as `Minecraft` when its visible ScreenCaptureKit/CoreGraphics window title identifies it; the native capture filter still uses the PID. Target lifecycle and game-only audio remain open gates. The previous `/gameState` HTTP 400 (`members must not be null`) is fixed by the recovered non-null member array and the successful post-consent log is retained.
