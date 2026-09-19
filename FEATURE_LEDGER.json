@@ -363,10 +363,11 @@
         "report_paths": [
           "reports/native/m2.6-protocol-selftest.json",
           "reports/native/electron-m2.6-protocol.log",
-          "reports/native/m2.6-clean-shutdown.txt"
+          "reports/native/m2.6-clean-shutdown.txt",
+          "reports/native/m3.6-desktop-ui-roundtrip.md"
         ],
         "limitations": [
-          "Verified for the recovered request/result shape and current initialization/device/settings behavior; this does not imply capture behavior."
+          "Three permissioned ScreenCaptureKit thumbnails and friendly display labels rendered in the original Desktop selector; stable mapping across display topology changes and hotplug remain unverified."
         ]
       },
       "linux": {
@@ -636,11 +637,22 @@
       "source": "research/evidence/recorder_metadata.json#rpc_methods",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/helper/main.cpp",
+          "native/backends/macos/platform_adapter.mm",
+          "native/backends/macos/screen_capture_session.mm"
+        ],
+        "test_ids": [
+          "B08",
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/m3.6-desktop-ui-roundtrip.md"
+        ],
+        "limitations": [
+          "Manual target deletion is implemented, but an application target lifecycle round trip has not yet been verified through the original UI."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -667,11 +679,22 @@
       "source": "research/evidence/recorder_metadata.json#rpc_methods",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/helper/main.cpp",
+          "native/backends/macos/platform_adapter.mm",
+          "native/backends/macos/screen_capture_session.mm"
+        ],
+        "test_ids": [
+          "B08",
+          "B09"
+        ],
+        "report_paths": [
+          "reports/native/m3.6-desktop-ui-roundtrip.md"
+        ],
+        "limitations": [
+          "Manual application targeting is implemented but not yet verified end to end; automatic game classification is not implemented."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -708,10 +731,11 @@
           "B09"
         ],
         "report_paths": [
-          "reports/native/ctest-m2.6-xcode-27.2-beta.log"
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m3.6-desktop-ui-roundtrip.md"
         ],
         "limitations": [
-          "Compiled but not invoked through the actual Electron integration; process methods intentionally return empty arrays until native process mapping exists."
+          "The original UI invoked the method and correctly represented no active manual target; target selection lifecycle is still unverified."
         ]
       },
       "linux": {
@@ -735,7 +759,7 @@
       "source": "research/evidence/recorder_metadata.json#rpc_methods",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "implemented_unverified",
+        "status": "verified",
         "implementation_files": [
           "native/helper/main.cpp",
           "native/backends/macos/platform_adapter.mm"
@@ -745,10 +769,11 @@
           "B09"
         ],
         "report_paths": [
-          "reports/native/ctest-m2.6-xcode-27.2-beta.log"
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/m3.6-desktop-ui-roundtrip.md"
         ],
         "limitations": [
-          "Compiled but not invoked through the actual Electron integration; process methods intentionally return empty arrays until native process mapping exists."
+          "Real regular GUI applications rendered in the original Game chooser. Automatic game classification, exclusions and lifecycle monitoring remain separate unimplemented behavior."
         ]
       },
       "linux": {
@@ -1652,11 +1677,20 @@
       "source": "research/evidence/client_handlers.json",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "verified",
+        "implementation_files": [
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "C01",
+          "C02"
+        ],
+        "report_paths": [
+          "reports/native/m3.6-desktop-ui-roundtrip.md"
+        ],
+        "limitations": [
+          "Verified for the Screen Capture category start and clear state used by the original Desktop UI; arbitrary game-context metadata remains unverified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -1674,11 +1708,20 @@
       "source": "research/evidence/client_handlers.json",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "verified",
+        "implementation_files": [
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "C01",
+          "C02"
+        ],
+        "report_paths": [
+          "reports/native/m3.6-desktop-ui-roundtrip.md"
+        ],
+        "limitations": [
+          "Verified for native Desktop capture and the recovered Screen Capture category."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -1696,11 +1739,20 @@
       "source": "research/evidence/client_handlers.json",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "verified",
+        "implementation_files": [
+          "native/helper/main.cpp"
+        ],
+        "test_ids": [
+          "C01",
+          "C02"
+        ],
+        "report_paths": [
+          "reports/native/m3.6-desktop-ui-roundtrip.md"
+        ],
+        "limitations": [
+          "Verified for normal original-UI Desktop stop; disappearance and failure ordering remain unverified."
+        ]
       },
       "linux": {
         "status": "not_started",

@@ -4,6 +4,7 @@ find_library(AVFOUNDATION_FRAMEWORK AVFoundation REQUIRED)
 find_library(COREAUDIO_FRAMEWORK CoreAudio REQUIRED)
 find_library(COREMEDIA_FRAMEWORK CoreMedia REQUIRED)
 find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)
+find_library(IMAGEIO_FRAMEWORK ImageIO REQUIRED)
 find_library(METAL_FRAMEWORK Metal REQUIRED)
 find_library(QUARTZCORE_FRAMEWORK QuartzCore REQUIRED)
 find_library(SCREENCAPTUREKIT_FRAMEWORK ScreenCaptureKit REQUIRED)
@@ -60,6 +61,7 @@ target_link_libraries(native_port_macos_encoder_probe PRIVATE
   ${COREMEDIA_FRAMEWORK}
   ${COREVIDEO_FRAMEWORK}
   ${FOUNDATION_FRAMEWORK}
+  ${IMAGEIO_FRAMEWORK}
   ${VIDEOTOOLBOX_FRAMEWORK}
 )
 target_compile_features(native_port_macos_encoder_probe PRIVATE cxx_std_20)

@@ -2,6 +2,7 @@
 #import <Carbon/Carbon.h>
 #import <CoreAudio/CoreAudio.h>
 #import <CoreGraphics/CoreGraphics.h>
+#import <ImageIO/ImageIO.h>
 #import <Metal/Metal.h>
 #import <QuartzCore/QuartzCore.h>
 #import <ScreenCaptureKit/ScreenCaptureKit.h>
@@ -11,8 +12,10 @@
 
 #include <array>
 #include <algorithm>
+#include <chrono>
 #include <cctype>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <optional>
 #include <set>
@@ -23,6 +26,89 @@
 
 namespace native_port {
 namespace {
+
+constexpr auto kScreenshotTimeout = std::chrono::seconds(8);
+
+struct ScreenshotResults final {
+  std::mutex mutex;
+  std::map<CGDirectDisplayID, std::string> data_urls;
+};
+
+[[nodiscard]] std::string jpeg_data_url(CGImageRef image) {
+  if (image == nullptr) {
+    return {};
+  }
+  @autoreleasepool {
+    NSMutableData* data = [NSMutableData data];
+    CGImageDestinationRef destination = CGImageDestinationCreateWithData(
+        (__bridge CFMutableDataRef)data, CFSTR("public.jpeg"), 1, nullptr);
+    if (destination == nullptr) {
+      return {};
+    }
+    NSDictionary* properties = @{(__bridge NSString*)kCGImageDestinationLossyCompressionQuality : @0.72};
+    CGImageDestinationAddImage(destination, image, (__bridge CFDictionaryRef)properties);
+    const bool finalized = CGImageDestinationFinalize(destination) != false;
+    CFRelease(destination);
+    if (!finalized || data.length == 0) {
+      return {};
+    }
+    NSString* encoded = [data base64EncodedStringWithOptions:0];
+    if (encoded.length == 0) {
+      return {};
+    }
+    return "data:image/jpeg;base64," + std::string(encoded.UTF8String);
+  }
+}
+
+[[nodiscard]] std::map<CGDirectDisplayID, std::string> display_screenshots() {
+  @autoreleasepool {
+    dispatch_semaphore_t content_ready = dispatch_semaphore_create(0);
+    __block SCShareableContent* content = nil;
+    [SCShareableContent getShareableContentExcludingDesktopWindows:NO
+                                               onScreenWindowsOnly:YES
+                                                  completionHandler:^(SCShareableContent* shareable,
+                                                                      NSError*) {
+      content = shareable;
+      dispatch_semaphore_signal(content_ready);
+    }];
+    const auto deadline = dispatch_time(DISPATCH_TIME_NOW,
+                                        static_cast<int64_t>(kScreenshotTimeout.count()) * NSEC_PER_SEC);
+    if (dispatch_semaphore_wait(content_ready, deadline) != 0 || content == nil) {
+      return {};
+    }
+
+    auto results = std::make_shared<ScreenshotResults>();
+    dispatch_group_t captures = dispatch_group_create();
+    for (SCDisplay* display in content.displays) {
+      SCContentFilter* filter = [[SCContentFilter alloc] initWithDisplay:display
+                                                        excludingWindows:@[]];
+      SCStreamConfiguration* configuration = [[SCStreamConfiguration alloc] init];
+      const double scale = std::min(1.0, 640.0 / std::max(1.0, static_cast<double>(display.width)));
+      configuration.width = static_cast<size_t>(std::max(2.0, std::floor(display.width * scale / 2.0) * 2.0));
+      configuration.height = static_cast<size_t>(std::max(2.0, std::floor(display.height * scale / 2.0) * 2.0));
+      configuration.scalesToFit = YES;
+      configuration.preservesAspectRatio = YES;
+      configuration.showsCursor = NO;
+      const auto display_id = display.displayID;
+      dispatch_group_enter(captures);
+      [SCScreenshotManager captureImageWithFilter:filter
+                                     configuration:configuration
+                                 completionHandler:^(CGImageRef image, NSError*) {
+        auto data_url = jpeg_data_url(image);
+        if (!data_url.empty()) {
+          std::scoped_lock lock(results->mutex);
+          results->data_urls.emplace(display_id, std::move(data_url));
+        }
+        dispatch_group_leave(captures);
+      }];
+    }
+    if (dispatch_group_wait(captures, deadline) != 0) {
+      return {};
+    }
+    std::scoped_lock lock(results->mutex);
+    return results->data_urls;
+  }
+}
 
 std::string cf_string_to_utf8(CFStringRef value) {
   if (value == nullptr) {
@@ -216,9 +302,9 @@ class MacPlatformAdapter final : public PlatformAdapter {
   ~MacPlatformAdapter() override { clear_hotkeys(); }
 
   nlohmann::json active_displays(bool capture_screenshots) override {
-    if (capture_screenshots) {
-      throw std::runtime_error("display thumbnails require the permissioned ScreenCaptureKit picker");
-    }
+    const auto screenshots = capture_screenshots
+                                 ? display_screenshots()
+                                 : std::map<CGDirectDisplayID, std::string>{};
     std::array<CGDirectDisplayID, 32> displays{};
     uint32_t count = 0;
     if (CGGetActiveDisplayList(static_cast<uint32_t>(displays.size()), displays.data(), &count) !=
@@ -230,16 +316,87 @@ class MacPlatformAdapter final : public PlatformAdapter {
       const auto display = displays[index];
       const auto width = CGDisplayPixelsWide(display);
       const auto height = CGDisplayPixelsHigh(display);
+      const auto screenshot = screenshots.find(display);
       result.push_back({
           {"DeviceName", "display:" + std::to_string(display)},
           {"FriendlyName", "Display " + std::to_string(index + 1) + " (" + std::to_string(width) +
                                "x" + std::to_string(height) + ")"},
-          {"CurrentScreenshot", nullptr},
+          {"CurrentScreenshot", screenshot == screenshots.end()
+                                    ? nlohmann::json(nullptr)
+                                    : nlohmann::json(screenshot->second)},
           {"CurrentScreenshotFile", nullptr},
           {"IsPrimaryScreen", CGDisplayIsMain(display) != 0},
       });
     }
     return result;
+  }
+
+  nlohmann::json active_processes() override {
+    @autoreleasepool {
+      NSMutableDictionary<NSNumber*, NSMutableArray<NSString*>*>* window_titles =
+          [NSMutableDictionary dictionary];
+      CFArrayRef window_info = CGWindowListCopyWindowInfo(
+          kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements,
+          kCGNullWindowID);
+      if (window_info != nullptr) {
+        for (NSDictionary* window in (__bridge NSArray*)window_info) {
+          NSNumber* owner_pid = window[(id)kCGWindowOwnerPID];
+          NSNumber* layer = window[(id)kCGWindowLayer];
+          NSString* title = window[(id)kCGWindowName];
+          if (owner_pid == nil || layer.integerValue != 0 || title.length == 0) {
+            continue;
+          }
+          NSMutableArray<NSString*>* titles = window_titles[owner_pid];
+          if (titles == nil) {
+            titles = [NSMutableArray array];
+            window_titles[owner_pid] = titles;
+          }
+          if (![titles containsObject:title]) {
+            [titles addObject:title];
+          }
+        }
+        CFRelease(window_info);
+      }
+
+      nlohmann::json result = nlohmann::json::array();
+      for (NSRunningApplication* application in
+           NSWorkspace.sharedWorkspace.runningApplications) {
+        if (application.terminated ||
+            application.activationPolicy != NSApplicationActivationPolicyRegular) {
+          continue;
+        }
+        NSString* executable = application.executableURL.lastPathComponent;
+        if (executable.length == 0) {
+          executable = application.localizedName;
+        }
+        if (executable.length == 0) {
+          continue;
+        }
+        const char* process_text = executable.UTF8String;
+        if (process_text == nullptr || process_text[0] == '\0') {
+          continue;
+        }
+        nlohmann::json captions = nlohmann::json::array();
+        NSArray<NSString*>* titles = window_titles[@(application.processIdentifier)];
+        for (NSString* title in titles) {
+          if (const char* text = title.UTF8String; text != nullptr && text[0] != '\0') {
+            captions.push_back(text);
+          }
+        }
+        nlohmann::json class_names = nlohmann::json::array();
+        if (const char* bundle = application.bundleIdentifier.UTF8String;
+            bundle != nullptr && bundle[0] != '\0') {
+          class_names.push_back(bundle);
+        }
+        result.push_back({{"processName", process_text},
+                          {"captionName", std::move(captions)},
+                          {"className", std::move(class_names)}});
+      }
+      std::sort(result.begin(), result.end(), [](const auto& left, const auto& right) {
+        return left.value("processName", "") < right.value("processName", "");
+      });
+      return result;
+    }
   }
 
   std::vector<std::string> audio_output_devices() override {

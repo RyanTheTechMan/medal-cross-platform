@@ -28,6 +28,7 @@ class PlatformAdapter {
   virtual ~PlatformAdapter() = default;
 
   [[nodiscard]] virtual nlohmann::json active_displays(bool capture_screenshots) = 0;
+  [[nodiscard]] virtual nlohmann::json active_processes() = 0;
   [[nodiscard]] virtual std::vector<std::string> audio_output_devices() = 0;
   [[nodiscard]] virtual std::vector<std::string> microphone_devices() = 0;
   [[nodiscard]] virtual nlohmann::json default_audio_devices() = 0;

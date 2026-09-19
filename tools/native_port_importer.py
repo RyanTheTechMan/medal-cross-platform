@@ -449,6 +449,15 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
         'enable-native-thumbnail-generation',
         'main.min.js',
     ))
+    active_displays_path = stage_app / 'chunks' / 'renderer-useActiveDisplays.js'
+    operations.append(exact_replace(
+        active_displays_path,
+        'let n=s.DeviceName.replaceAll("\\\\","").replaceAll(".","");return s.IsPrimaryScreen&&(n+=" (primary)"),{...s,label:n}',
+        'let n=s.FriendlyName||s.DeviceName.replaceAll("\\\\","").replaceAll(".","");return s.IsPrimaryScreen&&(n+=" (primary)"),{...s,label:n}',
+        1,
+        'prefer-native-display-friendly-name',
+        'chunks/renderer-useActiveDisplays.js',
+    ))
     operations.append(exact_replace(
         main_path,
         'process.platform==="darwin"&&!Ce.app.isInApplicationsFolder()&&Ce.app.moveToApplicationsFolder()',
@@ -503,6 +512,22 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
         'yt.info("Creating LaunchDarkly Client (context redacted)")',
         1,
         'redact-feature-client-context-from-log',
+        'main.min.js',
+    ))
+    operations.append(exact_replace(
+        main_path,
+        '!e.userId&&r&&yt.warn(`LaunchDarkly context missing stored user despite live auth, identifying as userId ${r}`)',
+        '!e.userId&&r&&yt.warn("LaunchDarkly context missing stored user despite live auth (identifier redacted)")',
+        1,
+        'redact-feature-live-user-identifier-from-log',
+        'main.min.js',
+    ))
+    operations.append(exact_replace(
+        main_path,
+        'yt.info(`LaunchDarkly identify: ${JSON.stringify(e)}`)',
+        'yt.info("LaunchDarkly identify (context redacted)")',
+        1,
+        'redact-feature-identify-context-from-log',
         'main.min.js',
     ))
     operations.append(exact_replace(

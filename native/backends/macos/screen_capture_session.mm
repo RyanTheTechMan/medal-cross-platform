@@ -260,12 +260,7 @@ class MacCaptureSession final : public CaptureSession {
   }
 
   void present_source_picker(const CaptureConfiguration& configuration) override {
-    if (configuration.width == 0 || configuration.height == 0 || configuration.frames_per_second == 0 ||
-        configuration.frames_per_second > 240 || configuration.bitrate_bits_per_second < 100'000 ||
-        (configuration.preferred_source_kind != "display" && configuration.preferred_source_kind != "window" &&
-         configuration.preferred_source_kind != "application")) {
-      throw std::invalid_argument("invalid native capture configuration");
-    }
+    validate_configuration(configuration);
     {
       std::scoped_lock lock(mutex_);
       if (state_ == "picker_presented" || state_ == "starting" || state_ == "stopping") {
@@ -305,6 +300,114 @@ class MacCaptureSession final : public CaptureSession {
     }
   }
 
+  void start_display(std::uint32_t display_id,
+                     const CaptureConfiguration& configuration) override {
+    validate_configuration(configuration);
+    std::uint64_t generation = 0;
+    {
+      std::scoped_lock lock(mutex_);
+      if (state_ == "picker_presented" || state_ == "starting" ||
+          state_ == "stopping" || state_ == "capturing") {
+        throw std::runtime_error("capture source transition is already in progress");
+      }
+      configuration_ = configuration;
+      configuration_.preferred_source_kind = "display";
+      state_ = "starting";
+      last_error_.clear();
+      generation = ++source_selection_generation_;
+    }
+    publish_event("starting", "resolving_display");
+    [SCShareableContent
+        getShareableContentExcludingDesktopWindows:NO
+                             onScreenWindowsOnly:NO
+                                completionHandler:^(SCShareableContent* content, NSError* error) {
+      if (!source_selection_is_current(generation)) {
+        return;
+      }
+      if (error != nil || content == nil) {
+        fail("display_enumeration_failed", error_text(error));
+        return;
+      }
+      SCDisplay* selected = nil;
+      for (SCDisplay* display in content.displays) {
+        if (display.displayID == display_id) {
+          selected = display;
+          break;
+        }
+      }
+      if (selected == nil) {
+        fail("source_disappeared", "the selected display is no longer available");
+        return;
+      }
+      SCContentFilter* filter = [[SCContentFilter alloc] initWithDisplay:selected
+                                                        excludingWindows:@[]];
+      start_stream_if_current(filter, generation);
+    }];
+  }
+
+  void start_application(const std::string& process_name,
+                         const CaptureConfiguration& configuration) override {
+    validate_configuration(configuration);
+    if (process_name.empty()) {
+      throw std::invalid_argument("process name must not be empty");
+    }
+    std::uint64_t generation = 0;
+    {
+      std::scoped_lock lock(mutex_);
+      if (state_ == "picker_presented" || state_ == "starting" ||
+          state_ == "stopping" || state_ == "capturing") {
+        throw std::runtime_error("capture source transition is already in progress");
+      }
+      configuration_ = configuration;
+      configuration_.preferred_source_kind = "application";
+      state_ = "starting";
+      last_error_.clear();
+      generation = ++source_selection_generation_;
+    }
+    publish_event("starting", "resolving_application");
+    const std::string requested_process = process_name;
+    [SCShareableContent
+        getShareableContentExcludingDesktopWindows:NO
+                             onScreenWindowsOnly:NO
+                                completionHandler:^(SCShareableContent* content, NSError* error) {
+      if (!source_selection_is_current(generation)) {
+        return;
+      }
+      if (error != nil || content == nil) {
+        fail("application_enumeration_failed", error_text(error));
+        return;
+      }
+      SCRunningApplication* selected = nil;
+      NSString* requested = [NSString stringWithUTF8String:requested_process.c_str()];
+      for (SCRunningApplication* application in content.applications) {
+        NSRunningApplication* running =
+            [NSRunningApplication runningApplicationWithProcessIdentifier:application.processID];
+        NSString* executable = running.executableURL.lastPathComponent;
+        const bool matches =
+            (application.applicationName != nil &&
+             [application.applicationName caseInsensitiveCompare:requested] == NSOrderedSame) ||
+            (application.bundleIdentifier != nil &&
+             [application.bundleIdentifier caseInsensitiveCompare:requested] == NSOrderedSame) ||
+            (executable != nil &&
+             [executable caseInsensitiveCompare:requested] == NSOrderedSame);
+        if (matches) {
+          selected = application;
+          break;
+        }
+      }
+      if (selected == nil || content.displays.count == 0) {
+        fail("source_disappeared", "the selected application is no longer available");
+        return;
+      }
+      SCDisplay* display = content.displays.firstObject;
+      SCContentFilter* filter = [[SCContentFilter alloc]
+          initWithDisplay:display
+       includingApplications:@[ selected ]
+          exceptingWindows:@[]];
+      start_stream_if_current(filter, generation);
+    }];
+  }
+
   void stop() override {
     SCStream* stream = nil;
     {
@@ -312,6 +415,7 @@ class MacCaptureSession final : public CaptureSession {
       if (state_ == "idle" || state_ == "stopped" || state_ == "cancelled") {
         return;
       }
+      ++source_selection_generation_;
       state_ = "stopping";
       stream = stream_;
     }
@@ -477,6 +581,29 @@ class MacCaptureSession final : public CaptureSession {
   }
 
  private:
+  static void validate_configuration(const CaptureConfiguration& configuration) {
+    if (configuration.width == 0 || configuration.height == 0 ||
+        configuration.frames_per_second == 0 || configuration.frames_per_second > 240 ||
+        configuration.bitrate_bits_per_second < 100'000 ||
+        (configuration.preferred_source_kind != "display" &&
+         configuration.preferred_source_kind != "window" &&
+         configuration.preferred_source_kind != "application")) {
+      throw std::invalid_argument("invalid native capture configuration");
+    }
+  }
+
+  [[nodiscard]] bool source_selection_is_current(std::uint64_t generation) const {
+    std::scoped_lock lock(mutex_);
+    return generation == source_selection_generation_ && state_ == "starting";
+  }
+
+  void start_stream_if_current(SCContentFilter* filter, std::uint64_t generation) {
+    if (!source_selection_is_current(generation)) {
+      return;
+    }
+    start_stream(filter);
+  }
+
   void did_output_audio(CMSampleBufferRef sample, SCStreamOutputType type) {
     std::shared_ptr<AacEncoder> audio_encoder;
     {
@@ -1011,6 +1138,7 @@ class MacCaptureSession final : public CaptureSession {
   std::size_t display_count_{0};
   std::size_t window_count_{0};
   std::size_t application_count_{0};
+  std::uint64_t source_selection_generation_{0};
   bool hardware_encoder_{false};
   std::string quality_preset_{"not_started"};
   SCContentSharingPicker* picker_{nil};

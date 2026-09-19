@@ -52,6 +52,8 @@ namespace websocket = beast::websocket;
 using tcp = asio::ip::tcp;
 
 constexpr std::size_t kMaximumFrameBytes = 1024U * 1024U;
+constexpr const char* kScreenCaptureCategoryId = "1b7CpvXVSuB";
+constexpr const char* kScreenCaptureCategoryName = "Screen Capture";
 
 [[nodiscard]] bool is_uuid(std::string_view value) noexcept {
   if (value.size() != 36) {
@@ -154,8 +156,7 @@ class HelperSession final {
                                          .maximum_bytes = 512U * 1024U * 1024U}) {
     capture_ = native_port::make_capture_session(
         [this](nlohmann::json event) {
-          std::scoped_lock lock(capture_event_mutex_);
-          last_capture_event_ = std::move(event);
+          handle_capture_event(std::move(event));
         },
         [this](std::shared_ptr<const native_port::EncodedPacket> packet) {
           try {
@@ -327,6 +328,81 @@ class HelperSession final {
     network_actions_.push_back(std::move(action));
   }
 
+  void handle_capture_event(nlohmann::json event) {
+    const auto network_event = event;
+    {
+      std::scoped_lock lock(capture_event_mutex_);
+      last_capture_event_ = std::move(event);
+    }
+    dispatch_to_network([this, network_event] {
+      const auto state = network_event.value("state", std::string{});
+      const auto reason = network_event.value("reason", std::string{});
+      if (state == "capturing" && reason == "capture_started") {
+        if (capture_announced_) {
+          return;
+        }
+        capture_announced_ = true;
+        if (network_event.value("sourceKind", std::string{}) == "application" &&
+            targeted_process_) {
+          auto target = *targeted_process_;
+          target["status"] = "success";
+          target["captureType"] = "application";
+          target["launchType"] = "manual";
+          send_request("native-port:target-process:" +
+                           std::to_string(++target_process_request_sequence_),
+                       "targetProcess", std::move(target));
+        } else {
+          capture_session_id_ = make_uuid();
+          send_request("native-port:capture-started:" +
+                           std::to_string(++capture_event_sequence_),
+                       "captureStarted",
+                       {{"categoryId", kScreenCaptureCategoryId},
+                        {"categoryName", kScreenCaptureCategoryName}});
+          send_request("native-port:game-state:" +
+                           std::to_string(++capture_event_sequence_),
+                       "gameState",
+                       {{"sessionId", capture_session_id_},
+                        {"contexts",
+                         {{{"type", "CATEGORY"},
+                           {"externalId", kScreenCaptureCategoryId},
+                           {"metadata",
+                            {{"name", kScreenCaptureCategoryName},
+                             {"recording", true}}}}}}});
+          announced_capture_category_id_ = kScreenCaptureCategoryId;
+          announced_capture_category_name_ = kScreenCaptureCategoryName;
+        }
+        return;
+      }
+      if (state != "stopped" && state != "failed" && state != "cancelled") {
+        return;
+      }
+      if (capture_announced_ && !announced_capture_category_id_.empty()) {
+        send_request("native-port:game-state:" +
+                         std::to_string(++capture_event_sequence_),
+                     "gameState",
+                     {{"sessionId", capture_session_id_},
+                      {"contexts", nlohmann::json::array()}});
+        send_request("native-port:capture-stopped:" +
+                         std::to_string(++capture_event_sequence_),
+                     "captureStopped",
+                     {{"categoryId", announced_capture_category_id_},
+                      {"categoryName", announced_capture_category_name_}});
+      }
+      if (state == "failed" && targeted_process_) {
+        auto target = *targeted_process_;
+        target["status"] = "failed";
+        target["message"] = network_event.value("lastError", reason);
+        send_request("native-port:target-process:" +
+                         std::to_string(++target_process_request_sequence_),
+                     "targetProcess", std::move(target));
+      }
+      capture_announced_ = false;
+      announced_capture_category_id_.clear();
+      announced_capture_category_name_.clear();
+      capture_session_id_.clear();
+    });
+  }
+
   void drain_network_actions() {
     std::deque<std::function<void()>> actions;
     {
@@ -422,6 +498,105 @@ class HelperSession final {
     result.capture_microphone = params.value("captureMicrophone", result.capture_microphone);
     result.preferred_source_kind = params.value("preferredSourceKind", result.preferred_source_kind);
     return result;
+  }
+
+  [[nodiscard]] std::uint32_t selected_display_id() const {
+    std::string device_name;
+    if (const auto configured = settings_.global("MonitorDeviceName");
+        configured && configured->is_string()) {
+      device_name = configured->get<std::string>();
+    }
+    if (device_name.empty()) {
+      const auto displays = adapter_->active_displays(false);
+      if (!displays.is_array() || displays.empty()) {
+        throw std::runtime_error("no active display is available");
+      }
+      const auto primary = std::find_if(displays.begin(), displays.end(), [](const auto& display) {
+        return display.value("IsPrimaryScreen", false);
+      });
+      device_name = (primary != displays.end() ? *primary : displays.front())
+                        .value("DeviceName", std::string{});
+    }
+    constexpr std::string_view prefix = "display:";
+    if (!device_name.starts_with(prefix)) {
+      throw std::invalid_argument("MonitorDeviceName is not a native macOS display identifier");
+    }
+    std::uint32_t display_id = 0;
+    const auto text = std::string_view(device_name).substr(prefix.size());
+    const auto [end, error] =
+        std::from_chars(text.data(), text.data() + text.size(), display_id);
+    if (error != std::errc{} || end != text.data() + text.size() || display_id == 0) {
+      throw std::invalid_argument("MonitorDeviceName contains an invalid display identifier");
+    }
+    return display_id;
+  }
+
+  void apply_screen_capture_setting(const std::vector<native_port::SettingUpdate>& updates) {
+    const auto changed = std::find_if(updates.rbegin(), updates.rend(), [](const auto& update) {
+      return update.key == "ScreenCaptureEnabled" && !update.category_id.has_value();
+    });
+    if (changed == updates.rend()) {
+      return;
+    }
+    if (!changed->value.is_boolean()) {
+      throw std::invalid_argument("ScreenCaptureEnabled must be boolean");
+    }
+    if (!changed->value.get<bool>()) {
+      dispatch_to_main([this] { capture_->stop(); });
+      return;
+    }
+    auto configuration = capture_configuration(nlohmann::json::object());
+    configuration.preferred_source_kind = "display";
+    const auto display_id = selected_display_id();
+    dispatch_to_main([this, display_id, configuration] {
+      capture_->start_display(display_id, configuration);
+    });
+  }
+
+  [[nodiscard]] std::optional<nlohmann::json> find_active_process(
+      std::string_view process_name) const {
+    const auto processes = adapter_->active_processes();
+    if (!processes.is_array()) {
+      return std::nullopt;
+    }
+    const auto found = std::find_if(processes.begin(), processes.end(), [&](const auto& process) {
+      return process.value("processName", std::string{}) == process_name;
+    });
+    return found == processes.end() ? std::nullopt
+                                    : std::optional<nlohmann::json>(*found);
+  }
+
+  void set_target_process(const nlohmann::json& params) {
+    const auto& data = params.at("data");
+    const auto process_name = data.at("processName").get<std::string>();
+    if (process_name.empty()) {
+      throw std::invalid_argument("target processName must not be empty");
+    }
+    const auto active = find_active_process(process_name);
+    if (!active) {
+      send_request("native-port:target-process:" +
+                       std::to_string(++target_process_request_sequence_),
+                   "targetProcess",
+                   {{"status", "failed"},
+                    {"processName", process_name},
+                    {"message", "the selected process is no longer running"}});
+      return;
+    }
+    const auto first_string = [](const nlohmann::json& values) {
+      return values.is_array() && !values.empty() && values.front().is_string()
+                 ? values.front().get<std::string>()
+                 : std::string{};
+    };
+    targeted_process_ = {{"gameID", ""},
+                         {"processName", process_name},
+                         {"captionName", first_string(active->value("captionName", nlohmann::json::array()))},
+                         {"className", first_string(active->value("className", nlohmann::json::array()))},
+                         {"gameRequestId", ""}};
+    auto configuration = capture_configuration(nlohmann::json::object());
+    configuration.preferred_source_kind = "application";
+    dispatch_to_main([this, process_name, configuration] {
+      capture_->start_application(process_name, configuration);
+    });
   }
 
   [[nodiscard]] nlohmann::json effective_capture_configuration(const nlohmann::json& params) const {
@@ -938,8 +1113,41 @@ class HelperSession final {
                           {"gpuCodecs", adapter_->gpu_codecs()},
                           {"encoderOptions", adapter_->encoder_options()},
                           {"capabilities", adapter_->capabilities()}});
-      } else if (request.method == "getTargetedProcesses" || request.method == "getActiveProcesses" ||
-                 request.method == "audioProcesses") {
+      } else if (request.method == "getActiveProcesses") {
+        respond(request, adapter_->active_processes());
+      } else if (request.method == "getTargetedProcesses") {
+        auto result = nlohmann::json::array();
+        if (targeted_process_) {
+          result.push_back(*targeted_process_);
+        }
+        respond(request, std::move(result));
+      } else if (request.method == "setTargetProcess") {
+        set_target_process(request.params);
+        respond(request, nullptr);
+      } else if (request.method == "setGameRequestId") {
+        const auto& data = request.params.at("data");
+        if (targeted_process_ &&
+            targeted_process_->value("processName", std::string{}) ==
+                data.value("processName", std::string{})) {
+          (*targeted_process_)["gameRequestId"] =
+              data.value("gameRequestId", std::string{});
+          if (data.contains("captionName")) {
+            (*targeted_process_)["captionName"] = data.at("captionName");
+          }
+          if (data.contains("className")) {
+            (*targeted_process_)["className"] = data.at("className");
+          }
+        }
+        respond(request, nullptr);
+      } else if (request.method == "deleteTargetProcess") {
+        const auto process_name = request.params.at("processName").get<std::string>();
+        if (targeted_process_ &&
+            targeted_process_->value("processName", std::string{}) == process_name) {
+          targeted_process_.reset();
+          dispatch_to_main([this] { capture_->stop(); });
+        }
+        respond(request, nullptr);
+      } else if (request.method == "audioProcesses") {
         respond(request, nlohmann::json::array());
       } else if (request.method == "shutdown") {
         dispatch_to_main([this] { capture_->stop(); });
@@ -977,6 +1185,7 @@ class HelperSession final {
       updates.push_back(std::move(update));
     }
     settings_.apply(updates);
+    apply_screen_capture_setting(updates);
     const bool global_hotkeys_changed = std::any_of(
         updates.begin(), updates.end(), [](const auto& update) {
           return update.key == "Hotkeys" && !update.category_id.has_value();
@@ -1013,6 +1222,13 @@ class HelperSession final {
   std::unique_ptr<native_port::CaptureSession> capture_;
   websocket::stream<tcp::socket>* socket_{nullptr};
   std::atomic<bool> running_{true};
+  std::optional<nlohmann::json> targeted_process_;
+  bool capture_announced_{false};
+  std::uint64_t capture_event_sequence_{0};
+  std::uint64_t target_process_request_sequence_{0};
+  std::string announced_capture_category_id_;
+  std::string announced_capture_category_name_;
+  std::string capture_session_id_;
   mutable std::mutex capture_event_mutex_;
   nlohmann::json last_capture_event_{{"schemaVersion", 1}, {"state", "idle"}, {"reason", "initialized"}};
   std::mutex main_actions_mutex_;

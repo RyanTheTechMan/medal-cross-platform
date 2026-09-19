@@ -35,6 +35,10 @@ class CaptureSession {
 
   virtual void enumerate_shareable_content() = 0;
   virtual void present_source_picker(const CaptureConfiguration& configuration) = 0;
+  virtual void start_display(std::uint32_t display_id,
+                             const CaptureConfiguration& configuration) = 0;
+  virtual void start_application(const std::string& process_name,
+                                 const CaptureConfiguration& configuration) = 0;
   virtual void stop() = 0;
   virtual void pump_events() = 0;
   [[nodiscard]] virtual nlohmann::json status() const = 0;
