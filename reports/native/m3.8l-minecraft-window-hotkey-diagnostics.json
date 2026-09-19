@@ -1,0 +1,142 @@
+{
+  "action": "clip;length=30",
+  "actualDurationNanoseconds": 31021769167,
+  "captureDiagnostics": {
+    "audio": {
+      "microphone": {
+        "channelCount": 0,
+        "discontinuities": 0,
+        "enabled": false,
+        "encodeFailures": 0,
+        "endToVideoDriftNanoseconds": null,
+        "firstPacketNanoseconds": -1,
+        "inputSampleCount": 0,
+        "lastPacketEndNanoseconds": -1,
+        "packetsEncoded": 0,
+        "sampleRate": 0,
+        "startToVideoOffsetNanoseconds": null
+      },
+      "system": {
+        "channelCount": 2,
+        "discontinuities": 0,
+        "enabled": true,
+        "encodeFailures": 0,
+        "endToVideoDriftNanoseconds": -50604063,
+        "firstPacketNanoseconds": 4898026394750,
+        "inputSampleCount": 4934400,
+        "lastPacketEndNanoseconds": 5000810393144,
+        "packetsEncoded": 4818,
+        "sampleRate": 48000,
+        "startToVideoOffsetNanoseconds": 61859584
+      }
+    },
+    "bitrateBitsPerSecond": 20000000,
+    "encodeFailures": 0,
+    "framesEncoded": 5773,
+    "framesPerSecond": 60,
+    "framesReceived": 5773,
+    "geometry": {
+      "aspectPolicy": "fit_letterbox",
+      "finalEncodedPixels": {
+        "height": 1080,
+        "width": 1920
+      },
+      "fittedContentPixels": {
+        "height": 1080,
+        "width": 1814
+      },
+      "lastFrameAttachments": {
+        "contentRect": {
+          "height": 1079.9999694824219,
+          "width": 1815.5904998779297,
+          "x": 0.0,
+          "y": 0.0
+        },
+        "contentScale": 2.1259841918945313,
+        "parseFailures": 0,
+        "scaleFactor": 1.0
+      },
+      "paddingPixels": {
+        "horizontalTotal": 106,
+        "verticalTotal": 0
+      },
+      "pointPixelScale": 1.0,
+      "requestedMedalResolution": {
+        "height": 1080,
+        "width": 1920
+      },
+      "sourceContentRectPoints": {
+        "height": 508.0,
+        "width": 854.0
+      },
+      "sourcePixels": {
+        "height": 508,
+        "width": 854
+      }
+    },
+    "gop": {
+      "allowFrameReordering": false,
+      "maximumKeyframeIntervalDurationSeconds": 2,
+      "ptsDtsMismatchCount": 0
+    },
+    "hardwareEncoder": true,
+    "height": 1080,
+    "idleFrames": 5,
+    "inactiveFrames": 0,
+    "lastError": "",
+    "lastFrameStatusCode": 0,
+    "nativeTarget": {
+      "applicationName": "Minecraft",
+      "bundleIdentifier": "com.mojang.minecraftlauncher",
+      "executableName": "java",
+      "pid": 18858,
+      "screenCaptureApplicationName": "Minecraft Launcher",
+      "windowIds": [
+        661,
+        1491,
+        674,
+        673,
+        672,
+        671,
+        670,
+        664,
+        663,
+        659,
+        658,
+        669,
+        668,
+        667,
+        666,
+        665,
+        662
+      ]
+    },
+    "nativeVideoCodec": "h264",
+    "qualityPreset": "realtime_quality_priority",
+    "routing": {
+      "captureAnnounced": true,
+      "targetCapturePending": false
+    },
+    "schemaVersion": 1,
+    "screenCaptureAccess": true,
+    "sourceEnumeration": {
+      "applicationCount": 0,
+      "displayCount": 0,
+      "lastError": "",
+      "state": "not_requested",
+      "windowCount": 0
+    },
+    "sourceKind": "window",
+    "state": "capturing",
+    "videoCodec": "H264",
+    "width": 1920
+  },
+  "fileName": "a18ad901-fa03-4e7a-a786-28ea3ed6b41e.mp4",
+  "inputs": "F8",
+  "microphonePacketCount": 0,
+  "requestedDurationSeconds": 30,
+  "state": "registration_pending",
+  "systemAudioPacketCount": 1453,
+  "uuid": "a18ad901-fa03-4e7a-a786-28ea3ed6b41e",
+  "videoPacketCount": 1726
+}

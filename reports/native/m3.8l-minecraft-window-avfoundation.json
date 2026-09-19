@@ -1,0 +1,62 @@
+{
+  "audio": {
+    "compressed": {
+      "channelCount": 2,
+      "codec": "aac ",
+      "emptySampleBufferCount": 3,
+      "firstPtsSeconds": 0.0,
+      "firstSampleIsSync": null,
+      "nonMonotonicPtsCount": 0,
+      "ptsDtsMismatchCount": 0,
+      "readerCompleted": true,
+      "readerCreated": true,
+      "readerStarted": true,
+      "readerStatus": 2,
+      "sampleBufferCount": 62,
+      "sampleCount": 1454,
+      "sampleRate": 48000.0
+    },
+    "decoded": {
+      "decodedSampleCount": 182,
+      "missingDecodedBufferCount": 0,
+      "readerCompleted": true,
+      "readerCreated": true,
+      "readerStarted": true,
+      "readerStatus": 2
+    }
+  },
+  "audioTrackCount": 1,
+  "durationSeconds": 31.023333333333333,
+  "fileName": "a18ad901-fa03-4e7a-a786-28ea3ed6b41e.mp4",
+  "playable": true,
+  "probe": "AVFoundation AVAssetReader compressed and decoded sample validation",
+  "schemaVersion": 1,
+  "status": "passed",
+  "video": {
+    "compressed": {
+      "codec": "avc1",
+      "emptySampleBufferCount": 4,
+      "firstPtsSeconds": 0.0,
+      "firstSampleIsSync": true,
+      "height": 1080,
+      "nonMonotonicPtsCount": 0,
+      "ptsDtsMismatchCount": 0,
+      "readerCompleted": true,
+      "readerCreated": true,
+      "readerStarted": true,
+      "readerStatus": 2,
+      "sampleBufferCount": 1730,
+      "sampleCount": 1726,
+      "width": 1920
+    },
+    "decoded": {
+      "decodedSampleCount": 1726,
+      "missingDecodedBufferCount": 0,
+      "readerCompleted": true,
+      "readerCreated": true,
+      "readerStarted": true,
+      "readerStatus": 2
+    }
+  },
+  "videoTrackCount": 1
+}

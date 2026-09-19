@@ -563,7 +563,7 @@
       "source": "research/evidence/recorder_metadata.json#rpc_methods",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "implemented_unverified",
+        "status": "verified",
         "implementation_files": [
           "native/helper/main.cpp",
           "native/backends/macos/platform_adapter.mm"
@@ -680,7 +680,7 @@
       "source": "research/evidence/recorder_metadata.json#rpc_methods",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "implemented_unverified",
+        "status": "verified",
         "implementation_files": [
           "native/helper/main.cpp",
           "native/backends/macos/platform_adapter.mm",
@@ -693,10 +693,12 @@
         "report_paths": [
           "reports/native/m3.6-desktop-ui-roundtrip.md",
           "reports/native/m3.7-process-target-model.md",
-          "reports/native/m3.7-auto-classification.md"
+          "reports/native/m3.7-auto-classification.md",
+          "reports/native/m3.8l-window-filter-routing.md",
+          "reports/native/m3.8l-minecraft-window-hotkey-diagnostics.json"
         ],
         "limitations": [
-          "PID/bundle/window-aware application targeting and the authenticated A Dance of Fire and Ice classification path are evidenced; Minecraft fallback, target disappearance/window recreation and complete lifecycle monitoring remain unverified."
+          "Minecraft PID/bundle/window-aware targeting is verified through the original hotkey/contentCreate/playback path. Target disappearance, window recreation/fullscreen transitions and complete lifecycle monitoring remain unverified."
         ]
       },
       "linux": {
@@ -811,7 +813,7 @@
       "source": "research/evidence/recorder_metadata.json#rpc_methods",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "implemented_unverified",
+        "status": "verified",
         "implementation_files": [
           "native/helper/main.cpp"
         ],
@@ -2091,7 +2093,7 @@
       "source": "research/evidence/client_handlers.json",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "implemented_unverified",
+        "status": "verified",
         "implementation_files": [
           "native/helper/main.cpp"
         ],
@@ -2099,10 +2101,12 @@
           "B08"
         ],
         "report_paths": [
-          "reports/native/m3.7-auto-classification.md"
+          "reports/native/m3.7-auto-classification.md",
+          "reports/native/m3.8l-window-filter-routing.md",
+          "reports/native/m3.8l-minecraft-window-content-outbox.json"
         ],
         "limitations": [
-          "The original handler received native target success and the category game-state sequence for A Dance of Fire and Ice; Minecraft fallback, source disappearance and window recreation remain unverified."
+          "The original handler received native target success and the category game-state sequence for A Dance of Fire and Ice, and the Minecraft target completed a real window-filtered replay. Source disappearance and window recreation remain unverified."
         ]
       },
       "linux": {
@@ -4901,7 +4905,10 @@
         ],
         "report_paths": [
           "reports/native/m3.5-hotkey-operational-result.json",
-          "reports/native/m3.5-operational-replay-result.md"
+          "reports/native/m3.5-operational-replay-result.md",
+          "reports/native/m3.8l-window-filter-routing.md",
+          "reports/native/m3.8l-minecraft-window-avfoundation.json",
+          "reports/native/m3.8l-minecraft-window-ffprobe.json"
         ],
         "limitations": [
           "Acknowledged clip feedback is verified once with the exact embedded ClipEffect.wav, traced volume and non-focus-stealing Medal-icon HUD. Screenshot capture and its feedback remain not started; Notification Center integration is intentionally not claimed."

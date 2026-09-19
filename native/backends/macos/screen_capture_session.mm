@@ -241,6 +241,36 @@ namespace {
   return best;
 }
 
+[[nodiscard]] SCWindow* window_for_application(SCShareableContent* content,
+                                               SCRunningApplication* application) {
+  if (content == nil || application == nil) {
+    return nil;
+  }
+
+  // Prefer the largest visible window owned by the resolved native process.
+  // `initWithDesktopIndependentWindow:` follows this window when it moves
+  // between displays and excludes the rest of the desktop.  This is the
+  // important distinction from an application-including display filter: the
+  // latter is still anchored to one monitor and can produce a black frame with
+  // only the cursor when the target is elsewhere.
+  SCWindow* best = nil;
+  CGFloat best_area = 0.0;
+  for (SCWindow* window in content.windows) {
+    if (window.owningApplication == nil ||
+        window.owningApplication.processID != application.processID || !window.isOnScreen) {
+      continue;
+    }
+    const CGRect frame = window.frame;
+    const CGFloat area = std::max<CGFloat>(0.0, CGRectGetWidth(frame)) *
+                         std::max<CGFloat>(0.0, CGRectGetHeight(frame));
+    if (area > best_area) {
+      best_area = area;
+      best = window;
+    }
+  }
+  return best;
+}
+
 }  // namespace
 
 class MacCaptureSession final : public CaptureSession {
@@ -485,15 +515,27 @@ class MacCaptureSession final : public CaptureSession {
         fail("source_disappeared", detail);
         return;
       }
-      SCDisplay* display = display_for_application(content, selected);
-      if (display == nil) {
-        fail("source_disappeared", "the selected application has no display anchor");
+      SCWindow* target_window = window_for_application(content, selected);
+      SCContentFilter* filter = nil;
+      if (target_window != nil) {
+        filter = [[SCContentFilter alloc] initWithDesktopIndependentWindow:target_window];
+      } else {
+        // Some applications expose no on-screen window momentarily (for
+        // example during a fullscreen transition).  Keep the display-anchored
+        // application filter as a bounded fallback, but never make it the
+        // normal targeted-capture path.
+        SCDisplay* display = display_for_application(content, selected);
+        if (display != nil) {
+          filter = [[SCContentFilter alloc]
+              initWithDisplay:display
+           includingApplications:@[ selected ]
+              exceptingWindows:@[]];
+        }
+      }
+      if (filter == nil) {
+        fail("source_disappeared", "the selected application has no capturable window or display anchor");
         return;
       }
-      SCContentFilter* filter = [[SCContentFilter alloc]
-          initWithDisplay:display
-       includingApplications:@[ selected ]
-          exceptingWindows:@[]];
       start_stream_if_current(filter, generation);
     }];
   }

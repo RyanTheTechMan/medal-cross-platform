@@ -531,7 +531,29 @@ class HelperSession final {
                              .count();
         const auto duration_seconds =
             static_cast<double>(write_result.duration.count()) / 1'000'000'000.0;
-        const auto capture_diagnostics = capture_->status();
+        auto capture_diagnostics = capture_->status();
+        capture_diagnostics["routing"] = {
+            {"targetCapturePending", target_capture_pending_},
+            {"captureAnnounced", capture_announced_},
+        };
+        if (targeted_process_) {
+          capture_diagnostics["nativeTarget"] = {
+              {"pid", targeted_process_->pid},
+              {"applicationName", targeted_process_->application_name},
+              {"executableName", targeted_process_->executable_name},
+              {"bundleIdentifier", targeted_process_->bundle_identifier},
+              {"screenCaptureApplicationName", targeted_process_->screen_capture_application_name},
+              {"windowIds", [&] {
+                 nlohmann::json ids = nlohmann::json::array();
+                 for (const auto& window : targeted_process_->windows) {
+                   ids.push_back(window.window_id);
+                 }
+                 return ids;
+               }()},
+          };
+        } else {
+          capture_diagnostics["nativeTarget"] = nullptr;
+        }
         const auto hotkey_result = nlohmann::json{
             {"action", action.action},
             {"inputs", action.inputs},
@@ -830,6 +852,24 @@ class HelperSession final {
     auto configuration = capture_configuration(nlohmann::json::object());
     configuration.preferred_source_kind = "application";
     const auto target = *active;
+    request_application_capture(target, configuration);
+  }
+
+  void request_application_capture(const native_port::ProcessIdentity& target,
+                                   const native_port::CaptureConfiguration& configuration) {
+    const auto state = capture_->status().value("state", std::string{});
+    if (state == "capturing" || state == "starting" || state == "stopping" ||
+        state == "picker_presented") {
+      // The imported client may have started its configured display before the
+      // native process scan resolves a game. Drain that stream first; the next
+      // automatic-detection tick starts the application filter after the
+      // ScreenCaptureKit source transition is complete.
+      if (!capture_cleanup_requested_.exchange(true, std::memory_order_acq_rel)) {
+        dispatch_to_main([this] { capture_->stop(); });
+      }
+      return;
+    }
+    capture_cleanup_requested_.store(false, std::memory_order_release);
     dispatch_to_main([this, target, configuration] {
       capture_->start_application(target, configuration);
     });
@@ -857,6 +897,15 @@ class HelperSession final {
 
   void auto_detect_running_game() {
     const auto capture_state = capture_->status().value("state", std::string{});
+    nlohmann::json detection = {
+        {"schemaVersion", 1},
+        {"handshakeComplete", handshake_complete_},
+        {"captureState", capture_state},
+        {"captureSourceKind", capture_->status().value("sourceKind", std::string{})},
+        {"captureAnnounced", capture_announced_},
+        {"targetCapturePending", target_capture_pending_},
+        {"targetPid", targeted_process_ ? nlohmann::json(targeted_process_->pid) : nlohmann::json(nullptr)},
+    };
     if (capture_state == "failed") {
       // A source-disappearance callback can arrive while the old SCStream is
       // still attached.  Stop and drain that stream before selecting another
@@ -865,20 +914,58 @@ class HelperSession final {
       if (!capture_cleanup_requested_.exchange(true, std::memory_order_acq_rel)) {
         dispatch_to_main([this] { capture_->stop(); });
       }
+      detection["decision"] = "waiting_for_failed_stream_to_stop";
+      persist_auto_detection(detection);
       return;
     }
-    if (capture_state != "idle" && capture_state != "stopped" && capture_state != "cancelled") {
+    if (target_capture_pending_ && targeted_process_) {
+      if (capture_state == "idle" || capture_state == "stopped" || capture_state == "cancelled") {
+        auto configuration = capture_configuration(nlohmann::json::object());
+        configuration.preferred_source_kind = "application";
+        const auto target = *targeted_process_;
+        request_application_capture(target, configuration);
+      }
+      detection["decision"] = "target_capture_pending";
+      persist_auto_detection(detection);
       return;
     }
     capture_cleanup_requested_.store(false, std::memory_order_release);
-    if (targeted_process_ || target_capture_pending_ || capture_announced_) {
+    const auto source_kind = capture_->status().value("sourceKind", std::string{});
+    const auto prefer_game_capture = settings_.effective("PreferGameCapture", std::nullopt);
+    // The imported client does not persist its recovered default when the
+    // setting has never been changed.  Medal's actual default is true, so an
+    // absent wire value must not disable automatic game capture.
+    const bool game_capture_preferred =
+        !prefer_game_capture.has_value() ||
+        (prefer_game_capture->is_boolean() && prefer_game_capture->get<bool>());
+    // The normal client starts its configured display stream as soon as
+    // ScreenCaptureEnabled is applied.  With Medal's default PreferGameCapture
+    // setting, that display stream is a provisional fallback: replace it with
+    // the native application filter as soon as a running game is resolved.
+    const bool provisional_display = capture_announced_ && capture_state == "capturing" &&
+                                     source_kind == "display" && game_capture_preferred;
+    if (targeted_process_ || (capture_announced_ && !provisional_display)) {
       return;
     }
     const auto candidates = adapter_->process_targets();
+    detection["candidateCount"] = candidates.size();
+    detection["candidates"] = [&] {
+      nlohmann::json result = nlohmann::json::array();
+      for (const auto& process : candidates) {
+        result.push_back({{"pid", process.pid},
+                          {"applicationName", process.application_name},
+                          {"executableName", process.executable_name},
+                          {"bundleIdentifier", process.bundle_identifier},
+                          {"windowCount", process.windows.size()}});
+      }
+      return result;
+    }();
     const auto candidate = std::find_if(candidates.begin(), candidates.end(), [](const auto& process) {
       return is_native_game_candidate(process);
     });
     if (candidate == candidates.end()) {
+      detection["decision"] = "no_supported_candidate";
+      persist_auto_detection(detection);
       return;
     }
     targeted_process_ = *candidate;
@@ -889,9 +976,36 @@ class HelperSession final {
     auto configuration = capture_configuration(nlohmann::json::object());
     configuration.preferred_source_kind = "application";
     const auto target = *candidate;
-    dispatch_to_main([this, target, configuration] {
-      capture_->start_application(target, configuration);
-    });
+    detection["decision"] = "request_application_capture";
+    detection["selectedTarget"] = { {"pid", target.pid},
+                                     {"applicationName", target.application_name},
+                                     {"executableName", target.executable_name},
+                                     {"bundleIdentifier", target.bundle_identifier},
+                                     {"windowCount", target.windows.size()} };
+    persist_auto_detection(detection);
+    request_application_capture(target, configuration);
+  }
+
+  void persist_auto_detection(const nlohmann::json& value) const {
+    try {
+      const auto directory = profile_root() / "native-port";
+      std::filesystem::create_directories(directory);
+      std::filesystem::permissions(directory, std::filesystem::perms::owner_all,
+                                   std::filesystem::perm_options::replace);
+      const auto destination = directory / "auto-detection.json";
+      const auto temporary = destination.string() + ".partial-" + std::to_string(::getpid());
+      std::ofstream stream(temporary, std::ios::binary | std::ios::trunc);
+      stream << value.dump(2) << '\n';
+      stream.flush();
+      stream.close();
+      std::filesystem::permissions(temporary,
+                                   std::filesystem::perms::owner_read |
+                                       std::filesystem::perms::owner_write,
+                                   std::filesystem::perm_options::replace);
+      std::filesystem::rename(temporary, destination);
+    } catch (...) {
+      // Diagnostics must never change the capture state.
+    }
   }
 
   [[nodiscard]] nlohmann::json effective_capture_configuration(const nlohmann::json& params) const {
