@@ -795,9 +795,23 @@ class MacCaptureSession final : public CaptureSession {
                                     : (info.style == SCShareableContentStyleWindow
                                            ? "window"
                                            : (info.style == SCShareableContentStyleApplication ? "application" : "unknown"));
-      const auto geometry = fit_capture_geometry(
+      auto geometry = fit_capture_geometry(
           info.contentRect.size.width, info.contentRect.size.height, info.pointPixelScale,
           configuration.width, configuration.height);
+      // A desktop capture has a stable user-selected canvas, so its unused
+      // aspect-ratio area is intentional letterbox padding.  A targeted
+      // desktop-independent window is different: its native aspect ratio is
+      // the content the user asked to record.  Use Medal's Resolution as a
+      // maximum bound and encode the fitted window dimensions themselves;
+      // otherwise ScreenCaptureKit preserves the window aspect inside a fixed
+      // 1920x1080 canvas and creates synthetic black borders around the game.
+      const bool window_source = info.style == SCShareableContentStyleWindow;
+      if (window_source) {
+        geometry.encoded_width = geometry.fitted_content_width;
+        geometry.encoded_height = geometry.fitted_content_height;
+        geometry.horizontal_padding = 0;
+        geometry.vertical_padding = 0;
+      }
       const auto width = geometry.encoded_width;
       const auto height = geometry.encoded_height;
 
@@ -1186,7 +1200,7 @@ class MacCaptureSession final : public CaptureSession {
         {"width", capture_width_},
         {"height", capture_height_},
         {"geometry",
-         {{"aspectPolicy", "fit_letterbox"},
+         {{"aspectPolicy", source_kind_ == "window" ? "fit_source_bounded" : "fit_letterbox"},
           {"sourceContentRectPoints",
            {{"width", source_width_points_}, {"height", source_height_points_}}},
           {"pointPixelScale", source_point_pixel_scale_},
