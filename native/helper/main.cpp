@@ -818,6 +818,21 @@ class HelperSession final {
   }
 
   void auto_detect_running_game() {
+    const auto capture_state = capture_->status().value("state", std::string{});
+    if (capture_state == "failed") {
+      // A source-disappearance callback can arrive while the old SCStream is
+      // still attached.  Stop and drain that stream before selecting another
+      // running game; otherwise two delegate streams can race and the second
+      // target would not have an unambiguous lifecycle.
+      if (!capture_cleanup_requested_.exchange(true, std::memory_order_acq_rel)) {
+        dispatch_to_main([this] { capture_->stop(); });
+      }
+      return;
+    }
+    if (capture_state != "idle" && capture_state != "stopped" && capture_state != "cancelled") {
+      return;
+    }
+    capture_cleanup_requested_.store(false, std::memory_order_release);
     if (targeted_process_ || target_capture_pending_ || capture_announced_) {
       return;
     }
@@ -1485,6 +1500,7 @@ class HelperSession final {
   std::string target_game_category_id_;
   std::string target_game_category_name_;
   bool target_capture_pending_{false};
+  std::atomic<bool> capture_cleanup_requested_{false};
   bool capture_announced_{false};
   std::uint64_t capture_event_sequence_{0};
   std::uint64_t target_process_request_sequence_{0};
