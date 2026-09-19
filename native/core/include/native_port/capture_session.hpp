@@ -1,6 +1,7 @@
 #pragma once
 
 #include "native_port/encoded_packet.hpp"
+#include "native_port/process_identity.hpp"
 #include "native_port/video_codec.hpp"
 
 #include <cstddef>
@@ -39,6 +40,16 @@ class CaptureSession {
                              const CaptureConfiguration& configuration) = 0;
   virtual void start_application(const std::string& process_name,
                                  const CaptureConfiguration& configuration) = 0;
+  // Native target-aware overload.  The default keeps non-macOS adapters
+  // source-compatible while allowing macOS to match ScreenCaptureKit by PID.
+  virtual void start_application(const ProcessIdentity& target,
+                                 const CaptureConfiguration& configuration) {
+    const auto& name = target.screen_capture_application_name.empty()
+                           ? (target.application_name.empty() ? target.executable_name
+                                                              : target.application_name)
+                           : target.screen_capture_application_name;
+    start_application(name, configuration);
+  }
   virtual void stop() = 0;
   virtual void pump_events() = 0;
   [[nodiscard]] virtual nlohmann::json status() const = 0;

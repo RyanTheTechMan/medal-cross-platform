@@ -344,8 +344,7 @@ class HelperSession final {
         capture_announced_ = true;
         if (network_event.value("sourceKind", std::string{}) == "application" &&
             targeted_process_) {
-          auto target = *targeted_process_;
-          target["status"] = "success";
+          auto target = target_process_payload("success");
           target["captureType"] = "application";
           target["launchType"] = "manual";
           send_request("native-port:target-process:" +
@@ -389,12 +388,10 @@ class HelperSession final {
                       {"categoryName", announced_capture_category_name_}});
       }
       if (state == "failed" && targeted_process_) {
-        auto target = *targeted_process_;
-        target["status"] = "failed";
-        target["message"] = network_event.value("lastError", reason);
+        auto target = target_process_payload("failed", network_event.value("lastError", reason));
         send_request("native-port:target-process:" +
                          std::to_string(++target_process_request_sequence_),
-                     "targetProcess", std::move(target));
+                       "targetProcess", std::move(target));
       }
       capture_announced_ = false;
       announced_capture_category_id_.clear();
@@ -553,17 +550,92 @@ class HelperSession final {
     });
   }
 
-  [[nodiscard]] std::optional<nlohmann::json> find_active_process(
-      std::string_view process_name) const {
-    const auto processes = adapter_->active_processes();
-    if (!processes.is_array()) {
-      return std::nullopt;
+  [[nodiscard]] std::optional<native_port::ProcessIdentity> find_active_process(
+      const nlohmann::json& data) const {
+    const auto process_name = data.value("processName", std::string{});
+    const auto requested_class_names = data.value("className", nlohmann::json::array());
+    const auto requested_caption_names = data.value("captionName", nlohmann::json::array());
+    const auto requested_contains = [](const nlohmann::json& values, const std::string& value) {
+      if (!values.is_array() || value.empty()) {
+        return false;
+      }
+      return std::find(values.begin(), values.end(), value) != values.end();
+    };
+    std::optional<native_port::ProcessIdentity> best;
+    int best_score = -1;
+    for (const auto& process : adapter_->process_targets()) {
+      const auto wire_name = !process.application_name.empty()
+                                 ? process.application_name
+                                 : (!process.screen_capture_application_name.empty()
+                                        ? process.screen_capture_application_name
+                                        : process.executable_name);
+      int score = 0;
+      if (wire_name == process_name) {
+        score += 4;
+      }
+      if (process.executable_name == process_name ||
+          process.screen_capture_application_name == process_name ||
+          process.bundle_identifier == process_name) {
+        score += 2;
+      }
+      for (const auto& class_name : process.class_names) {
+        if (requested_contains(requested_class_names, class_name)) {
+          score += 3;
+        }
+      }
+      for (const auto& caption_name : process.caption_names) {
+        if (requested_contains(requested_caption_names, caption_name)) {
+          score += 1;
+        }
+      }
+      if (score > best_score) {
+        best_score = score;
+        best = process;
+      }
     }
-    const auto found = std::find_if(processes.begin(), processes.end(), [&](const auto& process) {
-      return process.value("processName", std::string{}) == process_name;
-    });
-    return found == processes.end() ? std::nullopt
-                                    : std::optional<nlohmann::json>(*found);
+    return best_score >= 2 ? best : std::nullopt;
+  }
+
+  [[nodiscard]] nlohmann::json target_process_payload(const std::string& status,
+                                                       const std::string& message = {}) const {
+    nlohmann::json result = {
+        {"status", status},
+        {"gameID", ""},
+        {"processName", ""},
+        {"captionName", nlohmann::json::array()},
+        {"className", nlohmann::json::array()},
+        {"gameRequestId", target_game_request_id_},
+    };
+    if (targeted_process_) {
+      const auto& target = *targeted_process_;
+      result["processName"] = !target.application_name.empty()
+                                   ? target.application_name
+                                   : (!target.screen_capture_application_name.empty()
+                                          ? target.screen_capture_application_name
+                                          : target.executable_name);
+      result["captionName"] = target.caption_names;
+      result["className"] = target.class_names;
+      // These are additive diagnostic fields.  The imported client ignores
+      // them, while the native helper retains PID/bundle/window identity.
+      result["nativeIdentity"] = {
+          {"pid", target.pid},
+          {"bundleIdentifier", target.bundle_identifier},
+          {"executablePath", target.executable_path},
+          {"executableName", target.executable_name},
+          {"screenCaptureApplicationName", target.screen_capture_application_name},
+          {"windowIds", [&target] {
+             nlohmann::json ids = nlohmann::json::array();
+             for (const auto& window : target.windows) {
+               ids.push_back(window.window_id);
+             }
+             return ids;
+           }()},
+      };
+    }
+    if (!message.empty()) {
+      result["message"] = message;
+    }
+    return result;
   }
 
   void set_target_process(const nlohmann::json& params) {
@@ -572,7 +644,7 @@ class HelperSession final {
     if (process_name.empty()) {
       throw std::invalid_argument("target processName must not be empty");
     }
-    const auto active = find_active_process(process_name);
+    const auto active = find_active_process(data);
     if (!active) {
       send_request("native-port:target-process:" +
                        std::to_string(++target_process_request_sequence_),
@@ -582,20 +654,13 @@ class HelperSession final {
                     {"message", "the selected process is no longer running"}});
       return;
     }
-    const auto first_string = [](const nlohmann::json& values) {
-      return values.is_array() && !values.empty() && values.front().is_string()
-                 ? values.front().get<std::string>()
-                 : std::string{};
-    };
-    targeted_process_ = {{"gameID", ""},
-                         {"processName", process_name},
-                         {"captionName", first_string(active->value("captionName", nlohmann::json::array()))},
-                         {"className", first_string(active->value("className", nlohmann::json::array()))},
-                         {"gameRequestId", ""}};
+    targeted_process_ = *active;
+    target_game_request_id_.clear();
     auto configuration = capture_configuration(nlohmann::json::object());
     configuration.preferred_source_kind = "application";
-    dispatch_to_main([this, process_name, configuration] {
-      capture_->start_application(process_name, configuration);
+    const auto target = *active;
+    dispatch_to_main([this, target, configuration] {
+      capture_->start_application(target, configuration);
     });
   }
 
@@ -1118,7 +1183,7 @@ class HelperSession final {
       } else if (request.method == "getTargetedProcesses") {
         auto result = nlohmann::json::array();
         if (targeted_process_) {
-          result.push_back(*targeted_process_);
+          result.push_back(target_process_payload("success"));
         }
         respond(request, std::move(result));
       } else if (request.method == "setTargetProcess") {
@@ -1126,24 +1191,23 @@ class HelperSession final {
         respond(request, nullptr);
       } else if (request.method == "setGameRequestId") {
         const auto& data = request.params.at("data");
-        if (targeted_process_ &&
-            targeted_process_->value("processName", std::string{}) ==
-                data.value("processName", std::string{})) {
-          (*targeted_process_)["gameRequestId"] =
-              data.value("gameRequestId", std::string{});
-          if (data.contains("captionName")) {
-            (*targeted_process_)["captionName"] = data.at("captionName");
-          }
-          if (data.contains("className")) {
-            (*targeted_process_)["className"] = data.at("className");
+        if (targeted_process_) {
+          const auto wire_name = !targeted_process_->application_name.empty()
+                                     ? targeted_process_->application_name
+                                     : targeted_process_->executable_name;
+          if (wire_name == data.value("processName", std::string{})) {
+            target_game_request_id_ = data.value("gameRequestId", std::string{});
           }
         }
         respond(request, nullptr);
       } else if (request.method == "deleteTargetProcess") {
         const auto process_name = request.params.at("processName").get<std::string>();
         if (targeted_process_ &&
-            targeted_process_->value("processName", std::string{}) == process_name) {
+            ((!targeted_process_->application_name.empty() &&
+              targeted_process_->application_name == process_name) ||
+             targeted_process_->executable_name == process_name)) {
           targeted_process_.reset();
+          target_game_request_id_.clear();
           dispatch_to_main([this] { capture_->stop(); });
         }
         respond(request, nullptr);
@@ -1222,7 +1286,8 @@ class HelperSession final {
   std::unique_ptr<native_port::CaptureSession> capture_;
   websocket::stream<tcp::socket>* socket_{nullptr};
   std::atomic<bool> running_{true};
-  std::optional<nlohmann::json> targeted_process_;
+  std::optional<native_port::ProcessIdentity> targeted_process_;
+  std::string target_game_request_id_;
   bool capture_announced_{false};
   std::uint64_t capture_event_sequence_{0};
   std::uint64_t target_process_request_sequence_{0};

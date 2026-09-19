@@ -347,6 +347,23 @@ class MacCaptureSession final : public CaptureSession {
 
   void start_application(const std::string& process_name,
                          const CaptureConfiguration& configuration) override {
+    start_application_for_target(std::nullopt, process_name, configuration);
+  }
+
+  void start_application(const ProcessIdentity& target,
+                         const CaptureConfiguration& configuration) override {
+    const auto process_name = !target.screen_capture_application_name.empty()
+                                  ? target.screen_capture_application_name
+                                  : (!target.application_name.empty() ? target.application_name
+                                                                      : target.executable_name);
+    start_application_for_target(target.pid > 0 ? std::optional<std::int64_t>(target.pid)
+                                               : std::nullopt,
+                                 process_name, configuration);
+  }
+
+  void start_application_for_target(std::optional<std::int64_t> target_pid,
+                                    const std::string& process_name,
+                                    const CaptureConfiguration& configuration) {
     validate_configuration(configuration);
     if (process_name.empty()) {
       throw std::invalid_argument("process name must not be empty");
@@ -383,13 +400,16 @@ class MacCaptureSession final : public CaptureSession {
         NSRunningApplication* running =
             [NSRunningApplication runningApplicationWithProcessIdentifier:application.processID];
         NSString* executable = running.executableURL.lastPathComponent;
-        const bool matches =
-            (application.applicationName != nil &&
+        const bool pid_matches = target_pid.has_value() &&
+                                 static_cast<std::int64_t>(application.processID) == *target_pid;
+        const bool name_matches =
+            (requested.length != 0 && application.applicationName != nil &&
              [application.applicationName caseInsensitiveCompare:requested] == NSOrderedSame) ||
-            (application.bundleIdentifier != nil &&
+            (requested.length != 0 && application.bundleIdentifier != nil &&
              [application.bundleIdentifier caseInsensitiveCompare:requested] == NSOrderedSame) ||
-            (executable != nil &&
+            (requested.length != 0 && executable != nil &&
              [executable caseInsensitiveCompare:requested] == NSOrderedSame);
+        const bool matches = pid_matches || name_matches;
         if (matches) {
           selected = application;
           break;

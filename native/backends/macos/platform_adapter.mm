@@ -302,14 +302,49 @@ class MacPlatformAdapter final : public PlatformAdapter {
   ~MacPlatformAdapter() override { clear_hotkeys(); }
 
   nlohmann::json active_displays(bool capture_screenshots) override {
-    const auto screenshots = capture_screenshots
-                                 ? display_screenshots()
-                                 : std::map<CGDirectDisplayID, std::string>{};
     std::array<CGDirectDisplayID, 32> displays{};
     uint32_t count = 0;
     if (CGGetActiveDisplayList(static_cast<uint32_t>(displays.size()), displays.data(), &count) !=
         kCGErrorSuccess) {
       throw std::runtime_error("CoreGraphics display enumeration failed");
+    }
+    std::map<CGDirectDisplayID, std::string> screenshots;
+    if (capture_screenshots) {
+      const auto now = std::chrono::steady_clock::now();
+      bool cache_complete = true;
+      {
+        std::scoped_lock lock(preview_cache_mutex_);
+        for (uint32_t index = 0; index < count; ++index) {
+          const auto display = displays[index];
+          const auto width = CGDisplayPixelsWide(display);
+          const auto height = CGDisplayPixelsHigh(display);
+          const auto found = preview_cache_.find(display);
+          if (found == preview_cache_.end() || found->second.width != width ||
+              found->second.height != height || now - found->second.created_at > preview_cache_ttl_) {
+            cache_complete = false;
+            continue;
+          }
+          screenshots.emplace(display, found->second.data_url);
+        }
+      }
+      if (!cache_complete) {
+        const auto fresh = display_screenshots();
+        std::scoped_lock lock(preview_cache_mutex_);
+        for (uint32_t index = 0; index < count; ++index) {
+          const auto display = displays[index];
+          const auto found = fresh.find(display);
+          if (found == fresh.end()) {
+            continue;
+          }
+          preview_cache_[display] = PreviewCacheEntry{
+              .data_url = found->second,
+              .width = static_cast<std::uint32_t>(CGDisplayPixelsWide(display)),
+              .height = static_cast<std::uint32_t>(CGDisplayPixelsHigh(display)),
+              .created_at = now,
+          };
+          screenshots[display] = found->second;
+        }
+      }
     }
     nlohmann::json result = nlohmann::json::array();
     for (uint32_t index = 0; index < count; ++index) {
@@ -331,10 +366,9 @@ class MacPlatformAdapter final : public PlatformAdapter {
     return result;
   }
 
-  nlohmann::json active_processes() override {
+  std::vector<ProcessIdentity> process_targets() override {
     @autoreleasepool {
-      NSMutableDictionary<NSNumber*, NSMutableArray<NSString*>*>* window_titles =
-          [NSMutableDictionary dictionary];
+      std::map<pid_t, std::vector<ProcessWindowIdentity>> windows_by_pid;
       CFArrayRef window_info = CGWindowListCopyWindowInfo(
           kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements,
           kCGNullWindowID);
@@ -343,60 +377,221 @@ class MacPlatformAdapter final : public PlatformAdapter {
           NSNumber* owner_pid = window[(id)kCGWindowOwnerPID];
           NSNumber* layer = window[(id)kCGWindowLayer];
           NSString* title = window[(id)kCGWindowName];
-          if (owner_pid == nil || layer.integerValue != 0 || title.length == 0) {
+          NSNumber* window_number = window[(id)kCGWindowNumber];
+          if (owner_pid == nil || window_number == nil || layer.integerValue != 0) {
             continue;
           }
-          NSMutableArray<NSString*>* titles = window_titles[owner_pid];
-          if (titles == nil) {
-            titles = [NSMutableArray array];
-            window_titles[owner_pid] = titles;
+          ProcessWindowIdentity identity;
+          identity.window_id = window_number.unsignedLongLongValue;
+          if (title.length != 0 && title.UTF8String != nullptr) {
+            identity.title = title.UTF8String;
           }
-          if (![titles containsObject:title]) {
-            [titles addObject:title];
+          auto& windows = windows_by_pid[owner_pid.intValue];
+          const auto duplicate = std::find_if(
+              windows.begin(), windows.end(), [&](const auto& existing) {
+                return existing.window_id == identity.window_id;
+              });
+          if (duplicate == windows.end()) {
+            windows.push_back(std::move(identity));
           }
         }
         CFRelease(window_info);
       }
 
-      nlohmann::json result = nlohmann::json::array();
-      for (NSRunningApplication* application in
-           NSWorkspace.sharedWorkspace.runningApplications) {
-        if (application.terminated ||
-            application.activationPolicy != NSApplicationActivationPolicyRegular) {
-          continue;
+      // ScreenCaptureKit is the authoritative source for capture identities.
+      // Keep the lookup bounded so a locked/non-interactive session cannot
+      // leave the Game chooser waiting forever.
+      std::map<pid_t, std::pair<std::string, std::string>> shareable_apps;
+      std::map<pid_t, std::vector<ProcessWindowIdentity>> shareable_windows;
+      dispatch_semaphore_t content_ready = dispatch_semaphore_create(0);
+      __block SCShareableContent* shareable = nil;
+      [SCShareableContent getShareableContentExcludingDesktopWindows:NO
+                                                   onScreenWindowsOnly:NO
+                                                      completionHandler:^(SCShareableContent* content,
+                                                                          NSError*) {
+        shareable = content;
+        dispatch_semaphore_signal(content_ready);
+      }];
+      const auto deadline = dispatch_time(DISPATCH_TIME_NOW,
+                                          static_cast<int64_t>(kScreenshotTimeout.count()) * NSEC_PER_SEC);
+      if (dispatch_semaphore_wait(content_ready, deadline) == 0 && shareable != nil) {
+        for (SCRunningApplication* application in shareable.applications) {
+          const auto pid = static_cast<pid_t>(application.processID);
+          const auto app_name = application.applicationName.UTF8String != nullptr
+                                    ? std::string(application.applicationName.UTF8String)
+                                    : std::string{};
+          const auto bundle = application.bundleIdentifier.UTF8String != nullptr
+                                  ? std::string(application.bundleIdentifier.UTF8String)
+                                  : std::string{};
+          shareable_apps[pid] = {app_name, bundle};
         }
-        NSString* executable = application.executableURL.lastPathComponent;
-        if (executable.length == 0) {
-          executable = application.localizedName;
-        }
-        if (executable.length == 0) {
-          continue;
-        }
-        const char* process_text = executable.UTF8String;
-        if (process_text == nullptr || process_text[0] == '\0') {
-          continue;
-        }
-        nlohmann::json captions = nlohmann::json::array();
-        NSArray<NSString*>* titles = window_titles[@(application.processIdentifier)];
-        for (NSString* title in titles) {
-          if (const char* text = title.UTF8String; text != nullptr && text[0] != '\0') {
-            captions.push_back(text);
+        for (SCWindow* window in shareable.windows) {
+          if (window.owningApplication == nil) {
+            continue;
+          }
+          ProcessWindowIdentity identity;
+          identity.window_id = window.windowID;
+          if (window.title.UTF8String != nullptr) {
+            identity.title = window.title.UTF8String;
+          }
+          auto& windows = shareable_windows[static_cast<pid_t>(window.owningApplication.processID)];
+          const auto duplicate = std::find_if(
+              windows.begin(), windows.end(), [&](const auto& existing) {
+                return existing.window_id == identity.window_id;
+              });
+          if (duplicate == windows.end()) {
+            windows.push_back(std::move(identity));
           }
         }
-        nlohmann::json class_names = nlohmann::json::array();
-        if (const char* bundle = application.bundleIdentifier.UTF8String;
-            bundle != nullptr && bundle[0] != '\0') {
-          class_names.push_back(bundle);
+      }
+
+      std::vector<ProcessIdentity> result;
+      std::set<pid_t> seen;
+      for (NSRunningApplication* application in NSWorkspace.sharedWorkspace.runningApplications) {
+        if (application.terminated) {
+          continue;
         }
-        result.push_back({{"processName", process_text},
-                          {"captionName", std::move(captions)},
-                          {"className", std::move(class_names)}});
+        const auto pid = application.processIdentifier;
+        const auto has_shareable_identity = shareable_apps.contains(pid);
+        const auto has_windows = windows_by_pid.contains(pid) || shareable_windows.contains(pid);
+        // Accessory applications (notably Java-launched games) are valid
+        // ScreenCaptureKit targets when they own a visible capture surface.
+        if (application.activationPolicy == NSApplicationActivationPolicyProhibited &&
+            !has_shareable_identity && !has_windows) {
+          continue;
+        }
+        ProcessIdentity identity;
+        identity.pid = pid;
+        identity.bundle_identifier = application.bundleIdentifier.UTF8String != nullptr
+                                         ? std::string(application.bundleIdentifier.UTF8String)
+                                         : std::string{};
+        identity.executable_path = application.executableURL.path.UTF8String != nullptr
+                                        ? std::string(application.executableURL.path.UTF8String)
+                                        : std::string{};
+        identity.executable_name = application.executableURL.lastPathComponent.UTF8String != nullptr
+                                       ? std::string(application.executableURL.lastPathComponent.UTF8String)
+                                       : std::string{};
+        identity.application_name = application.localizedName.UTF8String != nullptr
+                                        ? std::string(application.localizedName.UTF8String)
+                                        : std::string{};
+        if (const auto found = shareable_apps.find(pid); found != shareable_apps.end()) {
+          identity.screen_capture_application_name = found->second.first;
+          identity.screen_capture_application_identifier = found->second.second;
+          if (identity.application_name.empty()) {
+            identity.application_name = identity.screen_capture_application_name;
+          }
+          if (identity.bundle_identifier.empty()) {
+            identity.bundle_identifier = identity.screen_capture_application_identifier;
+          }
+        }
+        if (const auto found = windows_by_pid.find(pid); found != windows_by_pid.end()) {
+          identity.windows = found->second;
+        }
+        if (const auto found = shareable_windows.find(pid); found != shareable_windows.end()) {
+          for (const auto& window : found->second) {
+            const auto duplicate = std::find_if(
+                identity.windows.begin(), identity.windows.end(), [&](const auto& existing) {
+                  return existing.window_id == window.window_id;
+                });
+            if (duplicate == identity.windows.end()) {
+              identity.windows.push_back(window);
+            }
+          }
+        }
+        for (const auto& window : identity.windows) {
+          if (!window.title.empty() && std::find(identity.caption_names.begin(),
+                                                 identity.caption_names.end(), window.title) ==
+                                           identity.caption_names.end()) {
+            identity.caption_names.push_back(window.title);
+          }
+        }
+        // Minecraft's native launcher commonly leaves the game process
+        // named "java".  Use its visible window title as the user-facing
+        // target name while retaining the executable/PID as the stable native
+        // identity used for capture.
+        const auto contains_case_insensitive = [](std::string value, std::string needle) {
+          std::transform(value.begin(), value.end(), value.begin(), [](unsigned char character) {
+            return static_cast<char>(std::tolower(character));
+          });
+          std::transform(needle.begin(), needle.end(), needle.begin(), [](unsigned char character) {
+            return static_cast<char>(std::tolower(character));
+          });
+          return value.find(needle) != std::string::npos;
+        };
+        if (contains_case_insensitive(identity.executable_name, "java")) {
+          const auto minecraft_window = std::find_if(
+              identity.windows.begin(), identity.windows.end(), [&](const auto& window) {
+                return contains_case_insensitive(window.title, "minecraft");
+              });
+          if (minecraft_window != identity.windows.end()) {
+            identity.application_name = "Minecraft";
+          }
+        }
+        if (!identity.bundle_identifier.empty()) {
+          identity.class_names.push_back(identity.bundle_identifier);
+        }
+        if (identity.application_name.empty()) {
+          identity.application_name = identity.executable_name;
+        }
+        if (identity.application_name.empty()) {
+          identity.application_name = identity.screen_capture_application_name;
+        }
+        if (identity.application_name.empty()) {
+          continue;
+        }
+        result.push_back(std::move(identity));
+        seen.insert(pid);
+      }
+
+      // Include ScreenCaptureKit applications that are not surfaced by
+      // NSWorkspace (a common case for game launchers and Java processes).
+      for (const auto& [pid, app] : shareable_apps) {
+        if (seen.contains(pid) || app.first.empty()) {
+          continue;
+        }
+        ProcessIdentity identity;
+        identity.pid = pid;
+        identity.application_name = app.first;
+        identity.screen_capture_application_name = app.first;
+        identity.bundle_identifier = app.second;
+        identity.screen_capture_application_identifier = app.second;
+        identity.windows = shareable_windows[pid];
+        for (const auto& window : identity.windows) {
+          if (!window.title.empty()) {
+            identity.caption_names.push_back(window.title);
+          }
+        }
+        if (!identity.bundle_identifier.empty()) {
+          identity.class_names.push_back(identity.bundle_identifier);
+        }
+        result.push_back(std::move(identity));
       }
       std::sort(result.begin(), result.end(), [](const auto& left, const auto& right) {
-        return left.value("processName", "") < right.value("processName", "");
+        const auto left_name = left.application_name.empty() ? left.executable_name : left.application_name;
+        const auto right_name = right.application_name.empty() ? right.executable_name : right.application_name;
+        if (left_name != right_name) {
+          return left_name < right_name;
+        }
+        return left.pid < right.pid;
       });
       return result;
     }
+  }
+
+  nlohmann::json active_processes() override {
+    const auto targets = process_targets();
+    nlohmann::json result = nlohmann::json::array();
+    for (const auto& target : targets) {
+      const auto process_name = !target.application_name.empty()
+                                    ? target.application_name
+                                    : (!target.screen_capture_application_name.empty()
+                                           ? target.screen_capture_application_name
+                                           : target.executable_name);
+      result.push_back({{"processName", process_name},
+                        {"captionName", target.caption_names},
+                        {"className", target.class_names}});
+    }
+    return result;
   }
 
   std::vector<std::string> audio_output_devices() override {
@@ -716,6 +911,13 @@ class MacPlatformAdapter final : public PlatformAdapter {
   }
 
  private:
+  struct PreviewCacheEntry final {
+    std::string data_url;
+    std::uint32_t width{0};
+    std::uint32_t height{0};
+    std::chrono::steady_clock::time_point created_at{};
+  };
+
   struct RegisteredHotkey final {
     EventHotKeyRef reference{nullptr};
     UInt32 identifier{0};
@@ -791,6 +993,9 @@ class MacPlatformAdapter final : public PlatformAdapter {
   NSSound* active_feedback_sound_{nil};
   NSPanel* feedback_panel_{nil};
   mutable std::mutex hotkey_mutex_;
+  mutable std::mutex preview_cache_mutex_;
+  std::map<CGDirectDisplayID, PreviewCacheEntry> preview_cache_;
+  static constexpr auto preview_cache_ttl_ = std::chrono::milliseconds(900);
 };
 
 }  // namespace

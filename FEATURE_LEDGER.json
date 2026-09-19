@@ -576,7 +576,7 @@
           "reports/native/ctest-m2.6-xcode-27.2-beta.log"
         ],
         "limitations": [
-          "Compiled but not invoked through the actual Electron integration; process methods intentionally return empty arrays until native process mapping exists."
+          "Target identity now exists, but Core Audio process-tap enumeration/isolation is not implemented; the RPC intentionally returns an empty array and never substitutes whole-system audio."
         ]
       },
       "linux": {
@@ -648,10 +648,11 @@
           "B09"
         ],
         "report_paths": [
-          "reports/native/m3.6-desktop-ui-roundtrip.md"
+          "reports/native/m3.6-desktop-ui-roundtrip.md",
+          "reports/native/m3.7-process-target-model.md"
         ],
         "limitations": [
-          "Manual target deletion is implemented, but an application target lifecycle round trip has not yet been verified through the original UI."
+          "Manual target deletion clears the typed PID-aware target, but an application target lifecycle round trip has not yet been verified through the original UI."
         ]
       },
       "linux": {
@@ -690,10 +691,11 @@
           "B09"
         ],
         "report_paths": [
-          "reports/native/m3.6-desktop-ui-roundtrip.md"
+          "reports/native/m3.6-desktop-ui-roundtrip.md",
+          "reports/native/m3.7-process-target-model.md"
         ],
         "limitations": [
-          "Manual application targeting is implemented but not yet verified end to end; automatic game classification is not implemented."
+          "PID/bundle/window-aware application targeting is implemented but not yet verified end to end; automatic game classification and target lifecycle monitoring remain unverified."
         ]
       },
       "linux": {
@@ -732,10 +734,11 @@
         ],
         "report_paths": [
           "reports/native/ctest-m2.6-xcode-27.2-beta.log",
-          "reports/native/m3.6-desktop-ui-roundtrip.md"
+          "reports/native/m3.6-desktop-ui-roundtrip.md",
+          "reports/native/m3.7-process-target-model.md"
         ],
         "limitations": [
-          "The original UI invoked the method and correctly represented no active manual target; target selection lifecycle is still unverified."
+          "The original UI invoked the method and correctly represented no active manual target; typed target persistence and selection lifecycle are still unverified."
         ]
       },
       "linux": {
@@ -770,18 +773,25 @@
         ],
         "report_paths": [
           "reports/native/ctest-m2.6-xcode-27.2-beta.log",
-          "reports/native/m3.6-desktop-ui-roundtrip.md"
+          "reports/native/m3.6-desktop-ui-roundtrip.md",
+          "reports/native/m3.7-process-target-model.md"
         ],
         "limitations": [
-          "Real regular GUI applications rendered in the original Game chooser. Automatic game classification, exclusions and lifecycle monitoring remain separate unimplemented behavior."
+          "Real GUI applications rendered in the original Game chooser, including A Dance of Fire and Ice and Java while both games were open. The PID-aware enumeration/cache change still needs a fresh authenticated UI run; automatic game classification, exclusions and lifecycle monitoring remain separate gates."
         ]
       },
       "linux": {
-        "status": "not_started",
-        "implementation_files": [],
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/helper/main.cpp"
+        ],
         "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "report_paths": [
+          "reports/native/m3.7-process-target-model.md"
+        ],
+        "limitations": [
+          "The recovered client handler and native state update are implemented, but a real authenticated /games/requests response and setGameRequestId round trip are still unverified."
+        ]
       },
       "direction": "electron_to_recorder",
       "method_token": "0x6002be6",
@@ -797,11 +807,17 @@
       "source": "research/evidence/recorder_metadata.json#rpc_methods",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/helper/main.cpp"
+        ],
         "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "report_paths": [
+          "reports/native/m3.7-process-target-model.md"
+        ],
+        "limitations": [
+          "The recovered client handler and native state update are implemented, but a real authenticated /games/requests response and setGameRequestId round trip are still unverified."
+        ]
       },
       "linux": {
         "status": "not_started",
@@ -872,7 +888,7 @@
           "reports/native/ctest-m2.6-xcode-27.2-beta.log"
         ],
         "limitations": [
-          "Compiled but not invoked through the actual Electron integration; process methods intentionally return empty arrays until native process mapping exists."
+          "Target identity now exists, but Core Audio process-tap enumeration/isolation is not implemented; the RPC intentionally returns an empty array and never substitutes whole-system audio."
         ]
       },
       "linux": {
