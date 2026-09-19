@@ -24,6 +24,8 @@
   <true/>
   <key>NSAudioCaptureUsageDescription</key>
   <string>Native Medal Recorder captures the audio selected in the system sharing picker for a recording or replay clip.</string>
+  <key>NSScreenCaptureUsageDescription</key>
+  <string>Native Medal Recorder captures only the display, window, or application you select for a recording or replay clip.</string>
   <key>NSCameraUsageDescription</key>
   <string>Native Medal Recorder uses a camera only when you enable a camera overlay.</string>
   <key>NSMicrophoneUsageDescription</key>

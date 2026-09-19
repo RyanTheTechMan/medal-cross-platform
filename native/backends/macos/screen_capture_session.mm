@@ -681,6 +681,20 @@ class MacCaptureSession final : public CaptureSession {
     }
     publish_event("starting", "source_selected");
 
+    // ScreenCaptureKit may still enumerate sources and transition an SCStream
+    // to `capturing` when the process' own TCC grant is missing. In that
+    // state macOS supplies blank frames, which would otherwise produce a
+    // valid-looking but unusable black replay. The recorder has a stable
+    // nested bundle identity, so check that identity before creating the
+    // encoder/stream and surface the manual prerequisite to the imported UI.
+    if (!CGPreflightScreenCaptureAccess()) {
+      fail("screen_recording_permission_required",
+           "Screen Recording permission is not granted for the signed native recorder "
+           "(com.squirrel.medal.medal.recorder); approve it in System Settings > "
+           "Privacy & Security > Screen & System Audio Recording, then restart capture");
+      return;
+    }
+
     @autoreleasepool {
       const SCShareableContentInfo* info = [SCShareableContent infoForFilter:filter];
       const char* source_kind = info.style == SCShareableContentStyleDisplay

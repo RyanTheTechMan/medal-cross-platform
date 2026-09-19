@@ -151,6 +151,9 @@ def customize_plists(app: Path) -> None:
         'NSAudioCaptureUsageDescription': (
             'Native Medal captures audio only for a recording source you select in the system sharing picker.'
         ),
+        'NSScreenCaptureUsageDescription': (
+            'Native Medal captures only the display, window, or application you select for a recording or replay clip.'
+        ),
         'NSCameraUsageDescription': 'Native Medal uses a camera only when you enable a camera overlay.',
         'NSMicrophoneUsageDescription': (
             'Native Medal captures your selected microphone only when microphone recording is enabled.'
