@@ -55,7 +55,10 @@ class CfRef final {
 
 struct WriterTrack final {
   TrackKind track;
+  std::uint32_t track_id;
   Codec codec;
+  std::string logical_id;
+  std::string title;
   AVAssetWriterInput* input;
   CfRef<CMFormatDescriptionRef> format;
   std::vector<const EncodedPacket*> packets;
@@ -92,15 +95,21 @@ struct FeedState final {
                       : ns_text(error.localizedDescription);
 }
 
-[[nodiscard]] const EncodedPacket* first_packet(const ReplaySnapshot& snapshot, TrackKind track) {
+[[nodiscard]] const EncodedPacket* first_packet(const ReplaySnapshot& snapshot, TrackKind track,
+                                                std::uint32_t track_id) {
   const auto found = std::find_if(snapshot.packets.begin(), snapshot.packets.end(),
-                                  [track](const auto& packet) { return packet->track == track; });
+                                  [track, track_id](const auto& packet) {
+                                    return packet->track == track && packet->track_id == track_id;
+                                  });
   return found == snapshot.packets.end() ? nullptr : found->get();
 }
 
-[[nodiscard]] const EncodedPacket* configured_packet(const ReplaySnapshot& snapshot, TrackKind track) {
-  const auto found = std::find_if(snapshot.packets.begin(), snapshot.packets.end(), [track](const auto& packet) {
-    return packet->track == track && packet->codec_configuration && !packet->codec_configuration->empty();
+[[nodiscard]] const EncodedPacket* configured_packet(const ReplaySnapshot& snapshot, TrackKind track,
+                                                    std::uint32_t track_id) {
+  const auto found = std::find_if(snapshot.packets.begin(), snapshot.packets.end(),
+                                  [track, track_id](const auto& packet) {
+    return packet->track == track && packet->track_id == track_id && packet->codec_configuration &&
+           !packet->codec_configuration->empty();
   });
   return found == snapshot.packets.end() ? nullptr : found->get();
 }
@@ -190,10 +199,37 @@ struct FeedState final {
   return CfRef<CMFormatDescriptionRef>(raw);
 }
 
+[[nodiscard]] std::string track_title(const EncodedPacket& first, TrackKind track,
+                                      std::uint32_t track_id) {
+  if (!first.logical_source_id.empty()) {
+    if (first.logical_source_id == "all-audio") {
+      return "All Audio";
+    }
+    if (first.logical_source_id == "game-audio") {
+      return "Game Audio";
+    }
+    if (first.logical_source_id == "microphone") {
+      return "Microphone";
+    }
+    return first.logical_source_id;
+  }
+  switch (track) {
+    case TrackKind::mixed_audio:
+      return "All Audio";
+    case TrackKind::game_audio:
+      return "Game Audio";
+    case TrackKind::microphone_audio:
+      return "Microphone";
+    case TrackKind::video:
+      return "Video";
+  }
+  return "Audio Stream " + std::to_string(track_id);
+}
+
 [[nodiscard]] WriterTrack make_track(AVAssetWriter* writer, const ReplaySnapshot& snapshot,
-                                     TrackKind track) {
-  const auto* first = first_packet(snapshot, track);
-  const auto* configured = configured_packet(snapshot, track);
+                                     TrackKind track, std::uint32_t track_id) {
+  const auto* first = first_packet(snapshot, track, track_id);
+  const auto* configured = configured_packet(snapshot, track, track_id);
   if (first == nullptr || configured == nullptr) {
     throw std::runtime_error("MP4 track has no configured encoded packet");
   }
@@ -211,21 +247,8 @@ struct FeedState final {
   // without it every native track is exposed as the unhelpful "Audio Stream
   // #N". This is deliberately attached to the track, not sent through
   // Electron IPC, so the labels survive export/import and application restart.
-  NSString* track_name = nil;
-  switch (track) {
-    case TrackKind::mixed_audio:
-      track_name = @"PC Audio";
-      break;
-    case TrackKind::game_audio:
-      track_name = @"Game Audio";
-      break;
-    case TrackKind::microphone_audio:
-      track_name = @"Microphone";
-      break;
-    case TrackKind::video:
-      track_name = @"Video";
-      break;
-  }
+  const auto title = track_title(*first, track, track_id);
+  NSString* track_name = [NSString stringWithUTF8String:title.c_str()];
   AVMutableMetadataItem* track_name_item = [AVMutableMetadataItem metadataItem];
   track_name_item.identifier = AVMetadataIdentifierQuickTimeUserDataTrackName;
   track_name_item.value = track_name;
@@ -245,12 +268,16 @@ struct FeedState final {
   input.metadata = @[track_name_item, title_item, common_title_item];
   input.expectsMediaDataInRealTime = NO;
   [writer addInput:input];
-  return WriterTrack{track, first->codec, input, std::move(format), {}};
+  return WriterTrack{track, track_id, first->codec, first->logical_source_id.empty()
+                     ? (track == TrackKind::video ? "video" : title)
+                     : first->logical_source_id,
+                     title, input, std::move(format), {}};
 }
 
 [[nodiscard]] WriterTrack* track_for(std::vector<WriterTrack>& tracks, const EncodedPacket& packet) {
   const auto found = std::find_if(tracks.begin(), tracks.end(), [&](const auto& track) {
-    return track.track == packet.track && track.codec == packet.codec;
+    return track.track == packet.track && track.track_id == packet.track_id &&
+           track.codec == packet.codec;
   });
   return found == tracks.end() ? nullptr : &*found;
 }
@@ -371,13 +398,45 @@ Mp4WriteResult write_mp4(const std::filesystem::path& output_path, const ReplayS
       }
       writer.shouldOptimizeForNetworkUse = YES;
 
-      std::vector<WriterTrack> tracks;
-      tracks.push_back(make_track(writer, snapshot, TrackKind::video));
-      for (const auto track : {TrackKind::mixed_audio, TrackKind::game_audio,
-                               TrackKind::microphone_audio}) {
-        if (first_packet(snapshot, track) != nullptr) {
-          tracks.push_back(make_track(writer, snapshot, track));
+      struct TrackKey final {
+        TrackKind track;
+        Codec codec;
+        std::uint32_t track_id;
+      };
+      std::vector<TrackKey> keys;
+      const auto add_key = [&keys](const EncodedPacket& packet) {
+        const auto found = std::find_if(keys.begin(), keys.end(), [&](const auto& key) {
+          return key.track == packet.track && key.codec == packet.codec && key.track_id == packet.track_id;
+        });
+        if (found == keys.end()) {
+          keys.push_back({packet.track, packet.codec, packet.track_id});
         }
+      };
+      for (const auto& packet : snapshot.packets) {
+        add_key(*packet);
+      }
+      const auto track_rank = [](TrackKind track) {
+        switch (track) {
+          case TrackKind::video: return 0;
+          case TrackKind::mixed_audio: return 1;
+          case TrackKind::game_audio: return 2;
+          case TrackKind::microphone_audio: return 3;
+        }
+        return 4;
+      };
+      std::stable_sort(keys.begin(), keys.end(), [&](const auto& left, const auto& right) {
+        if (track_rank(left.track) != track_rank(right.track)) {
+          return track_rank(left.track) < track_rank(right.track);
+        }
+        return left.track_id < right.track_id;
+      });
+      if (keys.empty() || keys.front().track != TrackKind::video) {
+        throw std::runtime_error("replay snapshot must contain a video track");
+      }
+      std::vector<WriterTrack> tracks;
+      tracks.reserve(keys.size());
+      for (const auto& key : keys) {
+        tracks.push_back(make_track(writer, snapshot, key.track, key.track_id));
       }
       for (const auto& packet : snapshot.packets) {
         auto* track = track_for(tracks, *packet);
@@ -464,13 +523,34 @@ Mp4WriteResult write_mp4(const std::filesystem::path& output_path, const ReplayS
       for (const auto& packet : snapshot.packets) {
         if (packet->track == TrackKind::video) {
           ++result.video_packets;
-        } else if (packet->track == TrackKind::game_audio) {
+        } else if (packet->track != TrackKind::microphone_audio) {
           ++result.system_audio_packets;
         } else if (packet->track == TrackKind::microphone_audio) {
           ++result.microphone_packets;
         }
       }
       result.duration = snapshot.actual_duration;
+      std::uint32_t audio_ordinal = 0;
+      for (std::size_t absolute_index = 0; absolute_index < tracks.size(); ++absolute_index) {
+        const auto& track = tracks[absolute_index];
+        if (track.track == TrackKind::video) {
+          continue;
+        }
+        const auto* first = first_packet(snapshot, track.track, track.track_id);
+        if (first == nullptr) {
+          throw std::runtime_error("finalized audio manifest lost its first packet");
+        }
+        result.audio_streams.push_back({track.track,
+                                        track.track_id,
+                                        track.codec,
+                                        track.logical_id,
+                                        track.title,
+                                        static_cast<std::uint32_t>(absolute_index),
+                                        audio_ordinal++,
+                                        first->sample_rate,
+                                        first->channel_count,
+                                        result.audio_streams.empty()});
+      }
       return result;
     } @catch (NSException* exception) {
       throw std::runtime_error("AVFoundation exception: " + ns_text(exception.reason));

@@ -315,6 +315,23 @@ void test_audio_routing_plan() {
   const auto game = native_port::audio_routing_plan_from_settings(settings, "game-1");
   expect(game.mode == "allPcAudio" && !game.microphone_enabled && game.pc_audio_enabled,
          "per-game mode and explicit microphone disable must override global settings");
+
+  native_port::SettingsStore game_only_settings;
+  game_only_settings.apply({
+      {.key = "AudioModeConfig",
+       .value = {{"type", "splitByProcess"},
+                 {"pcAudioEnabled", true},
+                 {"sources", nlohmann::json::array({{{"id", "game-audio"}, {"enabled", true}, {"volume", 80}},
+                                                       {{"id", "Discord.exe"}, {"enabled", true}, {"volume", 50}}})}},
+       .category_id = std::nullopt},
+      {.key = "GameAudioOnly", .value = true, .category_id = std::nullopt},
+      {.key = "MultipleAudioTracks", .value = false, .category_id = std::nullopt},
+  });
+  const auto game_only = native_port::audio_routing_plan_from_settings(game_only_settings);
+  expect(game_only.mode == "gameOnly" && !game_only.pc_audio_enabled &&
+             !game_only.multiple_audio_tracks && game_only.sources.size() == 2 &&
+             game_only.sources[0].enabled && !game_only.sources[1].enabled,
+         "GameAudioOnly must retain source identity while disabling unrelated process buses");
 }
 
 void test_capture_geometry() {

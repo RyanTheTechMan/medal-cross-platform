@@ -80,7 +80,7 @@ CaptureConfiguration capture_configuration_from_settings(
   defaults.audio_sources.clear();
   defaults.audio_sources.reserve(defaults.audio_plan.sources.size());
   for (const auto& source : defaults.audio_plan.sources) {
-    defaults.audio_sources.push_back({source.id, source.enabled, source.volume_percent});
+    defaults.audio_sources.push_back({source.id, source.enabled, source.volume_percent, source.gain_linear});
   }
   defaults.capture_system_audio = defaults.audio_plan.mode != "none" &&
                                   defaults.audio_plan.mode != "disabled" &&

@@ -31,6 +31,10 @@ class PlatformAdapter {
   [[nodiscard]] virtual nlohmann::json active_displays(bool capture_screenshots) = 0;
   [[nodiscard]] virtual std::vector<ProcessIdentity> process_targets() = 0;
   [[nodiscard]] virtual nlohmann::json active_processes() = 0;
+  // HAL-backed audio clients are a separate authority from window/process
+  // discovery. The helper maps this native-shaped list to Medal's legacy
+  // display fields only at the wire boundary.
+  [[nodiscard]] virtual nlohmann::json audio_processes() = 0;
   [[nodiscard]] virtual std::vector<std::string> audio_output_devices() = 0;
   [[nodiscard]] virtual std::vector<std::string> microphone_devices() = 0;
   [[nodiscard]] virtual nlohmann::json default_audio_devices() = 0;

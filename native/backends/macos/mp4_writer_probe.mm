@@ -342,7 +342,18 @@ int main() {
     const auto readable_audio = write_ok ? readable_sample_count(url, AVMediaTypeAudio) : 0;
     const bool passed = write_ok && write_result.video_packets == video.packets.size() &&
                         write_result.system_audio_packets == audio.size() && readable_video > 0 &&
-                        readable_audio > 0 && write_result.bytes_written > 0;
+                        readable_audio > 0 && write_result.bytes_written > 0 &&
+                        write_result.audio_streams.size() == 1 &&
+                        write_result.audio_streams.front().absolute_stream_index == 1 &&
+                        write_result.audio_streams.front().default_track;
+    nlohmann::json manifest = nlohmann::json::array();
+    for (const auto& stream : write_result.audio_streams) {
+      manifest.push_back({{"index", stream.absolute_stream_index},
+                          {"audioOrdinal", stream.audio_ordinal},
+                          {"logicalId", stream.logical_id},
+                          {"title", stream.title},
+                          {"default", stream.default_track}});
+    }
     nlohmann::json output = {
         {"schemaVersion", 1},
         {"probe", "VideoToolbox and AudioToolbox encoded replay to AVAssetWriter MP4"},
@@ -355,6 +366,7 @@ int main() {
         {"readableVideoSampleCount", readable_video},
         {"readableAudioSampleCount", readable_audio},
         {"bytesWritten", write_result.bytes_written},
+        {"audioManifest", std::move(manifest)},
         {"outputPath", output_path.string()},
     };
     std::cout << output.dump(2) << '\n';

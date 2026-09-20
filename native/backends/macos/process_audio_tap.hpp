@@ -23,10 +23,15 @@ class ProcessAudioTap final {
   [[nodiscard]] bool start(const std::vector<std::int64_t>& pids, TrackKind track,
                             std::uint32_t track_id,
                             double gain, std::uint64_t configuration_generation,
+                            std::int64_t session_epoch_nanoseconds,
                             AacEncoder::PacketCallback packet_callback, std::string& error);
   void stop();
   [[nodiscard]] bool running() const noexcept;
+  void set_gain(double gain);
+  void set_logical_source_id(std::string logical_source_id);
   [[nodiscard]] std::uint64_t packet_count() const noexcept;
+  [[nodiscard]] std::uint64_t rejected_layout_count() const noexcept;
+  [[nodiscard]] std::string error() const;
   [[nodiscard]] std::string status() const;
 
  private:

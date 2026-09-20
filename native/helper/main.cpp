@@ -595,6 +595,17 @@ class HelperSession final {
             {"videoPacketCount", write_result.video_packets},
             {"systemAudioPacketCount", write_result.system_audio_packets},
             {"microphonePacketCount", write_result.microphone_packets},
+            {"audioStreams", [&] {
+               nlohmann::json manifest = nlohmann::json::array();
+               for (const auto& stream : write_result.audio_streams) {
+                 manifest.push_back({{"index", stream.absolute_stream_index},
+                                     {"audioOrdinal", stream.audio_ordinal},
+                                     {"logicalId", stream.logical_id},
+                                     {"title", stream.title},
+                                     {"default", stream.default_track}});
+               }
+               return manifest;
+             }()},
             {"captureDiagnostics", capture_diagnostics},
         };
         set_hotkey_result(hotkey_result);
@@ -618,27 +629,16 @@ class HelperSession final {
                                                 : targeted_process_->executable_name)
                                       : std::nullopt;
         nlohmann::json audio_streams = nlohmann::json::array();
-        // Medal's edit path passes these values back to ffmpeg as absolute
-        // stream indexes (`0:<index>`), not indexes within the audio-only
-        // array.  The MP4 writer always emits video first, then audio tracks
-        // in mixed/game/microphone order, so preserve that exact container
-        // ordering here.  Sending 0,1 for a video+PC+mic file accidentally
-        // filtered the video stream and left the original PC audio audible.
-        std::size_t next_audio_stream_index = 1;  // stream 0 is the video track
-        const auto append_audio_stream = [&](native_port::TrackKind track, std::string title) {
-          const auto found = std::find_if(snapshot->packets.begin(), snapshot->packets.end(),
-                                          [track](const auto& packet) { return packet->track == track; });
-          if (found != snapshot->packets.end()) {
-            audio_streams.push_back({{"index", next_audio_stream_index++}, {"title", std::move(title)}});
-          }
-        };
-        // These are the source names the imported Medal client uses when it
-        // builds `metadata.audioStreams` from ffprobe.  Keeping them in the
-        // contentCreate metadata makes its normal Audio menu useful instead
-        // of falling back to “Audio Stream #N”.
-        append_audio_stream(native_port::TrackKind::mixed_audio, "PC Audio");
-        append_audio_stream(native_port::TrackKind::game_audio, "Game Audio");
-        append_audio_stream(native_port::TrackKind::microphone_audio, "Microphone");
+        // The writer's finalized manifest is authoritative. Medal's edit path
+        // consumes absolute MP4 stream indexes (`0:<index>`), so do not
+        // reconstruct an audio-only ordinal list here.
+        for (const auto& stream : write_result.audio_streams) {
+          audio_streams.push_back({{"index", stream.absolute_stream_index},
+                                   {"audioOrdinal", stream.audio_ordinal},
+                                   {"logicalId", stream.logical_id},
+                                   {"title", stream.title},
+                                   {"default", stream.default_track}});
+        }
         dispatch_to_network([this, uuid, output, now, duration_seconds, category_id, process_name,
                              audio_streams = std::move(audio_streams)] {
           (void)begin_registration(uuid, output, now, duration_seconds, category_id, process_name,
@@ -1319,6 +1319,14 @@ class HelperSession final {
     try {
       const auto result = native_port::write_mp4(temporary, *snapshot);
       std::filesystem::rename(temporary, output);
+      nlohmann::json audio_manifest = nlohmann::json::array();
+      for (const auto& stream : result.audio_streams) {
+        audio_manifest.push_back({{"index", stream.absolute_stream_index},
+                                  {"audioOrdinal", stream.audio_ordinal},
+                                  {"logicalId", stream.logical_id},
+                                  {"title", stream.title},
+                                  {"default", stream.default_track}});
+      }
       return {
           {"saved", true},
           {"fileName", output.filename().string()},
@@ -1327,6 +1335,7 @@ class HelperSession final {
           {"videoPacketCount", result.video_packets},
           {"systemAudioPacketCount", result.system_audio_packets},
           {"microphonePacketCount", result.microphone_packets},
+          {"audioStreams", std::move(audio_manifest)},
       };
     } catch (...) {
       std::filesystem::remove(temporary, cleanup_error);
@@ -1463,7 +1472,7 @@ class HelperSession final {
     }
     return begin_registration(uuid, clip_location, created_at, export_duration,
                               std::string("test-game"), std::string("NativePortIsolatedTest"),
-                              nlohmann::json::array({{{"index", 0}, {"title", "PC Audio"}}}));
+                              nlohmann::json::array());
   }
 
   [[nodiscard]] nlohmann::json begin_registration(
@@ -1894,12 +1903,10 @@ class HelperSession final {
         }
         respond(request, nullptr);
       } else if (request.method == "audioProcesses") {
-        // The original renderer expects the Windows-shaped fields
-        // processName/displayName/icon, but the adapter keeps the native PID
-        // and bundle identity authoritative. This list is intentionally
-        // limited to user-selectable applications; internal helpers and Dock
-        // are filtered by the macOS process model.
-        auto processes = adapter_->active_processes();
+        // Audio clients come from HAL, not ScreenCaptureKit/window discovery.
+        // Keep native PID/bundle fields for source resolution and add only the
+        // legacy display field required by the imported renderer.
+        auto processes = adapter_->audio_processes();
         if (processes.is_array()) {
           for (auto& process : processes) {
             if (process.is_object() && process.contains("processName")) {

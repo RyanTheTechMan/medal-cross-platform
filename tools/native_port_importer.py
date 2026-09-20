@@ -452,9 +452,9 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
     operations.append(exact_replace(
         main_path,
         'let T=r??i;if(o!=="session")try{Object.assign(k,await fd(T))}catch(G){oe.logger.error(`failed to probe media! ${G}`)}',
-        'let T=r??i;if(o!=="session")try{const G=await fd(T);Object.assign(k,G);Array.isArray(N.audioStreams)&&N.audioStreams.length>0&&(k.audioStreams=N.audioStreams.map((q,F)=>({index:Number.isInteger(G.audioStreams?.[F]?.index)?G.audioStreams[F].index:(Number.isInteger(q?.index)?q.index:F),title:typeof q?.title==="string"&&q.title.trim().length>0?q.title.trim():void 0,codecName:G.audioStreams?.[F]?.codecName,sampleRate:G.audioStreams?.[F]?.sampleRate,bitRate:G.audioStreams?.[F]?.bitRate})).filter(q=>q.title))}catch(G){oe.logger.error(`failed to probe media! ${G}`)}',
+        'let T=r??i;if(o!=="session")try{const G=await fd(T);Object.assign(k,G);Array.isArray(G.audioStreams)&&(k.audioStreams=(()=>{const q=Array.isArray(N.audioStreams)?N.audioStreams:[],F=new Map,H=new Set(G.audioStreams.map((A,B)=>Number.isInteger(A?.index)?A.index:B));for(const A of q){if(!Number.isInteger(A?.index)||A.index<0||F.has(A.index)||!H.has(A.index))throw new Error("invalid native audio stream index");F.set(A.index,A)}return G.audioStreams.map((A,B)=>{const C=Number.isInteger(A?.index)?A.index:B,D=F.get(C),E=typeof D?.title==="string"&&D.title.trim().length>0?D.title.trim():(typeof A?.title==="string"&&A.title.trim().length>0?A.title.trim():`Audio Stream #${B+1}`);return {index:C,audioOrdinal:B,title:E,isMuted:D?.isMuted===true,codecName:A?.codecName,sampleRate:A?.sampleRate,bitRate:A?.bitRate}})})())}catch(G){oe.logger.error(`failed to probe media! ${G}`)}',
         1,
-        'preserve-native-audio-stream-labels-and-probe-indexes-through-content-create',
+        'preserve-authoritative-probed-audio-streams-and-validated-native-manifest',
         'main.min.js',
     ))
     operations.append(exact_replace(

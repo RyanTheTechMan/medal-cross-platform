@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <string>
 #include <string_view>
 #include <vector>
 
@@ -28,6 +29,9 @@ struct EncodedPacket final {
   Codec codec{Codec::h264};
   TrackKind track{TrackKind::video};
   std::uint32_t track_id{0};
+  // Stable logical source identity within this media generation. This is not
+  // a PID and remains valid when an application is relaunched.
+  std::string logical_source_id;
   std::uint64_t configuration_generation{0};
   MediaTime pts{};
   MediaTime dts{};

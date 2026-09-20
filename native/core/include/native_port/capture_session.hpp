@@ -39,6 +39,7 @@ struct CaptureConfiguration final {
     std::string id;
     bool enabled{false};
     std::uint32_t volume_percent{100};
+    double gain_linear{1.0};
   };
   std::vector<AudioSource> audio_sources;
   bool multiple_audio_tracks{true};
