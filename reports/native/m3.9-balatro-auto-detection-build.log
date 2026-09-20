@@ -1,0 +1,5 @@
+[1/2] Building CXX object native/helper/CMakeFiles/native_medal_recorder.dir/main.cpp.o
+[2/2] Linking CXX executable native/helper/native_medal_recorder.app/Contents/MacOS/native_medal_recorder; Signing the stable Native Medal Recorder development identity
+/Users/ryan/Developer/medal-cross-platform/build-macos/native/helper/native_medal_recorder.app: replacing existing signature
+/Users/ryan/Developer/medal-cross-platform/build-macos/native/helper/native_medal_recorder.app: valid on disk
+/Users/ryan/Developer/medal-cross-platform/build-macos/native/helper/native_medal_recorder.app: satisfies its Designated Requirement

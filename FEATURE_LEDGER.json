@@ -695,7 +695,8 @@
           "reports/native/m3.7-process-target-model.md",
           "reports/native/m3.7-auto-classification.md",
           "reports/native/m3.8l-window-filter-routing.md",
-          "reports/native/m3.8l-minecraft-window-hotkey-diagnostics.json"
+          "reports/native/m3.8l-minecraft-window-hotkey-diagnostics.json",
+          "reports/native/m3.9-balatro-auto-detection.md"
         ],
         "limitations": [
           "Minecraft PID/bundle/window-aware targeting is verified through the original hotkey/contentCreate/playback path. Target disappearance, window recreation/fullscreen transitions and complete lifecycle monitoring remain unverified."
@@ -778,9 +779,10 @@
         "report_paths": [
           "reports/native/ctest-m2.6-xcode-27.2-beta.log",
           "reports/native/m3.6-desktop-ui-roundtrip.md",
-          "reports/native/m3.7-process-target-model.md",
-          "reports/native/m3.7-auto-classification.md",
-          "reports/native/m3.9-process-selector-filter.md"
+            "reports/native/m3.7-process-target-model.md",
+            "reports/native/m3.7-auto-classification.md",
+            "reports/native/m3.9-process-selector-filter.md",
+            "reports/native/m3.9-balatro-auto-detection.md"
         ],
         "limitations": [
           "The manual chooser now hides internal accessory/prohibited helpers while retaining regular applications and explicit Java/Minecraft/A Dance of Fire and Ice window exceptions. Automatic detection retains the complete native model; Minecraft fallback and target lifecycle monitoring remain separate gates."
@@ -2104,10 +2106,11 @@
         "report_paths": [
           "reports/native/m3.7-auto-classification.md",
           "reports/native/m3.8l-window-filter-routing.md",
-          "reports/native/m3.8l-minecraft-window-content-outbox.json"
+          "reports/native/m3.8l-minecraft-window-content-outbox.json",
+          "reports/native/m3.9-balatro-auto-detection.md"
         ],
         "limitations": [
-          "The original handler received native target success and the category game-state sequence for A Dance of Fire and Ice, and the Minecraft target completed a real window-filtered replay. Source disappearance and window recreation remain unverified."
+          "The original handler received native target success and category game-state sequences for A Dance of Fire and Ice and Balatro, and the Minecraft target completed a real window-filtered replay. Source disappearance and window recreation remain unverified."
         ]
       },
       "linux": {

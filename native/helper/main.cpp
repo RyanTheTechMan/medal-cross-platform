@@ -939,20 +939,40 @@ class HelperSession final {
   }
 
   [[nodiscard]] static bool is_native_game_candidate(const native_port::ProcessIdentity& process) {
-    // This is deliberately only a native candidate filter, not a replacement
-    // for Medal's game database.  The imported client still resolves the
-    // candidate through its authenticated /games/requests call, which returns
-    // the real Medal gameRequestId/category metadata.  These two signatures
-    // are the installed games exercised by the M3 gate; all other applications
-    // remain visible in getActiveProcesses but are not auto-targeted.
-    if (process.bundle_identifier == "com.7thbeat.adofai" ||
-        process.executable_name == "ADanceOfFireAndIce" ||
-        process.application_name == "A Dance of Fire and Ice") {
+    // This is a native launch-origin filter, not a replacement for Medal's
+    // game database. The imported client still resolves the candidate through
+    // its authenticated /games/requests and category-search calls, which
+    // return the real Medal gameRequestId/category metadata. Steam (and the
+    // other supported game-launcher roots) provide a stable cross-title signal
+    // without inventing a local game list; ordinary apps such as Terminal and
+    // Discord remain visible to the manual chooser but are not auto-targeted.
+    const auto lowercase = [](std::string value) {
+      std::transform(value.begin(), value.end(), value.begin(), [](unsigned char character) {
+        return static_cast<char>(std::tolower(character));
+      });
+      return value;
+    };
+    const auto bundle = lowercase(process.bundle_identifier);
+    const auto executable = lowercase(process.executable_name);
+    const auto application = lowercase(process.application_name);
+    const auto path = lowercase(process.executable_path);
+    const auto has_visible_window = !process.windows.empty();
+    const auto launched_from_game_store =
+        path.find("/steam/steamapps/common/") != std::string::npos ||
+        path.find("/steamapps/common/") != std::string::npos ||
+        path.find("/epic games/") != std::string::npos ||
+        path.find("/gog games/") != std::string::npos ||
+        path.find("/riot games/") != std::string::npos ||
+        path.find("/battle.net/") != std::string::npos;
+    if (has_visible_window && launched_from_game_store) {
       return true;
     }
-    if (process.application_name == "Minecraft" &&
-        (process.executable_name == "java" ||
-         process.bundle_identifier == "com.mojang.minecraftlauncher")) {
+    if (bundle == "com.7thbeat.adofai" || executable == "adanceoffireandice" ||
+        application == "a dance of fire and ice") {
+      return true;
+    }
+    if (application == "minecraft" &&
+        (executable == "java" || bundle == "com.mojang.minecraftlauncher")) {
       return true;
     }
     return false;
