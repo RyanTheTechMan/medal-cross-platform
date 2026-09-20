@@ -9,6 +9,7 @@
 #include "native_port/capture_session.hpp"
 
 #include "audio_encoder.hpp"
+#include "process_audio_tap.hpp"
 #include "native_port/capture_geometry.hpp"
 
 #include <algorithm>
@@ -17,6 +18,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <cctype>
 #include <cstring>
 #include <limits>
 #include <memory>
@@ -318,6 +320,12 @@ class MacCaptureSession final : public CaptureSession {
       if (stream_ != nil) {
         [stream_ stopCaptureWithCompletionHandler:nil];
       }
+      if (system_audio_stream_ != nil) {
+        [system_audio_stream_ stopCaptureWithCompletionHandler:nil];
+      }
+      if (microphone_stream_ != nil) {
+        [microphone_stream_ stopCaptureWithCompletionHandler:nil];
+      }
       destroy_encoder();
       destroy_audio_encoders();
       stream_ = nil;
@@ -435,6 +443,10 @@ class MacCaptureSession final : public CaptureSession {
       if (selected == nil) {
         fail("source_disappeared", "the selected display is no longer available");
         return;
+      }
+      {
+        std::scoped_lock lock(mutex_);
+        audio_display_id_ = selected.displayID;
       }
       SCContentFilter* filter = [[SCContentFilter alloc] initWithDisplay:selected
                                                         excludingWindows:@[]];
@@ -555,6 +567,10 @@ class MacCaptureSession final : public CaptureSession {
         fail("source_disappeared", "the selected application has no capturable window or display anchor");
         return;
       }
+      if (SCDisplay* audio_display = display_for_application(content, selected); audio_display != nil) {
+        std::scoped_lock lock(mutex_);
+        audio_display_id_ = audio_display.displayID;
+      }
       start_stream_if_current(filter, generation);
     }];
   }
@@ -569,6 +585,12 @@ class MacCaptureSession final : public CaptureSession {
       ++source_selection_generation_;
       state_ = "stopping";
       stream = stream_;
+      if (system_audio_stream_ != nil) {
+        [system_audio_stream_ stopCaptureWithCompletionHandler:nil];
+      }
+      if (microphone_stream_ != nil) {
+        [microphone_stream_ stopCaptureWithCompletionHandler:nil];
+      }
     }
     publish_event("stopping", "requested");
     if (stream == nil) {
@@ -719,7 +741,15 @@ class MacCaptureSession final : public CaptureSession {
     }
   }
 
-  void stream_stopped(NSError* error) {
+  void stream_stopped(SCStream* stream, NSError* error) {
+    if (stream != nil && stream == system_audio_stream_) {
+      system_audio_stream_ = nil;
+      return;
+    }
+    if (stream != nil && stream == microphone_stream_) {
+      microphone_stream_ = nil;
+      return;
+    }
     fail("stream_stopped", error_text(error));
   }
 
@@ -783,6 +813,120 @@ class MacCaptureSession final : public CaptureSession {
         fail("system_audio_encoder_failed", std::move(error));
       }
     }
+  }
+
+  [[nodiscard]] std::optional<std::int64_t> pid_for_audio_source(
+      const std::string& source_id, const CaptureConfiguration& configuration) const {
+    if (source_id == "game-audio") {
+      return configuration.target_process_id;
+    }
+    std::string requested = source_id;
+    if (requested.ends_with(".exe")) {
+      requested.resize(requested.size() - 4);
+    }
+    const auto lower = [](std::string value) {
+      std::transform(value.begin(), value.end(), value.begin(),
+                     [](unsigned char character) { return static_cast<char>(std::tolower(character)); });
+      return value;
+    };
+    requested = lower(requested);
+    for (NSRunningApplication* application in NSWorkspace.sharedWorkspace.runningApplications) {
+      if (application.processIdentifier <= 0) {
+        continue;
+      }
+      const auto executable = lower(application.executableURL.lastPathComponent.UTF8String
+                                        ? application.executableURL.lastPathComponent.UTF8String
+                                        : "");
+      const auto localized = lower(application.localizedName.UTF8String
+                                       ? application.localizedName.UTF8String
+                                       : "");
+      const auto bundle = lower(application.bundleIdentifier.UTF8String
+                                    ? application.bundleIdentifier.UTF8String
+                                    : "");
+      if (requested == executable || requested == localized || requested == bundle ||
+          (source_id == "MedalEncoder.exe" && bundle == "com.squirrel.medal.medal")) {
+        return static_cast<std::int64_t>(application.processIdentifier);
+      }
+    }
+    return std::nullopt;
+  }
+
+  void start_process_audio_taps(const CaptureConfiguration& configuration) {
+    destroy_process_audio_taps();
+    std::vector<std::int64_t> pids;
+    std::uint32_t volume = 100;
+    TrackKind track = TrackKind::mixed_audio;
+    if (configuration.audio_mode == "gameOnly") {
+      if (configuration.target_process_id) {
+        pids.push_back(*configuration.target_process_id);
+      }
+      track = TrackKind::game_audio;
+      volume = configuration.audio_sources.empty() ? 100 : configuration.audio_sources.front().volume_percent;
+    } else if (configuration.audio_mode == "splitByProcess") {
+      for (const auto& source : configuration.audio_sources) {
+        if (!source.enabled || source.id == "game-audio") {
+          continue;  // game audio is supplied by the target SCStream below.
+        }
+        if (const auto pid = pid_for_audio_source(source.id, configuration); pid) {
+          pids.push_back(*pid);
+          volume = std::max(volume, source.volume_percent);
+        }
+      }
+    }
+    if (pids.empty()) {
+      if (configuration.audio_mode == "gameOnly") {
+        std::scoped_lock lock(mutex_);
+        audio_tap_error_ = "Game Audio Only is enabled, but the target process has no Core Audio tap";
+      }
+      return;
+    }
+    auto tap = std::make_unique<ProcessAudioTap>();
+    std::string error;
+    if (!tap->start(pids, track, track == TrackKind::game_audio ? 1U : 3U,
+                    static_cast<double>(volume) / 100.0,
+                    configuration_generation_.load(std::memory_order_relaxed),
+                    [this](std::shared_ptr<const EncodedPacket> packet) {
+                      packet_callback_(std::move(packet));
+                    },
+                    error)) {
+      std::scoped_lock lock(mutex_);
+      audio_tap_error_ = std::move(error);
+      if (configuration.audio_mode == "gameOnly") {
+        last_error_ = audio_tap_error_;
+      }
+      return;
+    }
+    process_audio_taps_.push_back(std::move(tap));
+  }
+
+  // `capture_system_audio` means that the selected audio configuration has at
+  // least one system-side source. It does not mean that the primary
+  // ScreenCaptureKit stream should always receive audio: in Specific Apps
+  // mode named applications are Core Audio process taps, while only the
+  // optional Game Audio source belongs to the target SCStream. Keeping this
+  // distinction here prevents a Discord/Medal-only selection from being
+  // silently replaced with the entire system mix.
+  [[nodiscard]] bool game_audio_selected(const CaptureConfiguration& configuration) const {
+    if (!configuration.capture_system_audio) {
+      return false;
+    }
+    if (configuration.audio_mode == "allPcAudio" || configuration.audio_mode == "gameOnly") {
+      return configuration.audio_mode == "gameOnly" || configuration.pc_audio_enabled;
+    }
+    if (configuration.audio_mode == "splitByProcess") {
+      return std::any_of(configuration.audio_sources.begin(), configuration.audio_sources.end(),
+                         [](const CaptureConfiguration::AudioSource& source) {
+                           return source.enabled && source.id == "game-audio";
+                         });
+    }
+    return false;
+  }
+
+  void destroy_process_audio_taps() {
+    for (auto& tap : process_audio_taps_) {
+      tap->stop();
+    }
+    process_audio_taps_.clear();
   }
 
   static void encoder_output(void* output_callback_refcon, void* source_frame_refcon, OSStatus status,
@@ -903,14 +1047,18 @@ class MacCaptureSession final : public CaptureSession {
       stream_configuration.scalesToFit = YES;
       stream_configuration.preservesAspectRatio = YES;
       stream_configuration.showsCursor = configuration.show_cursor;
-      stream_configuration.capturesAudio = configuration.capture_system_audio;
-      stream_configuration.captureMicrophone = configuration.capture_microphone;
-      if (configuration.capture_microphone) {
-        if (NSString* device_uid = microphone_capture_device_uid(configuration.microphone_device_name);
-            device_uid != nil) {
-          stream_configuration.microphoneCaptureDeviceID = device_uid;
-        }
-      }
+      const bool targeted_full_mix =
+          configuration.audio_mode == "allPcAudio" && configuration.pc_audio_enabled &&
+          configuration.capture_system_audio && std::string(source_kind) != "display";
+      const bool game_audio_enabled = game_audio_selected(configuration);
+      stream_configuration.capturesAudio = game_audio_enabled && !targeted_full_mix;
+      // Keep microphone capture on its own display-anchored SCStream.  The
+      // primary application/window stream is allowed to change filters during
+      // fullscreen and ScreenCaptureKit can omit microphone callbacks for a
+      // desktop-independent window filter even while reporting permission as
+      // authorized.  A dedicated audio-only stream makes the microphone a
+      // stable independent track and avoids coupling it to the game source.
+      stream_configuration.captureMicrophone = NO;
       stream_configuration.excludesCurrentProcessAudio = YES;
       stream_configuration.sampleRate = 48'000;
       stream_configuration.channelCount = 2;
@@ -922,6 +1070,7 @@ class MacCaptureSession final : public CaptureSession {
         return;
       }
       create_audio_encoders(configuration);
+      start_process_audio_taps(configuration);
 
       SCStream* new_stream = [[SCStream alloc] initWithFilter:filter
                                                 configuration:stream_configuration
@@ -935,7 +1084,7 @@ class MacCaptureSession final : public CaptureSession {
         fail("stream_output_failed", error_text(add_error));
         return;
       }
-      if (configuration.capture_system_audio &&
+      if (game_audio_enabled &&
           ![new_stream addStreamOutput:delegate_
                                   type:SCStreamOutputTypeAudio
                     sampleHandlerQueue:dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0)
@@ -983,7 +1132,160 @@ class MacCaptureSession final : public CaptureSession {
         }
         publish_event("capturing", "capture_started");
       }];
+      if (configuration.audio_mode == "allPcAudio" && configuration.pc_audio_enabled &&
+          configuration.capture_system_audio && std::string(source_kind) != "display") {
+        // ScreenCaptureKit scopes audio to an application/window filter. A
+        // second display-anchored audio-only stream supplies the full PC mix.
+        start_system_audio_stream_for_display(configuration);
+      }
+      if (configuration.capture_microphone) {
+        start_microphone_stream_for_display(configuration);
+      }
     }
+  }
+
+  void start_system_audio_stream_for_display(const CaptureConfiguration&) {
+    std::optional<std::uint32_t> display_id;
+    {
+      std::scoped_lock lock(mutex_);
+      display_id = audio_display_id_;
+    }
+    if (!display_id) {
+      return;
+    }
+    [SCShareableContent
+        getShareableContentExcludingDesktopWindows:NO
+                             onScreenWindowsOnly:NO
+                                completionHandler:^(SCShareableContent* content, NSError* error) {
+      if (error != nil || content == nil) {
+        std::scoped_lock lock(mutex_);
+        last_error_ = "allPcAudio display stream enumeration failed: " + error_text(error);
+        return;
+      }
+      SCDisplay* selected = nil;
+      for (SCDisplay* display in content.displays) {
+        if (display.displayID == *display_id) {
+          selected = display;
+          break;
+        }
+      }
+      if (selected == nil) {
+        std::scoped_lock lock(mutex_);
+        last_error_ = "allPcAudio display stream source disappeared";
+        return;
+      }
+      SCContentFilter* filter = [[SCContentFilter alloc] initWithDisplay:selected
+                                                        excludingWindows:@[]];
+      SCStreamConfiguration* audio_configuration = [[SCStreamConfiguration alloc] init];
+      audio_configuration.width = 2;
+      audio_configuration.height = 2;
+      audio_configuration.minimumFrameInterval = CMTimeMake(1, 1);
+      audio_configuration.queueDepth = 2;
+      audio_configuration.capturesAudio = YES;
+      audio_configuration.captureMicrophone = NO;
+      // The host Electron process owns Medal's clip sound. Do not exclude the
+      // helper's process here; the display mix is the user's selected PC mix.
+      audio_configuration.excludesCurrentProcessAudio = NO;
+      audio_configuration.sampleRate = 48'000;
+      audio_configuration.channelCount = 2;
+      audio_configuration.captureDynamicRange = SCCaptureDynamicRangeSDR;
+      SCStream* audio_stream = [[SCStream alloc] initWithFilter:filter
+                                                   configuration:audio_configuration
+                                                        delegate:delegate_];
+      NSError* add_error = nil;
+      if (![audio_stream addStreamOutput:delegate_
+                                    type:SCStreamOutputTypeAudio
+                      sampleHandlerQueue:dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0)
+                                   error:&add_error]) {
+        std::scoped_lock lock(mutex_);
+        last_error_ = "allPcAudio stream output failed: " + error_text(add_error);
+        return;
+      }
+      {
+        std::scoped_lock lock(mutex_);
+        system_audio_stream_ = audio_stream;
+      }
+      [audio_stream startCaptureWithCompletionHandler:^(NSError* start_error) {
+        if (start_error != nil) {
+          std::scoped_lock lock(mutex_);
+          last_error_ = "allPcAudio stream start failed: " + error_text(start_error);
+        }
+      }];
+    }];
+  }
+
+  void start_microphone_stream_for_display(const CaptureConfiguration& configuration) {
+    std::optional<std::uint32_t> display_id;
+    {
+      std::scoped_lock lock(mutex_);
+      display_id = audio_display_id_;
+    }
+    if (!display_id) {
+      std::scoped_lock lock(mutex_);
+      last_error_ = "microphone stream has no display anchor";
+      return;
+    }
+    [SCShareableContent
+        getShareableContentExcludingDesktopWindows:NO
+                             onScreenWindowsOnly:NO
+                                completionHandler:^(SCShareableContent* content, NSError* error) {
+      if (error != nil || content == nil) {
+        std::scoped_lock lock(mutex_);
+        last_error_ = "microphone display stream enumeration failed: " + error_text(error);
+        return;
+      }
+      SCDisplay* selected = nil;
+      for (SCDisplay* display in content.displays) {
+        if (display.displayID == *display_id) {
+          selected = display;
+          break;
+        }
+      }
+      if (selected == nil) {
+        std::scoped_lock lock(mutex_);
+        last_error_ = "microphone display stream source disappeared";
+        return;
+      }
+      SCContentFilter* filter = [[SCContentFilter alloc] initWithDisplay:selected
+                                                        excludingWindows:@[]];
+      SCStreamConfiguration* microphone_configuration = [[SCStreamConfiguration alloc] init];
+      microphone_configuration.width = 2;
+      microphone_configuration.height = 2;
+      microphone_configuration.minimumFrameInterval = CMTimeMake(1, 1);
+      microphone_configuration.queueDepth = 2;
+      microphone_configuration.capturesAudio = NO;
+      microphone_configuration.captureMicrophone = YES;
+      if (NSString* device_uid = microphone_capture_device_uid(configuration.microphone_device_name);
+          device_uid != nil) {
+        microphone_configuration.microphoneCaptureDeviceID = device_uid;
+      }
+      microphone_configuration.excludesCurrentProcessAudio = YES;
+      microphone_configuration.sampleRate = 48'000;
+      microphone_configuration.channelCount = 2;
+      microphone_configuration.captureDynamicRange = SCCaptureDynamicRangeSDR;
+      SCStream* microphone_stream = [[SCStream alloc] initWithFilter:filter
+                                                           configuration:microphone_configuration
+                                                                delegate:delegate_];
+      NSError* add_error = nil;
+      if (![microphone_stream addStreamOutput:delegate_
+                                         type:SCStreamOutputTypeMicrophone
+                           sampleHandlerQueue:dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0)
+                                        error:&add_error]) {
+        std::scoped_lock lock(mutex_);
+        last_error_ = "microphone stream output failed: " + error_text(add_error);
+        return;
+      }
+      {
+        std::scoped_lock lock(mutex_);
+        microphone_stream_ = microphone_stream;
+      }
+      [microphone_stream startCaptureWithCompletionHandler:^(NSError* start_error) {
+        if (start_error != nil) {
+          std::scoped_lock lock(mutex_);
+          last_error_ = "microphone stream start failed: " + error_text(start_error);
+        }
+      }];
+    }];
   }
 
   [[nodiscard]] bool create_encoder(std::size_t width, std::size_t height,
@@ -1131,19 +1433,23 @@ class MacCaptureSession final : public CaptureSession {
     std::scoped_lock lock(audio_encoder_mutex_);
     system_audio_encoder_.reset();
     microphone_encoder_.reset();
-    if (configuration.capture_system_audio) {
+    if (game_audio_selected(configuration)) {
       system_audio_encoder_ = std::make_shared<AacEncoder>(
-          TrackKind::game_audio, 1, 160'000,
+          configuration.audio_mode == "allPcAudio" ? TrackKind::mixed_audio : TrackKind::game_audio,
+          1, 160'000,
+          static_cast<double>(configuration.system_audio_volume_percent) / 100.0,
           [this](std::shared_ptr<const EncodedPacket> packet) { packet_callback_(std::move(packet)); });
     }
     if (configuration.capture_microphone) {
       microphone_encoder_ = std::make_shared<AacEncoder>(
           TrackKind::microphone_audio, 2, 96'000,
+          static_cast<double>(configuration.microphone_volume_percent) / 100.0,
           [this](std::shared_ptr<const EncodedPacket> packet) { packet_callback_(std::move(packet)); });
     }
   }
 
   void destroy_audio_encoders() {
+    destroy_process_audio_taps();
     std::shared_ptr<AacEncoder> system_audio;
     std::shared_ptr<AacEncoder> microphone;
     {
@@ -1224,6 +1530,8 @@ class MacCaptureSession final : public CaptureSession {
     {
       std::scoped_lock lock(mutex_);
       stream_ = nil;
+      system_audio_stream_ = nil;
+      microphone_stream_ = nil;
       state_ = "stopped";
     }
     publish_event("stopped", "requested");
@@ -1340,8 +1648,14 @@ class MacCaptureSession final : public CaptureSession {
         {"inactiveFrames", inactive_frames_.load(std::memory_order_relaxed)},
         {"lastFrameStatusCode", static_cast<int>(last_frame_status_.load(std::memory_order_relaxed))},
         {"audio",
-         {{"system", audio_status(system_audio, configuration_.capture_system_audio)},
-          {"microphone", audio_status(microphone, configuration_.capture_microphone)}}},
+         {{"mode", configuration_.audio_mode},
+          {"pcAudioEnabled", configuration_.pc_audio_enabled},
+          {"system", audio_status(system_audio, configuration_.capture_system_audio)},
+          {"microphone", audio_status(microphone, configuration_.capture_microphone)},
+          {"selectedOutputDevices", configuration_.selected_audio_devices},
+          {"multipleTracks", configuration_.multiple_audio_tracks},
+          {"processTaps", process_audio_taps_.size()},
+          {"processTapError", audio_tap_error_}}},
         {"sourceEnumeration",
          {{"state", enumeration_state_},
           {"displayCount", display_count_},
@@ -1407,8 +1721,13 @@ class MacCaptureSession final : public CaptureSession {
   NativePortCaptureDelegate* delegate_{nil};
   SCStream* stream_{nil};
   VTCompressionSessionRef encoder_{nullptr};
+  std::optional<std::uint32_t> audio_display_id_;
+  SCStream* system_audio_stream_{nil};
+  SCStream* microphone_stream_{nil};
   std::shared_ptr<AacEncoder> system_audio_encoder_;
   std::shared_ptr<AacEncoder> microphone_encoder_;
+  std::vector<std::unique_ptr<ProcessAudioTap>> process_audio_taps_;
+  std::string audio_tap_error_;
   std::atomic<bool> microphone_failure_reported_{false};
 };
 
@@ -1449,9 +1768,8 @@ class MacCaptureSession final : public CaptureSession {
 }
 
 - (void)stream:(SCStream*)stream didStopWithError:(NSError*)error {
-  (void)stream;
   if (self.owner != nullptr) {
-    self.owner->stream_stopped(error);
+    self.owner->stream_stopped(stream, error);
   }
 }
 

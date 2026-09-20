@@ -449,6 +449,22 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
         'enable-native-thumbnail-generation',
         'main.min.js',
     ))
+    operations.append(exact_replace(
+        main_path,
+        'let T=r??i;if(o!=="session")try{Object.assign(k,await fd(T))}catch(G){oe.logger.error(`failed to probe media! ${G}`)}',
+        'let T=r??i;if(o!=="session")try{const G=await fd(T);Object.assign(k,G);Array.isArray(N.audioStreams)&&N.audioStreams.length>0&&(k.audioStreams=N.audioStreams.map((q,F)=>({index:Number.isInteger(G.audioStreams?.[F]?.index)?G.audioStreams[F].index:(Number.isInteger(q?.index)?q.index:F),title:typeof q?.title==="string"&&q.title.trim().length>0?q.title.trim():void 0,codecName:G.audioStreams?.[F]?.codecName,sampleRate:G.audioStreams?.[F]?.sampleRate,bitRate:G.audioStreams?.[F]?.bitRate})).filter(q=>q.title))}catch(G){oe.logger.error(`failed to probe media! ${G}`)}',
+        1,
+        'preserve-native-audio-stream-labels-and-probe-indexes-through-content-create',
+        'main.min.js',
+    ))
+    operations.append(exact_replace(
+        main_path,
+        'process.platform==="win32"){const o=await Ro(s)',
+        'process.platform==="win32"||process.platform==="darwin"){const o=await Ro(s)',
+        1,
+        'enable-native-audio-track-edits-on-macos',
+        'main.min.js',
+    ))
     active_displays_path = stage_app / 'chunks' / 'renderer-useActiveDisplays.js'
     operations.append(exact_replace(
         active_displays_path,
@@ -480,6 +496,22 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
         'this.#h(),this.sendRequest("nativePort.permissionStatus").then(e=>{const t=e?.microphone?.status,r=!e?.screenRecording?.granted,o=t==="denied"||t==="restricted";((r||o)&&this.sendNotification("recorderError",{type:"microphone-permission-required",fallback:"Medal needs Microphone and Screen Recording access. Open System Settings > Privacy & Security, enable the signed Medal entries, then restart Medal."})),(t==="not_determined"||r)&&this.sendRequest("nativePort.requestPermissions").catch(()=>{}),o&&this.sendRequest("nativePort.openPermissionSettings").catch(()=>{});try{require("electron").systemPreferences?.askForMediaAccess?.("microphone")?.catch?.(()=>{})}catch{}}).catch(()=>{}),this.#e=null,this.#t=null,this.#n=null,this.onUserAuthChange(oe.authObject)',
         1,
         'request-and-surface-macos-tcc-prerequisites',
+        'main.min.js',
+    ))
+    operations.append(exact_replace(
+        main_path,
+        '),this.#e===e.userId)return;if(oe.EnvironmentUtils){',
+        '),this.#e===e.userId){const n=await L5(),r=await eM();this.sendNotification("settings",{settings:[...n,...r]});return}if(oe.EnvironmentUtils){',
+        1,
+        'resync-recorder-settings-on-native-helper-reconnect',
+        'main.min.js',
+    ))
+    operations.append(exact_replace(
+        main_path,
+        'function A7e(){const{didReset:e}=this.stateMachine.meta;this.stateMachine.status="ready",this.stateMachine.meta={...this.stateMachine.meta,didReset:!1},this.stateMachine.sessionState={...this.stateMachine.sessionState,currentSessionId:crypto.randomUUID()},Ct.emit("recorderReady"),Vi()&&!ase&&!mT&&(mT=!0,c7e().catch(t=>oe.logger?.warn(`cafe targeted-process cleanup failed: ${t}`)).finally(()=>{mT=!1})),Qk&&Bk&&cse(Bk),Qk=!1,e&&Ua()}',
+        'async function A7e(){const{didReset:e}=this.stateMachine.meta;this.stateMachine.status="ready",this.stateMachine.meta={...this.stateMachine.meta,didReset:!1},this.stateMachine.sessionState={...this.stateMachine.sessionState,currentSessionId:crypto.randomUUID()},Ct.emit("recorderReady"),Vi()&&!ase&&!mT&&(mT=!0,c7e().catch(t=>oe.logger?.warn(`cafe targeted-process cleanup failed: ${t}`)).finally(()=>{mT=!1})),Qk&&Bk&&cse(Bk),Qk=!1,e&&Ua();if(oe.WSHandler){const t=await L5(),n=await eM();oe.WSHandler.sendNotification("settings",{settings:[...t,...n]})}}',
+        1,
+        'resync-all-recorder-settings-after-ready',
         'main.min.js',
     ))
     renderer_path = stage_app / 'renderer.min.js'

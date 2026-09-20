@@ -617,8 +617,32 @@ class HelperSession final {
                                                 ? targeted_process_->application_name
                                                 : targeted_process_->executable_name)
                                       : std::nullopt;
-        dispatch_to_network([this, uuid, output, now, duration_seconds, category_id, process_name] {
-          (void)begin_registration(uuid, output, now, duration_seconds, category_id, process_name);
+        nlohmann::json audio_streams = nlohmann::json::array();
+        // Medal's edit path passes these values back to ffmpeg as absolute
+        // stream indexes (`0:<index>`), not indexes within the audio-only
+        // array.  The MP4 writer always emits video first, then audio tracks
+        // in mixed/game/microphone order, so preserve that exact container
+        // ordering here.  Sending 0,1 for a video+PC+mic file accidentally
+        // filtered the video stream and left the original PC audio audible.
+        std::size_t next_audio_stream_index = 1;  // stream 0 is the video track
+        const auto append_audio_stream = [&](native_port::TrackKind track, std::string title) {
+          const auto found = std::find_if(snapshot->packets.begin(), snapshot->packets.end(),
+                                          [track](const auto& packet) { return packet->track == track; });
+          if (found != snapshot->packets.end()) {
+            audio_streams.push_back({{"index", next_audio_stream_index++}, {"title", std::move(title)}});
+          }
+        };
+        // These are the source names the imported Medal client uses when it
+        // builds `metadata.audioStreams` from ffprobe.  Keeping them in the
+        // contentCreate metadata makes its normal Audio menu useful instead
+        // of falling back to “Audio Stream #N”.
+        append_audio_stream(native_port::TrackKind::mixed_audio, "PC Audio");
+        append_audio_stream(native_port::TrackKind::game_audio, "Game Audio");
+        append_audio_stream(native_port::TrackKind::microphone_audio, "Microphone");
+        dispatch_to_network([this, uuid, output, now, duration_seconds, category_id, process_name,
+                             audio_streams = std::move(audio_streams)] {
+          (void)begin_registration(uuid, output, now, duration_seconds, category_id, process_name,
+                                   audio_streams);
         });
       } catch (const std::exception& error) {
         set_hotkey_result({{"action", action.action},
@@ -655,29 +679,87 @@ class HelperSession final {
     // Desktop/Game start route; the explicit capture* fields are only present
     // in our namespaced capture self-test.  Resolve the production route from
     // those settings instead of silently falling back to video-only capture.
+    // The renderer normalizes the recovered setting before it reaches this
+    // helper: `allPcAudio` carries only selected output-device names and
+    // `splitByProcess` carries source ids/volumes. Keep that wire shape intact
+    // instead of inferring a mode from the UI label.
+    const auto audio_mode = settings_.effective("AudioModeConfig", category);
+    if (audio_mode && audio_mode->is_object()) {
+      result.audio_mode = audio_mode->value("type", std::string{"splitByProcess"});
+      result.pc_audio_enabled = audio_mode->value("pcAudioEnabled", true);
+      result.system_audio_volume_percent = static_cast<std::uint32_t>(std::clamp(
+          audio_mode->value("volume", 100), 0, 150));
+      if (audio_mode->contains("devices") && audio_mode->at("devices").is_array()) {
+        for (const auto& device : audio_mode->at("devices")) {
+          if (device.is_object() && device.value("enabled", true) && device.contains("name") &&
+              device.at("name").is_string()) {
+            result.selected_audio_devices.push_back(device.at("name").get<std::string>());
+          }
+        }
+      }
+      if (audio_mode->contains("sources") && audio_mode->at("sources").is_array()) {
+        for (const auto& source : audio_mode->at("sources")) {
+          if (!source.is_object() || !source.contains("id") || !source.at("id").is_string()) {
+            continue;
+          }
+          result.audio_sources.push_back({source.at("id").get<std::string>(),
+                                         source.value("enabled", false),
+                                         static_cast<std::uint32_t>(std::clamp(
+                                             source.value("volume", 100), 0, 150))});
+        }
+      }
+    }
+    const auto multiple_audio_tracks = settings_.effective("MultipleAudioTracks", category);
+    if (multiple_audio_tracks && multiple_audio_tracks->is_boolean()) {
+      result.multiple_audio_tracks = multiple_audio_tracks->get<bool>();
+    }
+    const auto mic_gain = settings_.effective("MicSoundGain", category);
+    if (mic_gain && mic_gain->is_number()) {
+      result.microphone_volume_percent = static_cast<std::uint32_t>(std::clamp(
+          mic_gain->get<double>(), 0.0, 150.0));
+    }
     if (params.contains("captureSystemAudio")) {
       result.capture_system_audio = params.at("captureSystemAudio").get<bool>();
     } else {
       const auto game_audio_only = settings_.effective("GameAudioOnly", category);
       const bool game_only = game_audio_only && game_audio_only->is_boolean() &&
                              game_audio_only->get<bool>();
-      const auto audio_mode = settings_.effective("AudioModeConfig", category);
       bool configured_system_audio = true;
       if (audio_mode && audio_mode->is_object()) {
         const auto type = audio_mode->value("type", std::string{});
-        configured_system_audio = type != "none" && type != "disabled";
-        if (audio_mode->contains("sources") && audio_mode->at("sources").is_array()) {
-          configured_system_audio = std::any_of(
-              audio_mode->at("sources").begin(), audio_mode->at("sources").end(),
-              [](const nlohmann::json& source) {
-                return source.is_object() && source.value("enabled", true);
-              });
+          configured_system_audio = type != "none" && type != "disabled" &&
+                                  (type != "allPcAudio" || result.pc_audio_enabled);
+          if (audio_mode->contains("sources") && audio_mode->at("sources").is_array()) {
+            if (type == "splitByProcess") {
+            // In Specific Apps mode every enabled source is meaningful. The
+            // game source is supplied by the target ScreenCaptureKit stream;
+            // named applications are supplied by Core Audio process taps.
+            // Keep the aggregate flag true for either case so the native
+            // adapter can route each source independently. It must not turn a
+            // Discord/Medal-only selection into a whole-PC mix.
+            configured_system_audio = std::any_of(
+                audio_mode->at("sources").begin(), audio_mode->at("sources").end(),
+                [](const nlohmann::json& source) {
+                  return source.is_object() && source.value("enabled", true);
+                });
+          } else {
+            configured_system_audio = std::any_of(
+                audio_mode->at("sources").begin(), audio_mode->at("sources").end(),
+                [](const nlohmann::json& source) {
+                  return source.is_object() && source.value("enabled", true);
+                });
+          }
         }
       }
-      // Whole-system audio is the truthful Desktop default.  GameAudioOnly
-      // is not silently broadened: process-isolated Core Audio capture is a
-      // separate capability and remains disabled until implemented.
+      // `GameAudioOnly` remains a strict process-isolation request. The
+      // ScreenCaptureKit system stream is never substituted for it. For the
+      // normal split-by-process route the application filter supplies the game
+      // stream; all-PC mode is handled by a separate display-anchored audio
+      // stream when video is targeted at a window.
       result.capture_system_audio = configured_system_audio && !game_only;
+      if (game_only) {
+        result.audio_mode = "gameOnly";
+      }
     }
     if (params.contains("captureMicrophone")) {
       result.capture_microphone = params.at("captureMicrophone").get<bool>();
@@ -747,10 +829,26 @@ class HelperSession final {
     }
     if (!changed->value.get<bool>()) {
       target_capture_pending_ = false;
+      screen_capture_enable_pending_ = false;
       dispatch_to_main([this] { capture_->stop(); });
       return;
     }
+    // The original client sends the enable flag and the recorder settings as
+    // separate startup messages.  Do not start with the native default while
+    // the authoritative recordingSettings response is still in flight.
+    if (!recording_settings_synced_) {
+      screen_capture_enable_pending_ = true;
+      std::scoped_lock lock(capture_event_mutex_);
+      last_capture_event_ = {{"schemaVersion", 1},
+                             {"state", "waiting_for_settings"},
+                             {"reason", "recording_settings_not_yet_applied"}};
+      return;
+    }
     target_capture_pending_ = false;
+    start_configured_display_capture();
+  }
+
+  void start_configured_display_capture() {
     auto configuration = capture_configuration(nlohmann::json::object());
     configuration.preferred_source_kind = "display";
     const auto display_id = selected_display_id();
@@ -914,6 +1012,7 @@ class HelperSession final {
     target_capture_pending_ = true;
     auto configuration = capture_configuration(nlohmann::json::object());
     configuration.preferred_source_kind = "application";
+    configuration.target_process_id = active->pid;
     const auto target = *active;
     request_application_capture(target, configuration);
   }
@@ -990,6 +1089,11 @@ class HelperSession final {
         {"targetCapturePending", target_capture_pending_},
         {"targetPid", targeted_process_ ? nlohmann::json(targeted_process_->pid) : nlohmann::json(nullptr)},
     };
+    if (!recording_settings_synced_) {
+      detection["decision"] = "waiting_for_recording_settings";
+      persist_auto_detection(detection);
+      return;
+    }
     if (capture_state == "failed") {
       // A source-disappearance callback can arrive while the old SCStream is
       // still attached.  Stop and drain that stream before selecting another
@@ -1006,6 +1110,7 @@ class HelperSession final {
       if (capture_state == "idle" || capture_state == "stopped" || capture_state == "cancelled") {
         auto configuration = capture_configuration(nlohmann::json::object());
         configuration.preferred_source_kind = "application";
+        configuration.target_process_id = targeted_process_->pid;
         const auto target = *targeted_process_;
         request_application_capture(target, configuration);
       }
@@ -1092,6 +1197,28 @@ class HelperSession final {
     }
   }
 
+  void persist_settings_sync(const nlohmann::json& value) const {
+    try {
+      const auto directory = profile_root() / "native-port";
+      std::filesystem::create_directories(directory);
+      std::filesystem::permissions(directory, std::filesystem::perms::owner_all,
+                                   std::filesystem::perm_options::replace);
+      const auto destination = directory / "settings-sync.json";
+      const auto temporary = destination.string() + ".partial-" + std::to_string(::getpid());
+      std::ofstream stream(temporary, std::ios::binary | std::ios::trunc);
+      stream << value.dump(2) << '\n';
+      stream.flush();
+      stream.close();
+      std::filesystem::permissions(temporary,
+                                   std::filesystem::perms::owner_read |
+                                       std::filesystem::perms::owner_write,
+                                   std::filesystem::perm_options::replace);
+      std::filesystem::rename(temporary, destination);
+    } catch (...) {
+      // Diagnostics must never change the capture state.
+    }
+  }
+
   [[nodiscard]] nlohmann::json effective_capture_configuration(const nlohmann::json& params) const {
     const auto configuration = capture_configuration(params);
     return {
@@ -1103,6 +1230,12 @@ class HelperSession final {
         {"showCursor", configuration.show_cursor},
         {"captureSystemAudio", configuration.capture_system_audio},
         {"captureMicrophone", configuration.capture_microphone},
+        {"audioMode", configuration.audio_mode},
+        {"pcAudioEnabled", configuration.pc_audio_enabled},
+        {"systemAudioVolumePercent", configuration.system_audio_volume_percent},
+        {"microphoneVolumePercent", configuration.microphone_volume_percent},
+        {"selectedAudioDevices", configuration.selected_audio_devices},
+        {"multipleAudioTracks", configuration.multiple_audio_tracks},
         {"microphoneDeviceName", configuration.microphone_device_name
                                       ? nlohmann::json(*configuration.microphone_device_name)
                                       : nlohmann::json(nullptr)},
@@ -1127,7 +1260,8 @@ class HelperSession final {
       std::string codec = "unknown";
       for (const auto& packet : snapshot->packets) {
         if (packet->track != native_port::TrackKind::video) {
-          if (packet->track == native_port::TrackKind::game_audio) {
+          if (packet->track == native_port::TrackKind::game_audio ||
+              packet->track == native_port::TrackKind::mixed_audio) {
             ++system_audio_packets;
           } else if (packet->track == native_port::TrackKind::microphone_audio) {
             ++microphone_packets;
@@ -1174,6 +1308,10 @@ class HelperSession final {
       result["lastEvent"] = last_capture_event_;
     }
     result["hotkeys"] = adapter_->clip_hotkey_status();
+    {
+      std::scoped_lock lock(settings_sync_mutex_);
+      result["settingsSync"] = settings_sync_;
+    }
     {
       std::scoped_lock lock(hotkey_result_mutex_);
       result["lastClipAction"] = last_hotkey_result_;
@@ -1369,14 +1507,16 @@ class HelperSession final {
       throw std::invalid_argument("createdAt and a bounded positive exportStatsDuration are required");
     }
     return begin_registration(uuid, clip_location, created_at, export_duration,
-                              std::string("test-game"), std::string("NativePortIsolatedTest"));
+                              std::string("test-game"), std::string("NativePortIsolatedTest"),
+                              nlohmann::json::array({{{"index", 0}, {"title", "PC Audio"}}}));
   }
 
   [[nodiscard]] nlohmann::json begin_registration(
       const std::string& uuid, const std::filesystem::path& clip_location,
       std::int64_t created_at, double export_duration,
       std::optional<std::string> game_category_id,
-      std::optional<std::string> process_name) {
+      std::optional<std::string> process_name,
+      nlohmann::json audio_streams = nlohmann::json::array()) {
     if (registrations_.contains(uuid)) {
       return registration_json(registrations_.at(uuid));
     }
@@ -1399,7 +1539,9 @@ class HelperSession final {
                                              : nlohmann::json(nullptr)},
         {"clipType", "clip"},
         {"captureType", "screen"},
-        {"metadata", {{"triggerType", "Manual"}, {"exportStatsDuration", export_duration}}},
+        {"metadata", {{"triggerType", "Manual"},
+                       {"exportStatsDuration", export_duration},
+                       {"audioStreams", std::move(audio_streams)}}},
     };
     if (process_name) {
       content["processName"] = *process_name;
@@ -1550,6 +1692,104 @@ class HelperSession final {
       complete_registration(id, response);
       return true;
     }
+    if (id == "native-port:recording-settings") {
+      // `recordingSettings` is the original Medal startup request.  The
+      // imported client returns its normalized recorder wire array inside the
+      // usual {result:"success",data:[...]} envelope.  Applying this response
+      // here keeps the native helper on the real client path; a stale or
+      // missing Electron-side settings notification must not silently leave
+      // the helper on its split-by-process default.
+      if (response.error) {
+        const auto error_message = response.error->is_object()
+                                       ? response.error->value("message", "recordingSettings failed")
+                                       : std::string{"recordingSettings returned a malformed error"};
+        const auto sync = nlohmann::json{{"schemaVersion", 1},
+                                         {"state", "failed"},
+                                         {"reason", "recording_settings_request_failed"},
+                                         {"lastError", error_message}};
+        {
+          std::scoped_lock lock(settings_sync_mutex_);
+          settings_sync_ = sync;
+        }
+        persist_settings_sync(sync);
+        std::scoped_lock lock(capture_event_mutex_);
+        last_capture_event_ = {{"schemaVersion", 1},
+                               {"state", "settings_sync_failed"},
+                               {"reason", "recording_settings_request_failed"},
+                               {"lastError", response.error->value("message", "recordingSettings failed")}};
+        return true;
+      }
+      try {
+        if (!response.result) {
+          throw std::runtime_error("recordingSettings returned no result");
+        }
+        const auto& envelope = *response.result;
+        const nlohmann::json* data = &envelope;
+        if (envelope.is_object() && envelope.contains("data")) {
+          data = &envelope.at("data");
+        }
+        if (data->is_object() && data->contains("settings")) {
+          data = &data->at("settings");
+        }
+        if (!data->is_array()) {
+          throw std::runtime_error("recordingSettings returned a non-array data payload");
+        }
+        const bool had_pending_display_start = screen_capture_enable_pending_;
+        const bool settings_include_screen_capture = std::any_of(
+            data->begin(), data->end(), [](const auto& item) {
+              return item.is_object() && item.value("key", std::string{}) == "ScreenCaptureEnabled";
+            });
+        recording_settings_synced_ = true;
+        screen_capture_enable_pending_ = false;
+        apply_settings({{"settings", *data}});
+        if (had_pending_display_start && !settings_include_screen_capture) {
+          start_configured_display_capture();
+        }
+        const auto audio_mode = settings_.global("AudioModeConfig");
+        const auto audio_mode_type = audio_mode && audio_mode->is_object()
+                                         ? audio_mode->value("type", std::string{"missing"})
+                                         : std::string{"missing"};
+        const auto pc_audio_enabled = audio_mode && audio_mode->is_object() &&
+                                      audio_mode->contains("pcAudioEnabled") &&
+                                      audio_mode->at("pcAudioEnabled").is_boolean()
+                                          ? audio_mode->at("pcAudioEnabled").get<bool>()
+                                          : false;
+        const auto sync = nlohmann::json{{"schemaVersion", 1},
+                                         {"state", "applied"},
+                                         {"reason", "recording_settings_applied"},
+                                         {"settingCount", data->size()},
+                                         {"audioMode", audio_mode_type},
+                                         {"pcAudioEnabled", pc_audio_enabled}};
+        {
+          std::scoped_lock lock(settings_sync_mutex_);
+          settings_sync_ = sync;
+        }
+        persist_settings_sync(sync);
+        {
+          std::scoped_lock lock(capture_event_mutex_);
+          last_capture_event_ = {{"schemaVersion", 1},
+                                 {"state", "settings_synced"},
+                                 {"reason", "recording_settings_applied"},
+                                 {"settingCount", data->size()}};
+        }
+      } catch (const std::exception& error) {
+        const auto sync = nlohmann::json{{"schemaVersion", 1},
+                                         {"state", "failed"},
+                                         {"reason", "recording_settings_invalid"},
+                                         {"lastError", error.what()}};
+        {
+          std::scoped_lock lock(settings_sync_mutex_);
+          settings_sync_ = sync;
+        }
+        persist_settings_sync(sync);
+        std::scoped_lock lock(capture_event_mutex_);
+        last_capture_event_ = {{"schemaVersion", 1},
+                               {"state", "settings_sync_failed"},
+                               {"reason", "recording_settings_invalid"},
+                               {"lastError", error.what()}};
+      }
+      return true;
+    }
     if (id != "native-port:handshake") {
       return true;
     }
@@ -1559,6 +1799,10 @@ class HelperSession final {
     }
     handshake_complete_ = true;
     send_request("native-port:ready", "recordingReady", nlohmann::json::object());
+    // Request the exact normalized settings array used by Medal's original
+    // recorder startup flow.  This is intentionally a request (rather than a
+    // private notification) so a missing/failed response remains observable.
+    send_request("native-port:recording-settings", "recordingSettings", nlohmann::json::object());
     send_request("native-port:displays", "setKV", {{"key", "activeDisplays"}, {"value", adapter_->active_displays(false)}});
     send_request("native-port:mics", "setKV", {{"key", "micDevices"}, {"value", adapter_->microphone_devices()}});
     send_request("native-port:audio", "setKV", {{"key", "gameDevices"}, {"value", adapter_->audio_output_devices()}});
@@ -1695,7 +1939,20 @@ class HelperSession final {
         }
         respond(request, nullptr);
       } else if (request.method == "audioProcesses") {
-        respond(request, nlohmann::json::array());
+        // The original renderer expects the Windows-shaped fields
+        // processName/displayName/icon, but the adapter keeps the native PID
+        // and bundle identity authoritative. This list is intentionally
+        // limited to user-selectable applications; internal helpers and Dock
+        // are filtered by the macOS process model.
+        auto processes = adapter_->active_processes();
+        if (processes.is_array()) {
+          for (auto& process : processes) {
+            if (process.is_object() && process.contains("processName")) {
+              process["displayName"] = process.value("processName", "");
+            }
+          }
+        }
+        respond(request, std::move(processes));
       } else if (request.method == "shutdown") {
         dispatch_to_main([this] { capture_->stop(); });
         respond(request, nullptr);
@@ -1783,6 +2040,8 @@ class HelperSession final {
   std::string capture_session_id_;
   mutable std::mutex capture_event_mutex_;
   nlohmann::json last_capture_event_{{"schemaVersion", 1}, {"state", "idle"}, {"reason", "initialized"}};
+  mutable std::mutex settings_sync_mutex_;
+  nlohmann::json settings_sync_{{"schemaVersion", 1}, {"state", "not_requested"}};
   std::mutex main_actions_mutex_;
   std::deque<std::function<void()>> main_actions_;
   std::mutex network_actions_mutex_;
@@ -1794,6 +2053,8 @@ class HelperSession final {
   std::mutex network_error_mutex_;
   std::exception_ptr network_error_;
   bool handshake_complete_{false};
+  bool recording_settings_synced_{false};
+  bool screen_capture_enable_pending_{false};
   std::map<std::string, ClipRegistration, std::less<>> registrations_;
   std::map<std::string, std::string, std::less<>> registration_request_ids_;
 };

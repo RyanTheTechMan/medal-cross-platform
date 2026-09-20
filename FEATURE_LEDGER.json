@@ -26,7 +26,7 @@
       "source": "research/evidence/recorder_metadata.json#rpc_methods",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "verified",
+        "status": "implemented_unverified",
         "implementation_files": [
           "native/helper/main.cpp",
           "native/backends/macos/platform_adapter.mm"
@@ -2129,7 +2129,7 @@
       "source": "research/evidence/client_handlers.json",
       "contract_status": "recovered_inventory_requires_behavior_verification",
       "macos": {
-        "status": "verified",
+        "status": "implemented_unverified",
         "implementation_files": [
           "native/helper/main.cpp",
           "native/core/include/native_port/clip_action.hpp",
@@ -2145,10 +2145,12 @@
           "reports/native/m3.5-hotkey-library-row.json",
           "reports/native/m3.5-hotkey-restart-media-selftest.json",
           "reports/native/m3.5-operational-replay-result.md",
-          "reports/native/m3.9-thumbnail-generation-fix.md"
+          "reports/native/m3.9-thumbnail-generation-fix.md",
+          "reports/native/m3.9-audio-mute-absolute-index-ffmpeg.log",
+          "reports/native/m3.9-audio-stream-index-installed-codesign.log"
         ],
         "limitations": [
-          "Verified for one guest/local H.264/AAC physical hotkey export and a repaired Balatro row: the original imported handler acknowledged contentCreate, probed media, generated thumbnails and persisted local contents rows. Authenticated contentId/upload, duplicate idempotency and original logged-in library UI remain unverified."
+          "One guest/local H.264/AAC physical hotkey export and a repaired Balatro row are verified through contentCreate, probing, thumbnail generation and local contents persistence. The absolute audio-stream-index correction is independently validated, but the imported UI audio-edit save and resulting playback remain unverified; authenticated contentId/upload, duplicate idempotency and original logged-in library UI remain unverified."
         ]
       },
       "linux": {
@@ -2239,17 +2241,25 @@
         "implementation_files": [
           "native/core/include/native_port/settings_store.hpp",
           "native/core/src/settings_store.cpp",
-          "native/helper/main.cpp"
+          "native/helper/main.cpp",
+          "native/backends/macos/screen_capture_session.mm",
+          "native/backends/macos/audio_encoder.mm",
+          "native/backends/macos/mp4_writer.mm",
+          "tools/native_port_importer.py"
         ],
         "test_ids": [
           "B09"
         ],
         "report_paths": [
           "reports/native/ctest-m2.6-xcode-27.2-beta.log",
-          "reports/native/m2.6-protocol-selftest.json"
+          "reports/native/m2.6-protocol-selftest.json",
+          "reports/native/m3.9-audio-mute-absolute-index-ffmpeg.log",
+          "reports/native/m3.9-audio-mute-absolute-index-volumedetect.log",
+          "reports/native/m3.9-audio-mute-absolute-index-ffprobe.json",
+          "reports/native/m3.9-audio-stream-index-installed-codesign.log"
         ],
         "limitations": [
-          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+          "Typed global/per-game storage and scoped deletion are implemented. Native PC Audio/Game Audio/Microphone routing and absolute multi-track indexes are implemented, but the original UI Save Edits/overwrite-or-copy mute path and resulting imported playback remain unverified."
         ]
       },
       "linux": {
@@ -2303,17 +2313,25 @@
         "implementation_files": [
           "native/core/include/native_port/settings_store.hpp",
           "native/core/src/settings_store.cpp",
-          "native/helper/main.cpp"
+          "native/helper/main.cpp",
+          "native/backends/macos/screen_capture_session.mm",
+          "native/backends/macos/audio_encoder.mm",
+          "native/backends/macos/mp4_writer.mm",
+          "tools/native_port_importer.py"
         ],
         "test_ids": [
           "B09"
         ],
         "report_paths": [
           "reports/native/ctest-m2.6-xcode-27.2-beta.log",
-          "reports/native/m2.6-protocol-selftest.json"
+          "reports/native/m2.6-protocol-selftest.json",
+          "reports/native/m3.9-audio-mute-absolute-index-ffmpeg.log",
+          "reports/native/m3.9-audio-mute-absolute-index-volumedetect.log",
+          "reports/native/m3.9-audio-mute-absolute-index-ffprobe.json",
+          "reports/native/m3.9-audio-stream-index-installed-codesign.log"
         ],
         "limitations": [
-          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+          "Typed global/per-game storage and scoped deletion are implemented. Native PC Audio/Game Audio/Microphone routing and absolute multi-track indexes are implemented, but the original UI Save Edits/overwrite-or-copy mute path and resulting imported playback remain unverified."
         ]
       },
       "linux": {
@@ -4862,11 +4880,23 @@
       "source": "CODEX_MASTER_PROMPT.md",
       "contract_status": "proposed_product_requirement",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "native/backends/macos/mp4_writer.mm",
+          "native/helper/main.cpp",
+          "tools/native_port_importer.py"
+        ],
+        "test_ids": [
+          "E06"
+        ],
+        "report_paths": [
+          "reports/native/m3.9-audio-mute-absolute-index-ffmpeg.log",
+          "reports/native/m3.9-audio-mute-absolute-index-volumedetect.log",
+          "reports/native/m3.9-audio-mute-absolute-index-ffprobe.json"
+        ],
+        "limitations": [
+          "Native PC Audio/Game Audio/Microphone tracks and absolute stream indexes are implemented. The original Medal editor's UI toggle and Save Edits/overwrite-or-copy flow still needs an end-to-end imported playback check."
+        ]
       },
       "linux": {
         "status": "not_started",

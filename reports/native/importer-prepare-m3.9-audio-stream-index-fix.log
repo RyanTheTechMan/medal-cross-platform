@@ -1,0 +1,11 @@
+{
+  "status": "prepared",
+  "idempotent": false,
+  "sourceExtraction": null,
+  "versionDirectory": "/Users/ryan/Developer/medal-cross-platform/artifacts/native-client/versions/2637.461.1-native-port-m3.5-941951c8233d",
+  "manifest": "/Users/ryan/Developer/medal-cross-platform/artifacts/native-client/versions/2637.461.1-native-port-m3.5-941951c8233d/native-port/patch-manifest.json",
+  "activation": {
+    "current": "versions/2637.461.1-native-port-m3.5-941951c8233d",
+    "previous": "versions/2637.461.1-native-port-m3.5-c8f40d3fe091"
+  }
+}

@@ -252,7 +252,7 @@ void video_callback(void* refcon, void*, OSStatus status, VTEncodeInfoFlags flag
     error = "synthetic PCM format creation failed";
     return false;
   }
-  native_port::AacEncoder encoder(native_port::TrackKind::game_audio, 1, 160'000,
+  native_port::AacEncoder encoder(native_port::TrackKind::game_audio, 1, 160'000, 1.0,
                                   [&](auto packet) { packets.push_back(std::move(packet)); });
   bool succeeded = true;
   for (std::uint32_t index = 0; index < kAudioBufferCount && succeeded; ++index) {
@@ -358,7 +358,7 @@ int main() {
         {"outputPath", output_path.string()},
     };
     std::cout << output.dump(2) << '\n';
-    if (passed) {
+    if (passed && std::getenv("NATIVE_PORT_KEEP_MP4_PROBE") == nullptr) {
       std::filesystem::remove(output_path, ignored);
     }
     return passed ? 0 : 1;

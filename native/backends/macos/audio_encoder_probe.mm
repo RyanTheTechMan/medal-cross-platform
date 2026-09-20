@@ -68,7 +68,7 @@ int main() {
     const auto format_status = CMAudioFormatDescriptionCreate(kCFAllocatorDefault, &pcm, 0, nullptr, 0,
                                                                nullptr, nullptr, &format);
     std::vector<std::shared_ptr<const native_port::EncodedPacket>> packets;
-    native_port::AacEncoder encoder(native_port::TrackKind::game_audio, 1, 160'000,
+    native_port::AacEncoder encoder(native_port::TrackKind::game_audio, 1, 160'000, 1.0,
                                     [&](std::shared_ptr<const native_port::EncodedPacket> packet) {
                                       packets.push_back(std::move(packet));
                                     });

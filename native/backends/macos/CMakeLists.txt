@@ -17,6 +17,7 @@ add_library(native_port_macos_adapter STATIC
   audio_encoder.mm
   mp4_writer.mm
   platform_adapter.mm
+  process_audio_tap.mm
   screen_capture_session.mm
 )
 target_include_directories(native_port_macos_adapter PUBLIC ${CMAKE_SOURCE_DIR}/native/core/include)

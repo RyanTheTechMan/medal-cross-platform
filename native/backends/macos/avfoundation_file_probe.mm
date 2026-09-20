@@ -196,6 +196,20 @@ namespace {
          (!video || compressed.value("firstSampleIsSync", false));
 }
 
+[[nodiscard]] nlohmann::json metadata_probe(AVAssetTrack* track) {
+  nlohmann::json result = nlohmann::json::array();
+  for (AVMetadataItem* item in track.metadata) {
+    nlohmann::json entry = {
+        {"identifier", item.identifier == nil ? "" : item.identifier.UTF8String},
+        {"keySpace", item.keySpace == nil ? "" : item.keySpace.UTF8String},
+        {"key", item.key == nil ? "" : item.key.description.UTF8String},
+        {"value", item.stringValue == nil ? "" : item.stringValue.UTF8String},
+    };
+    result.push_back(std::move(entry));
+  }
+  return result;
+}
+
 [[nodiscard]] NSArray<AVAssetTrack*>* load_tracks(AVAsset* asset, AVMediaType type,
                                                   std::string& error) {
   __block NSArray<AVAssetTrack*>* tracks = nil;
@@ -282,9 +296,9 @@ int main(int argc, char** argv) {
       std::cout << report.dump(2) << '\n';
       return 1;
     }
-    if (!asset.playable || video_tracks.count != 1 || audio_tracks.count != 1 ||
+    if (!asset.playable || video_tracks.count != 1 || audio_tracks.count < 1 ||
         !std::isfinite(seconds(asset.duration)) || seconds(asset.duration) <= 0.0) {
-      report["error"] = "asset did not expose one playable video track and one playable audio track";
+      report["error"] = "asset did not expose one playable video track and at least one playable audio track";
       std::cout << report.dump(2) << '\n';
       return 1;
     }
@@ -292,15 +306,29 @@ int main(int argc, char** argv) {
     report["video"] = {
         {"compressed", compressed_track_probe(asset, video_tracks.firstObject, true)},
         {"decoded", decoded_track_probe(asset, video_tracks.firstObject, true)},
+        {"metadata", metadata_probe(video_tracks.firstObject)},
     };
-    report["audio"] = {
-        {"compressed", compressed_track_probe(asset, audio_tracks.firstObject, false)},
-        {"decoded", decoded_track_probe(asset, audio_tracks.firstObject, false)},
-    };
+    nlohmann::json audio_tracks_report = nlohmann::json::array();
+    bool all_audio_tracks_passed = true;
+    for (NSUInteger index = 0; index < audio_tracks.count; ++index) {
+      AVAssetTrack* audio_track = audio_tracks[index];
+      nlohmann::json compressed = compressed_track_probe(asset, audio_track, false);
+      nlohmann::json decoded = decoded_track_probe(asset, audio_track, false);
+      const bool track_passed_result = track_passed(compressed, decoded, false) &&
+                                        compressed.value("codec", "") == "aac ";
+      audio_tracks_report.push_back({
+          {"index", index},
+          {"passed", track_passed_result},
+          {"metadata", metadata_probe(audio_track)},
+          {"compressed", std::move(compressed)},
+          {"decoded", std::move(decoded)},
+      });
+      all_audio_tracks_passed = all_audio_tracks_passed && track_passed_result;
+    }
+    report["audioTracks"] = std::move(audio_tracks_report);
     const bool passed = track_passed(report["video"]["compressed"], report["video"]["decoded"], true) &&
-                        track_passed(report["audio"]["compressed"], report["audio"]["decoded"], false) &&
                         report["video"]["compressed"].value("codec", "") == "avc1" &&
-                        report["audio"]["compressed"].value("codec", "") == "aac ";
+                        all_audio_tracks_passed;
     report["status"] = passed ? "passed" : "failed";
     if (!passed) {
       report["error"] = "one or more AVFoundation compressed/decode validations failed";

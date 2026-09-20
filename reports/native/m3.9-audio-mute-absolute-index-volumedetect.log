@@ -1,0 +1,9 @@
+ORIGINAL
+[Parsed_volumedetect_0 @ 0x7b14c40c00] mean_volume: -28.5 dB
+[Parsed_volumedetect_0 @ 0x7b14c40c00] max_volume: -0.0 dB
+MUTED_PC
+[Parsed_volumedetect_0 @ 0x775cc18c00] mean_volume: -91.0 dB
+[Parsed_volumedetect_0 @ 0x775cc18c00] max_volume: -91.0 dB
+MUTED_MIC
+[Parsed_volumedetect_0 @ 0x7735048c00] mean_volume: -91.0 dB
+[Parsed_volumedetect_0 @ 0x7735048c00] max_volume: -91.0 dB

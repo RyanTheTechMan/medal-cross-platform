@@ -10,6 +10,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <vector>
 
 #include <nlohmann/json.hpp>
 
@@ -24,6 +25,22 @@ struct CaptureConfiguration final {
   bool show_cursor{true};
   bool capture_system_audio{false};
   bool capture_microphone{false};
+  // These fields mirror the recovered Medal AudioModeConfig wire object. They
+  // are intentionally native-side state; the Electron client only exchanges
+  // the completed-file metadata and setting updates.
+  std::string audio_mode{"splitByProcess"};
+  bool pc_audio_enabled{true};
+  std::uint32_t system_audio_volume_percent{100};
+  std::uint32_t microphone_volume_percent{50};
+  std::vector<std::string> selected_audio_devices;
+  struct AudioSource final {
+    std::string id;
+    bool enabled{false};
+    std::uint32_t volume_percent{100};
+  };
+  std::vector<AudioSource> audio_sources;
+  bool multiple_audio_tracks{true};
+  std::optional<std::int64_t> target_process_id;
   // Empty selects the macOS/default input device.  When Medal's
   // SelectedMicDevice is a concrete device label, the macOS adapter resolves
   // that label to ScreenCaptureKit's device UID before starting the stream.

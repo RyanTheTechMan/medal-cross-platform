@@ -16,7 +16,7 @@ class AacEncoder final {
   using PacketCallback = std::function<void(std::shared_ptr<const EncodedPacket>)>;
 
   AacEncoder(TrackKind track, std::uint32_t track_id, std::uint32_t target_bitrate,
-             PacketCallback packet_callback);
+             double gain, PacketCallback packet_callback);
   ~AacEncoder();
 
   AacEncoder(const AacEncoder&) = delete;

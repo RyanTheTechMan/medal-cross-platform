@@ -1,4 +1,5 @@
 #import <AVFoundation/AVFoundation.h>
+#import <AVFoundation/AVMetadataIdentifiers.h>
 #import <AudioToolbox/AudioToolbox.h>
 #import <CoreMedia/CoreMedia.h>
 
@@ -205,6 +206,43 @@ struct FeedState final {
   if (input == nil || ![writer canAddInput:input]) {
     throw std::runtime_error("AVAssetWriter cannot add the requested passthrough track");
   }
+  // Keep the source identity in the media container. Chromium's audio-track
+  // labels and the imported Medal client can use this track-level metadata;
+  // without it every native track is exposed as the unhelpful "Audio Stream
+  // #N". This is deliberately attached to the track, not sent through
+  // Electron IPC, so the labels survive export/import and application restart.
+  NSString* track_name = nil;
+  switch (track) {
+    case TrackKind::mixed_audio:
+      track_name = @"PC Audio";
+      break;
+    case TrackKind::game_audio:
+      track_name = @"Game Audio";
+      break;
+    case TrackKind::microphone_audio:
+      track_name = @"Microphone";
+      break;
+    case TrackKind::video:
+      track_name = @"Video";
+      break;
+  }
+  AVMutableMetadataItem* track_name_item = [AVMutableMetadataItem metadataItem];
+  track_name_item.identifier = AVMetadataIdentifierQuickTimeUserDataTrackName;
+  track_name_item.value = track_name;
+  track_name_item.locale = [NSLocale localeWithLocaleIdentifier:@"en_US"];
+  // The imported client's ffprobe path reads `stream.tags.title`, while
+  // AVFoundation exposes the QuickTime user-data track name above.  Emit the
+  // common title identifier as well so both the native probe and the original
+  // client agree on the source label.
+  AVMutableMetadataItem* title_item = [AVMutableMetadataItem metadataItem];
+  title_item.identifier = AVMetadataIdentifierQuickTimeMetadataTitle;
+  title_item.value = track_name;
+  title_item.locale = [NSLocale localeWithLocaleIdentifier:@"en_US"];
+  AVMutableMetadataItem* common_title_item = [AVMutableMetadataItem metadataItem];
+  common_title_item.identifier = AVMetadataCommonIdentifierTitle;
+  common_title_item.value = track_name;
+  common_title_item.locale = [NSLocale localeWithLocaleIdentifier:@"en_US"];
+  input.metadata = @[track_name_item, title_item, common_title_item];
   input.expectsMediaDataInRealTime = NO;
   [writer addInput:input];
   return WriterTrack{track, first->codec, input, std::move(format), {}};

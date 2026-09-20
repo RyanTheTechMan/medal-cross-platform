@@ -22,6 +22,34 @@
 namespace native_port {
 namespace {
 
+void apply_gain(std::vector<std::byte>& bytes, const AudioStreamBasicDescription& format,
+                double gain) {
+  if (bytes.empty() || std::abs(gain - 1.0) < 0.0001) {
+    return;
+  }
+  if ((format.mFormatFlags & kAudioFormatFlagIsFloat) != 0 &&
+      format.mBitsPerChannel == 32) {
+    auto* samples = reinterpret_cast<float*>(bytes.data());
+    const auto count = bytes.size() / sizeof(float);
+    for (std::size_t index = 0; index < count; ++index) {
+      samples[index] = static_cast<float>(
+          std::clamp(static_cast<double>(samples[index]) * gain, -1.0, 1.0));
+    }
+    return;
+  }
+  if ((format.mFormatFlags & kAudioFormatFlagIsSignedInteger) != 0 &&
+      format.mBitsPerChannel == 16) {
+    auto* samples = reinterpret_cast<std::int16_t*>(bytes.data());
+    const auto count = bytes.size() / sizeof(std::int16_t);
+    for (std::size_t index = 0; index < count; ++index) {
+      samples[index] = static_cast<std::int16_t>(std::clamp(
+          static_cast<double>(samples[index]) * gain,
+          static_cast<double>(std::numeric_limits<std::int16_t>::min()),
+          static_cast<double>(std::numeric_limits<std::int16_t>::max())));
+    }
+  }
+}
+
 [[nodiscard]] bool same_audio_format(const AudioStreamBasicDescription& left,
                                      const AudioStreamBasicDescription& right) noexcept {
   return left.mSampleRate == right.mSampleRate && left.mFormatID == right.mFormatID &&
@@ -100,10 +128,11 @@ OSStatus provide_pcm(AudioConverterRef, UInt32* io_number_data_packets, AudioBuf
 
 struct AacEncoder::Impl final {
   Impl(TrackKind selected_track, std::uint32_t selected_track_id, std::uint32_t selected_bitrate,
-       PacketCallback callback)
+       double selected_gain, PacketCallback callback)
       : track(selected_track),
         track_id(selected_track_id),
         target_bitrate(selected_bitrate),
+        gain(std::clamp(selected_gain, 0.0, 1.5)),
         packet_callback(std::move(callback)) {}
 
   ~Impl() { dispose_converter(); }
@@ -300,7 +329,9 @@ struct AacEncoder::Impl final {
         return false;
       }
       const auto* begin = static_cast<const std::byte*>(list->mBuffers[index].mData);
-      fifo[index].insert(fifo[index].end(), begin, begin + byte_count);
+      std::vector<std::byte> chunk(begin, begin + byte_count);
+      apply_gain(chunk, source, gain);
+      fifo[index].insert(fifo[index].end(), chunk.begin(), chunk.end());
     }
     if (retained_block != nullptr) {
       CFRelease(retained_block);
@@ -308,8 +339,23 @@ struct AacEncoder::Impl final {
     queued_frames += frames;
     input_samples.fetch_add(frames, std::memory_order_relaxed);
 
-    const auto frames_per_packet = std::max<std::uint32_t>(1, output.mFramesPerPacket);
-    while (queued_frames >= frames_per_packet) {
+    const auto output_frames_per_packet = std::max<std::uint32_t>(1, output.mFramesPerPacket);
+    // AudioConverterFillComplexBuffer asks the input callback for input PCM
+    // packets, not output AAC packets.  When ScreenCaptureKit delivers a
+    // microphone at 96 kHz and Medal's AAC track is fixed at 48 kHz, one AAC
+    // packet needs roughly two source packets.  Feeding only 1024 source
+    // frames (the output packet size) makes AudioToolbox consume the input
+    // without producing an output packet, which used to leave the microphone
+    // track empty and eventually reported “made no progress”.  Keep enough
+    // source frames queued for one complete resampled output packet; the
+    // exact ratio is rounded up so fractional-rate devices (44.1/48 kHz)
+    // cannot starve the converter either.
+    const auto source_rate = std::max(1.0, source.mSampleRate);
+    const auto output_rate = std::max(1.0, output.mSampleRate);
+    const auto input_frames_per_packet = std::max<std::uint32_t>(
+        1, static_cast<std::uint32_t>(std::ceil(
+            static_cast<double>(output_frames_per_packet) * source_rate / output_rate)));
+    while (queued_frames >= input_frames_per_packet) {
       if (!encode_one(generation, 0, error)) {
         return false;
       }
@@ -400,6 +446,7 @@ struct AacEncoder::Impl final {
   TrackKind track;
   std::uint32_t track_id;
   std::uint32_t target_bitrate;
+  double gain;
   PacketCallback packet_callback;
   std::mutex mutex;
   AudioConverterRef converter{nullptr};
@@ -427,8 +474,9 @@ struct AacEncoder::Impl final {
 };
 
 AacEncoder::AacEncoder(TrackKind track, std::uint32_t track_id, std::uint32_t target_bitrate,
-                       PacketCallback packet_callback)
-    : impl_(std::make_unique<Impl>(track, track_id, target_bitrate, std::move(packet_callback))) {}
+                       double gain, PacketCallback packet_callback)
+    : impl_(std::make_unique<Impl>(track, track_id, target_bitrate, gain,
+                                   std::move(packet_callback))) {}
 
 AacEncoder::~AacEncoder() = default;
 
