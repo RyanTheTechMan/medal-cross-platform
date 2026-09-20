@@ -4,7 +4,7 @@ Status: **not ready for transfer**. This file is live and must not be interprete
 
 ## Build identity
 
-- Commit / dirty-tree changes: checkpoints through `72a869a` cover M0, shared core/M1, authenticated actual-client/helper M2, deterministic signing, real H.264/HEVC capture and native AAC/MP4 export. The operational hotkey/contentCreate/restart path is pending its M3.5 checkpoint commit.
+- Commit / dirty-tree changes: checkpoint `590e471` and its parents cover M0, shared core/M1, authenticated actual-client/helper M2, deterministic signing, real H.264/HEVC capture, native AAC/MP4 export, typed audio routing, HAL process discovery, bounded process-tap handoff, the secure original-client sidecar audition path, and the original trim absolute-index/output-manifest fix. The current macOS evidence is not yet a Linux handoff because Save Copy/unmute rollback, microphone capture, per-app isolation and long-duration drift gates remain open.
 - Input hashes: installer `e6477e89f968593fe4b8335f09fc25f81889dd412c28ff85522a0a37415decdb`; recorder ZIP `d33c6e3c0506c1f6b71e6158716fda3a9866bfacc41060f2ec29c4d792ca1312`.
 - macOS / chip: macOS 27.2 build 26B5086k; arm64 Apple M5 Max.
 - Toolchain: stable Xcode 27 unavailable; Xcode 27.2 beta build 27B5019j with SDK 27.2 and Apple clang 21.0.0 is used for development only.
@@ -19,6 +19,7 @@ Status: **not ready for transfer**. This file is live and must not be interprete
 - ScreenCaptureKit display/window capture crosses real TCC/picker interaction and feeds frames directly into hardware-required VideoToolbox; H.264 and HEVC short runs pass on this host. AV1 remains unavailable because no VideoToolbox encoder is registered.
 - Independent ScreenCaptureKit system audio and microphone output paths feed AudioToolbox AAC encoders; system audio passes a short real run while microphone permission/capture remains untested.
 - The shared timestamp-based encoded replay and macOS AVAssetWriter adapter now complete one physical recovered `Hotkeys` → `clip;length=5` → H.264/AAC MP4 → original `contentCreate` → probe/thumbnail/library-row path. AVFoundation decode and independent ffprobe pass; imported Chromium playback/seek, full application restart and file/library persistence pass.
+- The latest imported authenticated UI run additionally completed one original `Audio` popover → `Save Edits` overwrite → timestamped H.264/two-AAC output → absolute-index metadata persistence → original playback → full restart path. The output is independently validated by ffprobe and AVFoundation; the sidecar AAC files are validated by ffprobe. The importer/source patches are shared JS/Python changes and must be retained on Linux.
 - The visible original library/player remains account-gated at the unauthenticated Welcome screen. No login/upload, microphone, permission lifecycle, crash recovery, editor, release package or sustained-performance gate has passed.
 
 ## Exact build/test/run commands
@@ -34,7 +35,7 @@ See `PROGRESS.md`, `reports/m0/` and `reports/native/`. Current native regressio
 
 ## Remaining macOS work
 
-M1 recovery/external-source cleanup, the remainder of M2 resilience/inventory, the M3 shortcut matrix, microphone/drift/permission lifecycle, HEVC full-client compatibility, authenticated library UI, crash/export recovery, editor/upload and all release/package/performance gates remain. Stable-Xcode-27 reruns remain required.
+M1 recovery/external-source cleanup, the remainder of M2 resilience/inventory, the M3 shortcut matrix, microphone/drift/permission lifecycle, HEVC full-client compatibility, Save Copy/unmute/failure-rollback editor paths, authenticated upload, crash/export recovery and all release/package/performance gates remain. Stable-Xcode-27 reruns remain required. No upload or publish was performed.
 
 ## Linux starting point
 

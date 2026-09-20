@@ -6,10 +6,14 @@ const fs = require('node:fs')
 
 const source = fs.readFileSync(require('node:path').join(__dirname, 'native-audio-preview-controller.js'), 'utf8')
 const events = new Map()
+const preparedRequests = []
 const window = {
   MedalIPC: {
     nativeAudioPreview: {
-      async prepare({ index }) { return { url: `native-audio-preview://${index}.m4a` } }
+      async prepare(request) {
+        preparedRequests.push(request)
+        return { url: `native-audio-preview://${request.audioOrdinal}.m4a` }
+      }
     }
   },
   addEventListener(name, callback) { events.set(name, callback) },
@@ -54,9 +58,13 @@ const video = {
   await window.NativeMedalAudioPreviewController.attach({
     uuid: 'fixture-uuid', path: '/profile/Media/fixture.mp4', video,
     streams: [{ index: 1, logicalId: 'all-audio', title: 'All Audio', isIncludeInMix: true },
-      { index: 2, logicalId: 'pc-audio', title: 'PC Audio', isIncludeInMix: true, isMuted: false }]
+      { index: 2, audioOrdinal: 0, logicalId: 'pc-audio', title: 'PC Audio', isIncludeInMix: true, isMuted: false }]
   })
   assert.equal(video.muted, true, 'audition must suppress the original master')
+  assert.equal(preparedRequests.length, 1)
+  assert.equal(preparedRequests[0].index, 2)
+  assert.equal(preparedRequests[0].audioOrdinal, 0,
+    'preview must address the audio ordinal even when the media stream index is absolute')
   window.NativeMedalAudioPreviewController.toggle(2, true)
   window.NativeMedalAudioPreviewController.toggle(2, false)
   window.NativeMedalAudioPreviewController.reset()

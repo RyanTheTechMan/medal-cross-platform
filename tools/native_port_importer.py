@@ -249,6 +249,26 @@ def run_install_name_tool(arguments: list[str]) -> None:
         raise ImportFailure(f'install_name_tool failed: {detail}') from error
 
 
+def sign_relinked_media_code(target: Path) -> None:
+    """Restore a valid local ad-hoc signature after install_name_tool rewrites code.
+
+    The imported development package is not a notarized release and never uses a
+    publisher identity here. macOS nevertheless enforces the CodeDirectory for
+    modified Homebrew Mach-O files; without this local signature the kernel kills
+    ffmpeg/ffprobe before they can service preview or import requests.
+    """
+    try:
+        subprocess.run(
+            ['/usr/bin/codesign', '--force', '--timestamp=none', '--sign', '-', str(target)],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except subprocess.CalledProcessError as error:
+        detail = (error.stderr or error.stdout or str(error)).strip()
+        raise ImportFailure(f'failed to ad-hoc sign relinked media code {target}: {detail}') from error
+
+
 def bundle_macos_media_libraries(stage_app: Path, tool_names: list[str]) -> list[dict[str, object]]:
     """Copy and relink Homebrew's complete dylib closure into the signed app.
 
@@ -293,6 +313,10 @@ def bundle_macos_media_libraries(stage_app: Path, tool_names: list[str]) -> list
         if is_library:
             run_install_name_tool(['-id', f'@loader_path/{target.name}', str(target)])
 
+    for executable in tool_names:
+        sign_relinked_media_code(tools_directory / executable)
+    for library in sorted(library_directory.glob('*.dylib')):
+        sign_relinked_media_code(library)
     for record in records:
         record['installedSha256'] = sha256(stage_app / str(record['destination']))
     return sorted(records, key=lambda item: str(item['destination']))
@@ -466,6 +490,79 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
         'enable-native-audio-track-edits-on-macos',
         'main.min.js',
     ))
+    operations.append(exact_replace(
+        main_path,
+        'const d=[...i].sort((f,m)=>f.index-m.index),p=d.find',
+        'const v=await fd(e),q=Array.isArray(v.audioStreams)?v.audioStreams:[],d=[...i].sort((f,m)=>f.index-m.index).map((f,m)=>({...f,index:Number.isInteger(q[m]?.index)?q[m].index:f.index,audioOrdinal:m})),p=d.find',
+        1,
+        'resolve-original-trim-audio-ordinals-against-final-file-stream-indexes',
+        'main.min.js',
+    ))
+    operations.append(exact_replace(
+        main_path,
+        'A=i.some(f=>f.isMuted)',
+        'A=d.some(f=>f.isMuted)',
+        1,
+        'use-final-audio-streams-for-original-trim-mute-detection',
+        'main.min.js',
+    ))
+    operations.append(exact_replace(
+        main_path,
+        'else A?(u.push("-i",e,"-filter_complex",i.map',
+        'else A?(u.push("-i",e,"-filter_complex",d.map',
+        1,
+        'use-final-audio-streams-for-original-trim-filtergraph',
+        'main.min.js',
+    ))
+    operations.append(exact_replace(
+        main_path,
+        ',i.forEach(f=>u.push("-map",`-0:${f.index}`,"-map",`[a${f.index}]`))',
+        ',d.forEach(f=>u.push("-map",`-0:${f.index}`,"-map",`[a${f.index}]`))',
+        1,
+        'use-final-audio-streams-for-original-trim-map',
+        'main.min.js',
+    ))
+    operations.append(exact_replace(
+        main_path,
+        'return t&&dc(e,{skipRecycleBin:!0}),{outputPath:l,actualDuration:g,...await Th(l)}',
+        'return t&&dc(e,{skipRecycleBin:!0}),{outputPath:l,actualDuration:g,...await Th(l),audioStreams:d.map((f,m)=>({...f,index:Number.isInteger(q[m]?.index)?q[m].index:f.index,audioOrdinal:m}))}',
+        1,
+        'return-final-audio-manifest-from-original-trim',
+        'main.min.js',
+    ))
+    renderer_bookmarks_path = stage_app / 'chunks' / 'renderer-rebase-bookmarks.js'
+    operations.append(exact_replace(
+        renderer_bookmarks_path,
+        'const{outputPath:c,contentSize:l,contentInode:d}=await MedalIPC.trimVideo({videoPath:n,deleteOriginal:!1,startTime:r,duration:i,audioStreams:o});',
+        'const{outputPath:c,contentSize:l,contentInode:d,audioStreams:h}=await MedalIPC.trimVideo({videoPath:n,deleteOriginal:!1,startTime:r,duration:i,audioStreams:o});',
+        1,
+        'consume-final-audio-manifest-on-overwrite-edit',
+        'chunks/renderer-rebase-bookmarks.js',
+    ))
+    operations.append(exact_replace(
+        renderer_bookmarks_path,
+        'const g={audioStreams:o,contentSize:l,contentInode:d,...oe({trimStart:r,trimDuration:i,parentTrimStartTime:this.content.metadata?.trimStartTime,sourceVideoDuration:this.getDuration()})};',
+        'const g={audioStreams:Array.isArray(h)?h:o,contentSize:l,contentInode:d,...oe({trimStart:r,trimDuration:i,parentTrimStartTime:this.content.metadata?.trimStartTime,sourceVideoDuration:this.getDuration()})};',
+        1,
+        'persist-final-audio-manifest-on-overwrite-edit',
+        'chunks/renderer-rebase-bookmarks.js',
+    ))
+    operations.append(exact_replace(
+        renderer_bookmarks_path,
+        'const{outputPath:c,contentSize:l,contentInode:d,actualDuration:m}=await MedalIPC.trimVideo({videoPath:s,deleteOriginal:o,startTime:t.startTime,duration:t.duration,audioStreams:i}),',
+        'const{outputPath:c,contentSize:l,contentInode:d,actualDuration:m,audioStreams:audioManifest}=await MedalIPC.trimVideo({videoPath:s,deleteOriginal:o,startTime:t.startTime,duration:t.duration,audioStreams:i}),',
+        1,
+        'consume-final-audio-manifest-on-save-copy',
+        'chunks/renderer-rebase-bookmarks.js',
+    ))
+    operations.append(exact_replace(
+        renderer_bookmarks_path,
+        'audioStreams:i,clipDuration:I,title:h,contentSize:l,contentInode:d,',
+        'audioStreams:Array.isArray(audioManifest)?audioManifest:i,clipDuration:I,title:h,contentSize:l,contentInode:d,',
+        1,
+        'persist-final-audio-manifest-on-save-copy',
+        'chunks/renderer-rebase-bookmarks.js',
+    ))
     active_displays_path = stage_app / 'chunks' / 'renderer-useActiveDisplays.js'
     operations.append(exact_replace(
         active_displays_path,
@@ -528,8 +625,8 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
     controller_source = NATIVE_AUDIO_PREVIEW_CONTROLLER_PATH.read_text()
     operations.append(exact_replace(
         renderer_path,
-        'mk=({clip:e,videoRef:t',
-        controller_source + '\nmk=({clip:e,videoRef:t',
+        ',mk=({clip:e,videoRef:t',
+        ';\n' + controller_source + '\nvar mk=({clip:e,videoRef:t',
         1,
         'install-native-audio-preview-controller',
         'renderer.min.js',
@@ -569,7 +666,7 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
     operations.append(exact_replace(
         renderer_path,
         'return(0,p.useEffect)(()=>{Re()},[Re]),(0,n.jsxs)(n.Fragment,{children:',
-        'return(0,p.useEffect)(()=>{Re()},[Re]),(0,p.useEffect)(()=>{const Ae=t?.current;if(!Ae)return;const pt=e.getContentObject?.()?.video_path;const Un=window.NativeMedalAudioPreviewController;Un?.attach?.({uuid:e.getUUID?.(),path:pt,video:Ae,streams:j});return()=>Un?.detach?.()},[e,t,j]),(0,n.jsxs)(n.Fragment,{children:',
+        'return(0,p.useEffect)(()=>{Re()},[Re]),(0,p.useEffect)(()=>{const Un=window.NativeMedalAudioPreviewController;let Ae=0,pt=!1;const mount=()=>{if(pt)return;const video=t?.current,path=e.files?.()?.current?.video??e.getContentObject?.()?.video_path??e.content?.video_path;if(!video||!path){Ae=requestAnimationFrame(mount);return}Un?.attach?.({uuid:e.getUUID?.(),path,video,streams:j})};mount();return()=>{pt=!0,cancelAnimationFrame(Ae),Un?.detach?.()}},[e,t,j]),(0,n.jsxs)(n.Fragment,{children:',
         1,
         'mount-native-audio-preview-from-original-preview-v2',
         'renderer.min.js',
@@ -577,7 +674,7 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
     operations.append(exact_replace(
         renderer_path,
         'return(0,p.useEffect)(()=>{Ne()},[e]),(0,n.jsxs)(n.Fragment,{children:',
-        'return(0,p.useEffect)(()=>{Ne()},[e]),(0,p.useEffect)(()=>{const Ae=t?.current;if(!Ae)return;const pt=e.getContentObject?.()?.video_path;const Un=window.NativeMedalAudioPreviewController;Un?.attach?.({uuid:e.getUUID?.(),path:pt,video:Ae,streams:j});return()=>Un?.detach?.()},[e,t,j]),(0,n.jsxs)(n.Fragment,{children:',
+        'return(0,p.useEffect)(()=>{Ne()},[e]),(0,p.useEffect)(()=>{const Un=window.NativeMedalAudioPreviewController;let Ae=0,pt=!1;const mount=()=>{if(pt)return;const video=t?.current,path=e.files?.()?.current?.video??e.getContentObject?.()?.video_path??e.content?.video_path;if(!video||!path){Ae=requestAnimationFrame(mount);return}Un?.attach?.({uuid:e.getUUID?.(),path,video,streams:j})};mount();return()=>{pt=!0,cancelAnimationFrame(Ae),Un?.detach?.()}},[e,t,j]),(0,n.jsxs)(n.Fragment,{children:',
         1,
         'mount-native-audio-preview-from-legacy-preview',
         'renderer.min.js',

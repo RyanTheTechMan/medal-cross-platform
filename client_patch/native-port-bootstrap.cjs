@@ -60,13 +60,19 @@ const resolvePreviewInput = (value, uuid) => {
     return !relative.startsWith('..') && !path.isAbsolute(relative)
   }
   if (!inRoot(isolatedMedia) && !inRoot(clipLibrary)) fail('audio preview path is outside the isolated clip profile')
-  if (!path.basename(resolved).startsWith(`${uuid}.`)) fail('audio preview path is not the requested library UUID')
+  const pathUuid = path.basename(resolved).split('.', 1)[0]
+  if (!safePreviewUuid(pathUuid)) fail('audio preview path does not have a safe library UUID')
+  // Medal's local content UUID and the on-disk filename are not guaranteed to
+  // be the same identifier (the imported client may expose local_content_id),
+  // so bind the cache key to the validated filename while still requiring a
+  // valid caller UUID above. The profile-root and safe filename checks prevent
+  // arbitrary file reads without rejecting real local clips.
   if (!fs.statSync(resolved).isFile()) fail('audio preview input is not a file')
   return resolved
 }
-const runAudioPreviewExtraction = ({ uuid, input, index }) => new Promise((resolve, reject) => {
+const runAudioPreviewExtraction = ({ uuid, input, audioOrdinal }) => new Promise((resolve, reject) => {
   const stat = fs.statSync(input)
-  const key = crypto.createHash('sha256').update(`${uuid}\0${input}\0${stat.size}\0${stat.mtimeMs}\0${index}`).digest('hex')
+  const key = crypto.createHash('sha256').update(`${uuid}\0${input}\0${stat.size}\0${stat.mtimeMs}\0${audioOrdinal}`).digest('hex')
   const output = path.join(audioPreviewCache, `${key}.m4a`)
   if (fs.statSync(output, { throwIfNoEntry: false })?.isFile()) {
     resolve({ url: `native-audio-preview://${path.basename(output)}`, generation: key })
@@ -74,8 +80,8 @@ const runAudioPreviewExtraction = ({ uuid, input, index }) => new Promise((resol
   }
   const temporary = `${output}.${process.pid}.${crypto.randomUUID()}.tmp`
   const child = spawn(path.join(tools, 'ffmpeg'), [
-    '-v', 'error', '-nostdin', '-y', '-i', input, '-map', `0:${index}`,
-    '-vn', '-c:a', 'copy', '-movflags', '+faststart', temporary
+    '-v', 'error', '-nostdin', '-y', '-i', input, '-map', `0:a:${audioOrdinal}`,
+    '-vn', '-c:a', 'copy', '-movflags', '+faststart', '-f', 'mp4', temporary
   ], { stdio: ['ignore', 'ignore', 'pipe'] })
   let stderr = ''
   child.stderr.on('data', chunk => { stderr += String(chunk).slice(0, 2000) })
@@ -95,10 +101,11 @@ ipcMain.handle('native-port:audio-preview', async (event, params = {}) => {
   if (!safePreviewUuid(params.uuid)) throw new Error('audio preview UUID is invalid')
   if (params.action === 'release') return { released: true }
   if (params.action !== 'prepare') throw new Error('unsupported native audio preview action')
-  const index = Number(params.index)
-  if (!Number.isInteger(index) || index < 0 || index > 64) throw new Error('audio preview stream index is invalid')
+  const audioOrdinal = Number.isInteger(params.audioOrdinal) ? Number(params.audioOrdinal) : Number(params.index)
+  if (!Number.isInteger(audioOrdinal) || audioOrdinal < 0 || audioOrdinal > 64) throw new Error('audio preview stream ordinal is invalid')
   const input = resolvePreviewInput(params.path, params.uuid)
-  return runAudioPreviewExtraction({ uuid: params.uuid, input, index })
+  const filenameUuid = path.basename(input).split('.', 1)[0]
+  return runAudioPreviewExtraction({ uuid: filenameUuid, input, audioOrdinal })
 })
 app.whenReady().then(() => {
   protocol.registerStreamProtocol('native-audio-preview', (request, callback) => {

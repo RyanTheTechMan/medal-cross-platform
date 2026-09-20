@@ -84,7 +84,11 @@
       for (const stream of sources) {
         if (generation !== state.generation) return;
         const prepared = await window.MedalIPC?.nativeAudioPreview?.prepare({
-          uuid: state.uuid, path: state.path, index: Number(stream.index), generation
+          uuid: state.uuid,
+          path: state.path,
+          index: Number(stream.index),
+          audioOrdinal: Number.isInteger(stream.audioOrdinal) ? Number(stream.audioOrdinal) : Number(stream.index),
+          generation
         });
         if (generation !== state.generation || !prepared?.url) return;
         const audio = new Audio();
