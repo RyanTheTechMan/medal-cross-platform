@@ -26,6 +26,10 @@ struct ProcessIdentity final {
   std::vector<ProcessWindowIdentity> windows;
   std::vector<std::string> caption_names;
   std::vector<std::string> class_names;
+  // True when the process is suitable for the user's manual target chooser.
+  // Automatic game detection intentionally retains the complete native model;
+  // this flag is only consumed at the Medal wire/UI boundary.
+  bool manual_selectable{false};
 };
 
 }  // namespace native_port

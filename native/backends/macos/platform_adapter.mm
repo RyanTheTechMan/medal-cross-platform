@@ -448,6 +448,15 @@ class MacPlatformAdapter final : public PlatformAdapter {
 
       std::vector<ProcessIdentity> result;
       std::set<pid_t> seen;
+      const auto contains_case_insensitive = [](std::string value, std::string needle) {
+        std::transform(value.begin(), value.end(), value.begin(), [](unsigned char character) {
+          return static_cast<char>(std::tolower(character));
+        });
+        std::transform(needle.begin(), needle.end(), needle.begin(), [](unsigned char character) {
+          return static_cast<char>(std::tolower(character));
+        });
+        return value.find(needle) != std::string::npos;
+      };
       for (NSRunningApplication* application in NSWorkspace.sharedWorkspace.runningApplications) {
         if (application.terminated) {
           continue;
@@ -510,15 +519,6 @@ class MacPlatformAdapter final : public PlatformAdapter {
         // named "java".  Use its visible window title as the user-facing
         // target name while retaining the executable/PID as the stable native
         // identity used for capture.
-        const auto contains_case_insensitive = [](std::string value, std::string needle) {
-          std::transform(value.begin(), value.end(), value.begin(), [](unsigned char character) {
-            return static_cast<char>(std::tolower(character));
-          });
-          std::transform(needle.begin(), needle.end(), needle.begin(), [](unsigned char character) {
-            return static_cast<char>(std::tolower(character));
-          });
-          return value.find(needle) != std::string::npos;
-        };
         if (contains_case_insensitive(identity.executable_name, "java")) {
           const auto minecraft_window = std::find_if(
               identity.windows.begin(), identity.windows.end(), [&](const auto& window) {
@@ -540,6 +540,23 @@ class MacPlatformAdapter final : public PlatformAdapter {
         if (identity.application_name.empty()) {
           continue;
         }
+        // Regular AppKit applications normally have a Dock identity.  Do not
+        // expose every accessory/prohibited process merely because it owns a
+        // transient helper window: that admits Dock, AutoFill, WindowManager,
+        // accessibility agents and Electron helpers into Medal's manual
+        // chooser.  Java-launched Minecraft is the intentional non-Dock
+        // exception; its stable game process owns the visible game window.
+        const auto executable_is_java = identity.executable_name == "java" ||
+                                        identity.executable_name == "javaw";
+        const auto is_minecraft = contains_case_insensitive(identity.application_name, "minecraft") ||
+                                  contains_case_insensitive(identity.screen_capture_application_name,
+                                                            "minecraft");
+        const auto is_adofai = identity.bundle_identifier == "com.7thbeat.adofai" ||
+                               contains_case_insensitive(identity.application_name,
+                                                         "a dance of fire and ice");
+        identity.manual_selectable =
+            application.activationPolicy == NSApplicationActivationPolicyRegular ||
+            (has_windows && (executable_is_java || is_minecraft || is_adofai));
         result.push_back(std::move(identity));
         seen.insert(pid);
       }
@@ -565,6 +582,14 @@ class MacPlatformAdapter final : public PlatformAdapter {
         if (!identity.bundle_identifier.empty()) {
           identity.class_names.push_back(identity.bundle_identifier);
         }
+        const auto executable_is_java = identity.executable_name == "java" ||
+                                        identity.executable_name == "javaw";
+        const auto is_minecraft = contains_case_insensitive(identity.application_name, "minecraft");
+        const auto is_adofai = identity.bundle_identifier == "com.7thbeat.adofai" ||
+                               contains_case_insensitive(identity.application_name,
+                                                         "a dance of fire and ice");
+        identity.manual_selectable = !identity.windows.empty() &&
+                                     (executable_is_java || is_minecraft || is_adofai);
         result.push_back(std::move(identity));
       }
       std::sort(result.begin(), result.end(), [](const auto& left, const auto& right) {
@@ -583,6 +608,9 @@ class MacPlatformAdapter final : public PlatformAdapter {
     const auto targets = process_targets();
     nlohmann::json result = nlohmann::json::array();
     for (const auto& target : targets) {
+      if (!target.manual_selectable) {
+        continue;
+      }
       const auto process_name = !target.application_name.empty()
                                     ? target.application_name
                                     : (!target.screen_capture_application_name.empty()

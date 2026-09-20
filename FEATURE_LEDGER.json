@@ -779,10 +779,11 @@
           "reports/native/ctest-m2.6-xcode-27.2-beta.log",
           "reports/native/m3.6-desktop-ui-roundtrip.md",
           "reports/native/m3.7-process-target-model.md",
-          "reports/native/m3.7-auto-classification.md"
+          "reports/native/m3.7-auto-classification.md",
+          "reports/native/m3.9-process-selector-filter.md"
         ],
         "limitations": [
-          "Real GUI applications rendered in the original Game chooser, and the authenticated run automatically classified A Dance of Fire and Ice. Minecraft fallback, exclusions and target lifecycle monitoring remain separate gates."
+          "The manual chooser now hides internal accessory/prohibited helpers while retaining regular applications and explicit Java/Minecraft/A Dance of Fire and Ice window exceptions. Automatic detection retains the complete native model; Minecraft fallback and target lifecycle monitoring remain separate gates."
         ]
       },
       "linux": {
