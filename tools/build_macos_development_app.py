@@ -166,7 +166,14 @@ def customize_plists(app: Path) -> None:
     for name, identifier in ELECTRON_HELPER_IDS.items():
         info_path = frameworks / name / 'Contents' / 'Info.plist'
         helper = plist(info_path)
-        helper['CFBundleIdentifier'] = identifier
+        # Electron utility/GPU/renderer helpers must never acquire their own
+        # Dock identity. Keep this explicit rather than inheriting whatever
+        # the upstream Electron bundle happened to contain; Launch Services
+        # caches helper registrations independently from the host app.
+        helper.update({
+            'CFBundleIdentifier': identifier,
+            'LSUIElement': True,
+        })
         write_plist(info_path, helper)
 
 
