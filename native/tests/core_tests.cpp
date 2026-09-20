@@ -1,5 +1,6 @@
 #include "native_port/clip_action.hpp"
 #include "native_port/capture_geometry.hpp"
+#include "native_port/audio_routing.hpp"
 #include "native_port/capture_settings.hpp"
 #include "native_port/json_rpc.hpp"
 #include "native_port/media_time.hpp"
@@ -14,6 +15,7 @@
 #include <exception>
 #include <functional>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -257,6 +259,64 @@ void test_capture_settings() {
   }
 }
 
+void test_audio_routing_plan() {
+  expect(native_port::normalize_microphone_gain(0.0) == 0.0,
+         "zero microphone gain must remain zero");
+  expect(native_port::normalize_microphone_gain(0.25) == 0.25,
+         "normalized microphone gain must not be divided twice");
+  expect(native_port::normalize_microphone_gain(0.5) == 0.5,
+         "50 percent wire microphone gain must remain 0.5");
+  expect(native_port::normalize_microphone_gain(1.5) == 1.5,
+         "150 percent microphone gain must remain 1.5");
+  expect(native_port::normalize_microphone_gain(50) == 0.5,
+         "legacy integer microphone default must normalize exactly once");
+  expect(native_port::percent_to_linear_gain(25, "source") == 0.25,
+         "fractional app volume must convert from percentage once");
+  expect_throws<std::invalid_argument>([] { (void)native_port::normalize_microphone_gain(-0.1); },
+                                       "negative microphone gain must fail");
+  expect_throws<std::invalid_argument>([] { (void)native_port::normalize_microphone_gain(151.0); },
+                                       "out-of-range microphone gain must fail");
+  expect_throws<std::invalid_argument>([] {
+    (void)native_port::percent_to_linear_gain(nlohmann::json(std::numeric_limits<double>::quiet_NaN()),
+                                              "source");
+  }, "nonfinite app volume must fail");
+
+  native_port::SettingsStore settings;
+  settings.apply({
+      {.key = "AudioModeConfig",
+       .value = {{"type", "splitByProcess"},
+                 {"pcAudioEnabled", false},
+                 {"micEnabled", true},
+                 {"devices", nlohmann::json::array({{{"name", "USB Audio"}, {"enabled", true}},
+                                                       {{"name", "Disconnected"}, {"enabled", false}}})},
+                 {"sources", nlohmann::json::array({{{"id", "game-audio"}, {"enabled", true}, {"volume", 25}},
+                                                       {{"id", "Discord.exe"}, {"enabled", true}, {"volume", 50}},
+                                                       {{"id", "MedalEncoder.exe"}, {"enabled", false}, {"volume", 100}}})}},
+       .category_id = std::nullopt},
+      {.key = "MicEnabled", .value = true, .category_id = std::nullopt},
+      {.key = "MicSoundGain", .value = 0.5, .category_id = std::nullopt},
+      {.key = "SelectedMicDevice", .value = "USB Mic", .category_id = std::nullopt},
+      {.key = "MultipleAudioTracks", .value = true, .category_id = std::nullopt},
+      {.key = "AudioModeConfig",
+       .value = {{"type", "allPcAudio"}, {"pcAudioEnabled", true}, {"micEnabled", false}},
+       .category_id = "game-1"},
+      {.key = "MicEnabled", .value = false, .category_id = "game-1"},
+  });
+  const auto global = native_port::audio_routing_plan_from_settings(settings);
+  expect(global.mode == "splitByProcess" && !global.pc_audio_enabled,
+         "global audio mode and PC enablement must be preserved");
+  expect(global.microphone_enabled && global.microphone_gain_linear == 0.5,
+         "global microphone enablement and normalized gain must be preserved");
+  expect(global.selected_audio_devices.size() == 1 && global.selected_audio_devices.front() == "USB Audio",
+         "disabled output devices must not enter the routing plan");
+  expect(global.sources.size() == 3 && global.sources[0].gain_linear == 0.25 &&
+             global.sources[1].gain_linear == 0.5 && !global.sources[2].enabled,
+         "each source must keep its own percentage gain and enabled state");
+  const auto game = native_port::audio_routing_plan_from_settings(settings, "game-1");
+  expect(game.mode == "allPcAudio" && !game.microphone_enabled && game.pc_audio_enabled,
+         "per-game mode and explicit microphone disable must override global settings");
+}
+
 void test_capture_geometry() {
   const auto ultrawide = native_port::fit_capture_geometry(2394, 1000, 2, 1920, 1080);
   expect(ultrawide.source_width_pixels == 4788 && ultrawide.source_height_pixels == 2000,
@@ -356,6 +416,7 @@ int main() {
       {"settings", test_settings},
       {"clip_action", test_clip_action},
       {"capture_settings", test_capture_settings},
+      {"audio_routing_plan", test_audio_routing_plan},
       {"capture_geometry", test_capture_geometry},
       {"replay_store", test_replay_store},
   };

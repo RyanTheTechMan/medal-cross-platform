@@ -24,6 +24,7 @@ class AacEncoder final {
 
   [[nodiscard]] bool encode(CMSampleBufferRef sample, std::uint64_t configuration_generation,
                             std::string& error);
+  void set_gain(double gain);
   void reset();
 
   [[nodiscard]] std::uint64_t input_sample_count() const noexcept;

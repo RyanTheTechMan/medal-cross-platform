@@ -1,4 +1,5 @@
 add_library(native_port_core STATIC
+  src/audio_routing.cpp
   src/capture_geometry.cpp
   src/capture_settings.cpp
   src/clip_action.cpp

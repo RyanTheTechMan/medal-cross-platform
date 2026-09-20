@@ -490,6 +490,11 @@ bool AacEncoder::encode(CMSampleBufferRef sample, std::uint64_t configuration_ge
   return succeeded;
 }
 
+void AacEncoder::set_gain(double gain) {
+  std::scoped_lock lock(impl_->mutex);
+  impl_->gain = std::clamp(gain, 0.0, 1.5);
+}
+
 void AacEncoder::reset() {
   std::scoped_lock lock(impl_->mutex);
   impl_->dispose_converter();

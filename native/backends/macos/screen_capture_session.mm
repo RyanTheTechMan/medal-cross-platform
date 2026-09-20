@@ -602,6 +602,45 @@ class MacCaptureSession final : public CaptureSession {
     }];
   }
 
+  void apply_audio_plan(const AudioRoutingPlan& plan) override {
+    std::shared_ptr<AacEncoder> system_audio;
+    std::shared_ptr<AacEncoder> microphone;
+    {
+      std::scoped_lock lock(mutex_);
+      configuration_.audio_plan = plan;
+      configuration_.audio_mode = plan.mode;
+      configuration_.pc_audio_enabled = plan.pc_audio_enabled;
+      configuration_.system_audio_volume_percent = plan.pc_audio_volume_percent;
+      configuration_.microphone_gain_linear = plan.microphone_gain_linear;
+      configuration_.capture_microphone = plan.microphone_enabled;
+      configuration_.multiple_audio_tracks = plan.multiple_audio_tracks;
+      configuration_.selected_audio_devices = plan.selected_audio_devices;
+      configuration_.microphone_device_name = plan.microphone_device_name;
+      configuration_.audio_sources.clear();
+      for (const auto& source : plan.sources) {
+        configuration_.audio_sources.push_back({source.id, source.enabled, source.volume_percent});
+      }
+    }
+    {
+      std::scoped_lock lock(audio_encoder_mutex_);
+      system_audio = system_audio_encoder_;
+      microphone = microphone_encoder_;
+    }
+    if (system_audio) {
+      double gain = plan.pc_audio_gain_linear;
+      if (plan.mode == "splitByProcess" || plan.mode == "gameOnly") {
+        const auto source = std::find_if(plan.sources.begin(), plan.sources.end(),
+                                         [](const auto& item) { return item.enabled && item.id == "game-audio"; });
+        gain = source == plan.sources.end() ? 0.0 : source->gain_linear;
+      }
+      system_audio->set_gain(gain);
+    }
+    if (microphone) {
+      microphone->set_gain(plan.microphone_enabled ? plan.microphone_gain_linear : 0.0);
+    }
+    publish_event(current_state(), "audio_plan_applied");
+  }
+
   void pump_events() override {
     @autoreleasepool {
       CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.0, true);
@@ -1443,7 +1482,7 @@ class MacCaptureSession final : public CaptureSession {
     if (configuration.capture_microphone) {
       microphone_encoder_ = std::make_shared<AacEncoder>(
           TrackKind::microphone_audio, 2, 96'000,
-          static_cast<double>(configuration.microphone_volume_percent) / 100.0,
+          configuration.microphone_gain_linear,
           [this](std::shared_ptr<const EncodedPacket> packet) { packet_callback_(std::move(packet)); });
     }
   }

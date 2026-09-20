@@ -1,4 +1,5 @@
 #include "native_port/capture_settings.hpp"
+#include "native_port/audio_routing.hpp"
 
 #include <cmath>
 #include <cstdint>
@@ -66,6 +67,27 @@ CaptureConfiguration capture_configuration_from_settings(
       throw std::invalid_argument("ShowCursor must be boolean");
     }
     defaults.show_cursor = show_cursor->get<bool>();
+  }
+  defaults.audio_plan = audio_routing_plan_from_settings(settings, category_id);
+  defaults.audio_mode = defaults.audio_plan.mode;
+  defaults.pc_audio_enabled = defaults.audio_plan.pc_audio_enabled;
+  defaults.system_audio_volume_percent = defaults.audio_plan.pc_audio_volume_percent;
+  defaults.selected_audio_devices = defaults.audio_plan.selected_audio_devices;
+  defaults.multiple_audio_tracks = defaults.audio_plan.multiple_audio_tracks;
+  defaults.microphone_device_name = defaults.audio_plan.microphone_device_name;
+  defaults.microphone_gain_linear = defaults.audio_plan.microphone_gain_linear;
+  defaults.capture_microphone = defaults.audio_plan.microphone_enabled;
+  defaults.audio_sources.clear();
+  defaults.audio_sources.reserve(defaults.audio_plan.sources.size());
+  for (const auto& source : defaults.audio_plan.sources) {
+    defaults.audio_sources.push_back({source.id, source.enabled, source.volume_percent});
+  }
+  defaults.capture_system_audio = defaults.audio_plan.mode != "none" &&
+                                  defaults.audio_plan.mode != "disabled" &&
+                                  (defaults.audio_plan.mode != "allPcAudio" ||
+                                   defaults.audio_plan.pc_audio_enabled);
+  if (defaults.audio_plan.mode == "gameOnly") {
+    defaults.capture_system_audio = true;
   }
   return defaults;
 }

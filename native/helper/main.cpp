@@ -679,77 +679,24 @@ class HelperSession final {
     // Desktop/Game start route; the explicit capture* fields are only present
     // in our namespaced capture self-test.  Resolve the production route from
     // those settings instead of silently falling back to video-only capture.
-    // The renderer normalizes the recovered setting before it reaches this
-    // helper: `allPcAudio` carries only selected output-device names and
-    // `splitByProcess` carries source ids/volumes. Keep that wire shape intact
-    // instead of inferring a mode from the UI label.
-    const auto audio_mode = settings_.effective("AudioModeConfig", category);
-    if (audio_mode && audio_mode->is_object()) {
-      result.audio_mode = audio_mode->value("type", std::string{"splitByProcess"});
-      result.pc_audio_enabled = audio_mode->value("pcAudioEnabled", true);
-      result.system_audio_volume_percent = static_cast<std::uint32_t>(std::clamp(
-          audio_mode->value("volume", 100), 0, 150));
-      if (audio_mode->contains("devices") && audio_mode->at("devices").is_array()) {
-        for (const auto& device : audio_mode->at("devices")) {
-          if (device.is_object() && device.value("enabled", true) && device.contains("name") &&
-              device.at("name").is_string()) {
-            result.selected_audio_devices.push_back(device.at("name").get<std::string>());
-          }
-        }
-      }
-      if (audio_mode->contains("sources") && audio_mode->at("sources").is_array()) {
-        for (const auto& source : audio_mode->at("sources")) {
-          if (!source.is_object() || !source.contains("id") || !source.at("id").is_string()) {
-            continue;
-          }
-          result.audio_sources.push_back({source.at("id").get<std::string>(),
-                                         source.value("enabled", false),
-                                         static_cast<std::uint32_t>(std::clamp(
-                                             source.value("volume", 100), 0, 150))});
-        }
-      }
-    }
-    const auto multiple_audio_tracks = settings_.effective("MultipleAudioTracks", category);
-    if (multiple_audio_tracks && multiple_audio_tracks->is_boolean()) {
-      result.multiple_audio_tracks = multiple_audio_tracks->get<bool>();
-    }
-    const auto mic_gain = settings_.effective("MicSoundGain", category);
-    if (mic_gain && mic_gain->is_number()) {
-      result.microphone_volume_percent = static_cast<std::uint32_t>(std::clamp(
-          mic_gain->get<double>(), 0.0, 150.0));
-    }
+    // Audio units and enablement are normalized once by the shared core
+    // AudioRoutingPlan. Keep this helper limited to explicit namespaced
+    // request overrides; it must not rescale MicSoundGain or collapse source
+    // percentages into one tap gain.
     if (params.contains("captureSystemAudio")) {
       result.capture_system_audio = params.at("captureSystemAudio").get<bool>();
     } else {
       const auto game_audio_only = settings_.effective("GameAudioOnly", category);
       const bool game_only = game_audio_only && game_audio_only->is_boolean() &&
                              game_audio_only->get<bool>();
-      bool configured_system_audio = true;
-      if (audio_mode && audio_mode->is_object()) {
-        const auto type = audio_mode->value("type", std::string{});
-          configured_system_audio = type != "none" && type != "disabled" &&
-                                  (type != "allPcAudio" || result.pc_audio_enabled);
-          if (audio_mode->contains("sources") && audio_mode->at("sources").is_array()) {
-            if (type == "splitByProcess") {
-            // In Specific Apps mode every enabled source is meaningful. The
-            // game source is supplied by the target ScreenCaptureKit stream;
-            // named applications are supplied by Core Audio process taps.
-            // Keep the aggregate flag true for either case so the native
-            // adapter can route each source independently. It must not turn a
-            // Discord/Medal-only selection into a whole-PC mix.
-            configured_system_audio = std::any_of(
-                audio_mode->at("sources").begin(), audio_mode->at("sources").end(),
-                [](const nlohmann::json& source) {
-                  return source.is_object() && source.value("enabled", true);
-                });
-          } else {
-            configured_system_audio = std::any_of(
-                audio_mode->at("sources").begin(), audio_mode->at("sources").end(),
-                [](const nlohmann::json& source) {
-                  return source.is_object() && source.value("enabled", true);
-                });
-          }
-        }
+      bool configured_system_audio = result.audio_plan.mode != "none" &&
+                                     result.audio_plan.mode != "disabled" &&
+                                     (result.audio_plan.mode != "allPcAudio" ||
+                                      result.audio_plan.pc_audio_enabled);
+      if (result.audio_plan.mode == "splitByProcess") {
+        configured_system_audio = std::any_of(
+            result.audio_plan.sources.begin(), result.audio_plan.sources.end(),
+            [](const native_port::AudioRoutingSource& source) { return source.enabled; });
       }
       // `GameAudioOnly` remains a strict process-isolation request. The
       // ScreenCaptureKit system stream is never substituted for it. For the
@@ -764,14 +711,7 @@ class HelperSession final {
     if (params.contains("captureMicrophone")) {
       result.capture_microphone = params.at("captureMicrophone").get<bool>();
     } else {
-      const auto microphone = settings_.effective("MicEnabled", category);
-      // Medal's recovered default is MicEnabled=true.  The imported client
-      // does not always include an unchanged default in its initial settings
-      // envelope, so absence must not silently turn the native microphone
-      // track off.  An explicit false (global or per-game) still wins.
-      result.capture_microphone = microphone && microphone->is_boolean()
-                                      ? microphone->get<bool>()
-                                      : true;
+      result.capture_microphone = result.audio_plan.microphone_enabled;
     }
     if (result.capture_microphone) {
       const auto selected_microphone = settings_.effective("SelectedMicDevice", category);
@@ -846,6 +786,21 @@ class HelperSession final {
     }
     target_capture_pending_ = false;
     start_configured_display_capture();
+  }
+
+  void reconcile_audio_plan(const std::vector<native_port::SettingUpdate>& updates) {
+    const bool audio_changed = std::any_of(
+        updates.begin(), updates.end(), [](const auto& update) {
+          return update.key == "AudioModeConfig" || update.key == "MicEnabled" ||
+                 update.key == "MicSoundGain" || update.key == "SelectedMicDevice" ||
+                 update.key == "SelectedAudioDevices" || update.key == "MultipleAudioTracks" ||
+                 update.key == "GameAudioOnly";
+        });
+    if (!audio_changed) {
+      return;
+    }
+    const auto configuration = capture_configuration(nlohmann::json::object());
+    dispatch_to_main([this, plan = configuration.audio_plan] { capture_->apply_audio_plan(plan); });
   }
 
   void start_configured_display_capture() {
@@ -1233,7 +1188,7 @@ class HelperSession final {
         {"audioMode", configuration.audio_mode},
         {"pcAudioEnabled", configuration.pc_audio_enabled},
         {"systemAudioVolumePercent", configuration.system_audio_volume_percent},
-        {"microphoneVolumePercent", configuration.microphone_volume_percent},
+        {"microphoneGainLinear", configuration.microphone_gain_linear},
         {"selectedAudioDevices", configuration.selected_audio_devices},
         {"multipleAudioTracks", configuration.multiple_audio_tracks},
         {"microphoneDeviceName", configuration.microphone_device_name
@@ -1990,6 +1945,7 @@ class HelperSession final {
     }
     settings_.apply(updates);
     apply_screen_capture_setting(updates);
+    reconcile_audio_plan(updates);
     const bool global_hotkeys_changed = std::any_of(
         updates.begin(), updates.end(), [](const auto& update) {
           return update.key == "Hotkeys" && !update.category_id.has_value();
