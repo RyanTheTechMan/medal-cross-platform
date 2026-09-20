@@ -610,6 +610,11 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
         copy_executable(ffprobe, tools_destination / 'ffprobe'),
     ]
     media_libraries = bundle_macos_media_libraries(stage_app, ['ffmpeg', 'ffprobe'])
+    if not media_libraries:
+        raise ImportFailure(
+            'native media-tool dependency closure is empty; pass the original '
+            'Homebrew ffmpeg/ffprobe binaries, not a previously relinked copy'
+        )
     for tool in tools:
         installed = stage_app / str(tool['destination'])
         tool['installedSha256'] = sha256(installed)

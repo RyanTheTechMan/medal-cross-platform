@@ -2144,10 +2144,11 @@
           "reports/native/m3.5-hotkey-operational-result.json",
           "reports/native/m3.5-hotkey-library-row.json",
           "reports/native/m3.5-hotkey-restart-media-selftest.json",
-          "reports/native/m3.5-operational-replay-result.md"
+          "reports/native/m3.5-operational-replay-result.md",
+          "reports/native/m3.9-thumbnail-generation-fix.md"
         ],
         "limitations": [
-          "Verified for one guest/local H.264/AAC physical hotkey export: the original imported handler acknowledged contentCreate, probed media, generated a thumbnail and persisted the local contents row across restart. Authenticated contentId/upload, duplicate idempotency and original logged-in library UI remain unverified."
+          "Verified for one guest/local H.264/AAC physical hotkey export and a repaired Balatro row: the original imported handler acknowledged contentCreate, probed media, generated thumbnails and persisted local contents rows. Authenticated contentId/upload, duplicate idempotency and original logged-in library UI remain unverified."
         ]
       },
       "linux": {
@@ -4801,7 +4802,8 @@
           "native/core/src/clip_action.cpp",
           "native/backends/macos/mp4_writer.mm",
           "client_patch/media-selftest-preload.cjs",
-          "client_patch/native-port-bootstrap.cjs"
+          "client_patch/native-port-bootstrap.cjs",
+          "tools/native_port_importer.py"
         ],
         "test_ids": [
           "E04",
@@ -4812,10 +4814,11 @@
           "reports/native/m3.5-hotkey-restart-media-selftest.json",
           "reports/native/m3.5-hotkey-post-restart-library-row.json",
           "reports/native/m3.5-hotkey-post-restart-media-sha256.txt",
-          "reports/native/m3.5-operational-replay-result.md"
+          "reports/native/m3.5-operational-replay-result.md",
+          "reports/native/m3.9-thumbnail-generation-fix.md"
         ],
         "limitations": [
-          "The original guest contentCreate handler probed, thumbnailed and inserted one physical hotkey clip; imported Chromium played/sought it and both media plus the row persisted across restart. The visible original library/player is authentication-gated, and upload/idempotency/recovery remain unverified."
+          "The original guest contentCreate handler probed, thumbnailed and inserted physical hotkey clips, including repaired Balatro thumbnails; imported Chromium can play them after the files exist. The visible original library/player is authentication-gated, and upload/idempotency/recovery remain unverified."
         ]
       },
       "linux": {
