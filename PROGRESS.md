@@ -1,5 +1,12 @@
 # Implementation progress
 
+## Audio review checkpoint — 2026-09-20
+
+- Resumed from `016b2ae` without resetting to `f6bdb31`; supplied source-reviewed audio reproductions ran in `reports/audio-review-baseline-20260920-154910-9458/` (23 behavioral assertions, including intentionally reproduced bugs).
+- Checkpoint `4d02dd7` adds the typed native audio-client plan, HAL-backed `audioProcesses`, per-source process taps, absolute stream manifests, validated importer merging, timestamped bounded PCM handoff and explicit tap errors. Xcode 27.2 beta build and all 6 CTest targets pass; the added audio routing suite is 8/8.
+- Original PreviewV2 and legacy audio toggles now mount the project-owned sidecar audition controller through a secure preload IPC route. The controller suppresses the master while auditioning source sidecars, synchronizes play/pause/seek/rate changes, ramps source gains and restores the baseline on cancel/reset. Its attach/toggle/reset regression test passes; the exact imported client patch prepares and syntax-checks successfully.
+- Next runnable task: launch the newly built signed app on the isolated authenticated profile, open one normal clip in the original Audio popover, verify live mute/unmute before Save, then verify Save/Save Copy, fresh-file probe, imported playback, restart persistence and source-sidecar cleanup. No upload/publish is authorized.
+
 ## Current gate and next runnable task
 
 - Gate: M3.9 audio-edit stream indexes are corrected in the native `contentCreate` metadata and importer probe merge. Medal's edit path passes absolute MP4 stream indexes (`0:1`, `0:2`, …), while the native writer emits video first and audio afterward. The fix is built, imported, signed and installed at `/Applications/Medal.app`; an independent FFmpeg mute fixture now produces digital silence for both PC Audio and Microphone. The normal imported UI toggle → Save Edits → playback path was not confirmed before pausing, so mute remains implemented-but-unverified. Evidence: `reports/native/m3.9-audio-mute-absolute-index-ffmpeg.log`, `reports/native/m3.9-audio-mute-absolute-index-volumedetect.log`, `reports/native/m3.9-audio-stream-index-development-app-build.log`, and `reports/native/m3.9-audio-stream-index-installed-codesign.log`. Next runnable task: resume with one normal clip and complete the imported Audio popover → Save Edits/overwrite-or-copy → playback verification.

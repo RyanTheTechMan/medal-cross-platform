@@ -33,6 +33,7 @@ PROTOCOL_SELFTEST_PATH = ROOT / 'client_patch' / 'protocol-selftest-preload.cjs'
 CAPTURE_SELFTEST_PATH = ROOT / 'client_patch' / 'capture-selftest-preload.cjs'
 MEDIA_SELFTEST_PATH = ROOT / 'client_patch' / 'media-selftest-preload.cjs'
 MEDIA_SELFTEST_HTML_PATH = ROOT / 'client_patch' / 'media-selftest.html'
+NATIVE_AUDIO_PREVIEW_CONTROLLER_PATH = ROOT / 'client_patch' / 'native-audio-preview-controller.js'
 UPDATE_ADAPTER_PATH = ROOT / 'client_patch' / 'velopack-manual-adapter.js'
 MAX_COPY_BYTES = 2 * 1024**3
 NATIVE_HELPER_BUNDLE_ID = 'com.squirrel.medal.medal.recorder'
@@ -515,6 +516,72 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
         'main.min.js',
     ))
     renderer_path = stage_app / 'renderer.min.js'
+    preload_path = stage_app / 'preload.min.js'
+    operations.append(exact_replace(
+        preload_path,
+        'generateThumbnailForPath:e=>r.ipcRenderer.invoke("contents:generateThumbnailForPath",e),',
+        'generateThumbnailForPath:e=>r.ipcRenderer.invoke("contents:generateThumbnailForPath",e),nativeAudioPreview:{prepare:e=>r.ipcRenderer.invoke("native-port:audio-preview",{action:"prepare",...e}),release:e=>r.ipcRenderer.invoke("native-port:audio-preview",{action:"release",...e})},',
+        1,
+        'expose-secure-native-audio-preview-ipc',
+        'preload.min.js',
+    ))
+    controller_source = NATIVE_AUDIO_PREVIEW_CONTROLLER_PATH.read_text()
+    operations.append(exact_replace(
+        renderer_path,
+        'mk=({clip:e,videoRef:t',
+        controller_source + '\nmk=({clip:e,videoRef:t',
+        1,
+        'install-native-audio-preview-controller',
+        'renderer.min.js',
+    ))
+    operations.append(exact_replace(
+        renderer_path,
+        'Qe.current;I(Un?pt.some((pa,nn)=>!!pa.isMuted!==Un[nn]):!0),M(pt)',
+        'Qe.current;I(Un?pt.some((pa,nn)=>!!pa.isMuted!==Un[nn]):!0),M(pt),window.NativeMedalAudioPreviewController?.toggle?.(Ae,!!pt[Ae]?.isMuted)',
+        1,
+        'route-original-audio-toggle-to-native-audition',
+        'renderer.min.js',
+    ))
+    operations.append(exact_replace(
+        renderer_path,
+        'lt=(0,p.useCallback)(()=>{Re(),I(!1)},[Re,I])',
+        'lt=(0,p.useCallback)(()=>{window.NativeMedalAudioPreviewController?.reset?.(),Re(),I(!1)},[Re,I])',
+        1,
+        'reset-native-audio-audition-on-cancel',
+        'renderer.min.js',
+    ))
+    operations.append(exact_replace(
+        renderer_path,
+        'de=({selectedIndex:Le})=>{I(!0),M(Ye=>Ye.map((pe,Ue)=>({...pe,isMuted:Ue===Le?!pe.isMuted:pe.isMuted})))}',
+        'de=({selectedIndex:Le})=>{I(!0),M(Ye=>Ye.map((pe,Ue)=>({...pe,isMuted:Ue===Le?!pe.isMuted:pe.isMuted}))),window.NativeMedalAudioPreviewController?.toggle?.(Le,!j?.[Le]?.isMuted)}',
+        1,
+        'route-legacy-audio-toggle-to-native-audition',
+        'renderer.min.js',
+    ))
+    operations.append(exact_replace(
+        renderer_path,
+        'be=()=>{De(),O(!1)}',
+        'be=()=>{window.NativeMedalAudioPreviewController?.reset?.(),De(),O(!1)}',
+        1,
+        'reset-native-audio-audition-on-legacy-cancel',
+        'renderer.min.js',
+    ))
+    operations.append(exact_replace(
+        renderer_path,
+        'return(0,p.useEffect)(()=>{Re()},[Re]),(0,n.jsxs)(n.Fragment,{children:',
+        'return(0,p.useEffect)(()=>{Re()},[Re]),(0,p.useEffect)(()=>{const Ae=t?.current;if(!Ae)return;const pt=e.getContentObject?.()?.video_path;const Un=window.NativeMedalAudioPreviewController;Un?.attach?.({uuid:e.getUUID?.(),path:pt,video:Ae,streams:j});return()=>Un?.detach?.()},[e,t,j]),(0,n.jsxs)(n.Fragment,{children:',
+        1,
+        'mount-native-audio-preview-from-original-preview-v2',
+        'renderer.min.js',
+    ))
+    operations.append(exact_replace(
+        renderer_path,
+        'return(0,p.useEffect)(()=>{Ne()},[e]),(0,n.jsxs)(n.Fragment,{children:',
+        'return(0,p.useEffect)(()=>{Ne()},[e]),(0,p.useEffect)(()=>{const Ae=t?.current;if(!Ae)return;const pt=e.getContentObject?.()?.video_path;const Un=window.NativeMedalAudioPreviewController;Un?.attach?.({uuid:e.getUUID?.(),path:pt,video:Ae,streams:j});return()=>Un?.detach?.()},[e,t,j]),(0,n.jsxs)(n.Fragment,{children:',
+        1,
+        'mount-native-audio-preview-from-legacy-preview',
+        'renderer.min.js',
+    ))
     operations.append(exact_replace(
         renderer_path,
         'XT=K.div`\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 67px;',
@@ -612,6 +679,8 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
     shutil.copy2(CAPTURE_SELFTEST_PATH, stage_app / 'native-port' / 'capture-selftest-preload.cjs')
     shutil.copy2(MEDIA_SELFTEST_PATH, stage_app / 'native-port' / 'media-selftest-preload.cjs')
     shutil.copy2(MEDIA_SELFTEST_HTML_PATH, stage_app / 'native-port' / 'media-selftest.html')
+    shutil.copy2(NATIVE_AUDIO_PREVIEW_CONTROLLER_PATH,
+                 stage_app / 'native-port' / 'native-audio-preview-controller.js')
     default_clip_sound = install_default_clip_sound(
         recorder_archive,
         stage_app / 'native-port' / 'assets' / 'ClipEffect.wav',
@@ -681,6 +750,9 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
             ),
             'native-port/media-selftest.html': sha256(
                 stage_app / 'native-port' / 'media-selftest.html'
+            ),
+            'native-port/native-audio-preview-controller.js': sha256(
+                stage_app / 'native-port' / 'native-audio-preview-controller.js'
             ),
         },
         'tools': tools,

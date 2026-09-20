@@ -573,10 +573,12 @@
           "B09"
         ],
         "report_paths": [
-          "reports/native/ctest-m2.6-xcode-27.2-beta.log"
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/ctest-audio-routing-hal-tap-worker-xcode-27.2-beta.log",
+          "reports/native/build-audio-routing-hal-tap-worker-xcode-27.2-beta.log"
         ],
         "limitations": [
-          "Target identity now exists, but Core Audio process-tap enumeration/isolation is not implemented; the RPC intentionally returns an empty array and never substitutes whole-system audio."
+          "HAL process-object enumeration is implemented and the DTO retains PID, bundle identifier, output-active state and device identities. A permissioned per-application tone-isolation run remains unverified."
         ]
       },
       "linux": {
@@ -2150,7 +2152,7 @@
           "reports/native/m3.9-audio-stream-index-installed-codesign.log"
         ],
         "limitations": [
-          "One guest/local H.264/AAC physical hotkey export and a repaired Balatro row are verified through contentCreate, probing, thumbnail generation and local contents persistence. The absolute audio-stream-index correction is independently validated, but the imported UI audio-edit save and resulting playback remain unverified; authenticated contentId/upload, duplicate idempotency and original logged-in library UI remain unverified."
+          "One guest/local H.264/AAC physical hotkey export and a repaired Balatro row are verified through contentCreate, probing, thumbnail generation and local contents persistence. The absolute audio-stream-index correction and renderer audition wiring are implemented, but the authenticated UI Audio toggle/save/playback/restart gate remains unverified; authenticated contentId/upload, duplicate idempotency and original logged-in library UI remain unverified."
         ]
       },
       "linux": {
@@ -2259,7 +2261,7 @@
           "reports/native/m3.9-audio-stream-index-installed-codesign.log"
         ],
         "limitations": [
-          "Typed global/per-game storage and scoped deletion are implemented. Native PC Audio/Game Audio/Microphone routing and absolute multi-track indexes are implemented, but the original UI Save Edits/overwrite-or-copy mute path and resulting imported playback remain unverified."
+          "Typed global/per-game storage and scoped deletion are implemented. Native PC Audio/Game Audio/Microphone routing, HAL audio-client discovery, absolute multi-track indexes and secure sidecar audition wiring are implemented; the original UI live toggle plus Save Edits/overwrite-or-copy and resulting imported playback remain unverified."
         ]
       },
       "linux": {
@@ -2331,7 +2333,7 @@
           "reports/native/m3.9-audio-stream-index-installed-codesign.log"
         ],
         "limitations": [
-          "Typed global/per-game storage and scoped deletion are implemented. Native PC Audio/Game Audio/Microphone routing and absolute multi-track indexes are implemented, but the original UI Save Edits/overwrite-or-copy mute path and resulting imported playback remain unverified."
+          "Typed global/per-game storage and scoped deletion are implemented. Native PC Audio/Game Audio/Microphone routing, HAL audio-client discovery, absolute multi-track indexes and secure sidecar audition wiring are implemented; the original UI live toggle plus Save Edits/overwrite-or-copy and resulting imported playback remain unverified."
         ]
       },
       "linux": {
@@ -4361,7 +4363,8 @@
         ],
         "limitations": [
           "A short signed-client system-audio run passed with 378 stereo 48 kHz AAC packets and zero failures/discontinuities; the 30-minute A/V drift gate remains open.",
-          "The microphone has a separate native output and encoder. TCC onboarding and the signed host/helper attribution are verified, but a fresh normal UI clip with Medal's microphone setting enabled has not yet proved microphone AAC packets and audible playback."
+          "The microphone has a separate native output and encoder. TCC onboarding and the signed host/helper attribution are verified, but a fresh normal UI clip with Medal's microphone setting enabled has not yet proved microphone AAC packets and audible playback.",
+          "HAL-specific app routing and original Audio-popover live audition are implemented but remain unverified through the authenticated UI."
         ]
       },
       "linux": {

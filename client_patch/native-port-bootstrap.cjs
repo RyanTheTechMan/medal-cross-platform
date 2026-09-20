@@ -3,7 +3,14 @@
 const fs = require('node:fs')
 const path = require('node:path')
 const crypto = require('node:crypto')
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, protocol } = require('electron')
+const { spawn } = require('node:child_process')
+const { createReadStream } = require('node:fs')
+
+protocol.registerSchemesAsPrivileged([{
+  scheme: 'native-audio-preview',
+  privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true, corsEnabled: true }
+}])
 
 const fail = message => {
   const error = new Error(`Native port bootstrap: ${message}`)
@@ -39,6 +46,89 @@ for (const tool of ['ffmpeg', 'ffprobe', 'sqlite3']) {
   const stat = fs.statSync(candidate, { throwIfNoEntry: false })
   if (!stat || !stat.isFile() || (stat.mode & 0o111) === 0) fail(`missing executable ${candidate}`)
 }
+
+const audioPreviewCache = path.join(profile, 'Audio Preview')
+fs.mkdirSync(audioPreviewCache, { recursive: true, mode: 0o700 })
+const clipLibrary = path.join(profile, 'Clips')
+fs.mkdirSync(clipLibrary, { recursive: true, mode: 0o700 })
+const safePreviewUuid = value => typeof value === 'string' && /^[A-Za-z0-9_-]{6,128}$/.test(value)
+const resolvePreviewInput = (value, uuid) => {
+  if (typeof value !== 'string' || !path.isAbsolute(value)) fail('audio preview path must be absolute')
+  const resolved = fs.realpathSync(value)
+  const inRoot = root => {
+    const relative = path.relative(root, resolved)
+    return !relative.startsWith('..') && !path.isAbsolute(relative)
+  }
+  if (!inRoot(isolatedMedia) && !inRoot(clipLibrary)) fail('audio preview path is outside the isolated clip profile')
+  if (!path.basename(resolved).startsWith(`${uuid}.`)) fail('audio preview path is not the requested library UUID')
+  if (!fs.statSync(resolved).isFile()) fail('audio preview input is not a file')
+  return resolved
+}
+const runAudioPreviewExtraction = ({ uuid, input, index }) => new Promise((resolve, reject) => {
+  const stat = fs.statSync(input)
+  const key = crypto.createHash('sha256').update(`${uuid}\0${input}\0${stat.size}\0${stat.mtimeMs}\0${index}`).digest('hex')
+  const output = path.join(audioPreviewCache, `${key}.m4a`)
+  if (fs.statSync(output, { throwIfNoEntry: false })?.isFile()) {
+    resolve({ url: `native-audio-preview://${path.basename(output)}`, generation: key })
+    return
+  }
+  const temporary = `${output}.${process.pid}.${crypto.randomUUID()}.tmp`
+  const child = spawn(path.join(tools, 'ffmpeg'), [
+    '-v', 'error', '-nostdin', '-y', '-i', input, '-map', `0:${index}`,
+    '-vn', '-c:a', 'copy', '-movflags', '+faststart', temporary
+  ], { stdio: ['ignore', 'ignore', 'pipe'] })
+  let stderr = ''
+  child.stderr.on('data', chunk => { stderr += String(chunk).slice(0, 2000) })
+  child.once('error', error => { try { fs.unlinkSync(temporary) } catch {}; reject(error) })
+  child.once('exit', (code, signal) => {
+    if (code !== 0 || signal) {
+      try { fs.unlinkSync(temporary) } catch {}
+      reject(new Error(`native audio preview extraction failed (${code ?? signal}): ${stderr.trim()}`))
+      return
+    }
+    fs.renameSync(temporary, output)
+    resolve({ url: `native-audio-preview://${path.basename(output)}`, generation: key })
+  })
+})
+ipcMain.handle('native-port:audio-preview', async (event, params = {}) => {
+  if (!event.sender || event.sender.isDestroyed()) throw new Error('audio preview sender is unavailable')
+  if (!safePreviewUuid(params.uuid)) throw new Error('audio preview UUID is invalid')
+  if (params.action === 'release') return { released: true }
+  if (params.action !== 'prepare') throw new Error('unsupported native audio preview action')
+  const index = Number(params.index)
+  if (!Number.isInteger(index) || index < 0 || index > 64) throw new Error('audio preview stream index is invalid')
+  const input = resolvePreviewInput(params.path, params.uuid)
+  return runAudioPreviewExtraction({ uuid: params.uuid, input, index })
+})
+app.whenReady().then(() => {
+  protocol.registerStreamProtocol('native-audio-preview', (request, callback) => {
+    try {
+      const name = decodeURIComponent(new URL(request.url).pathname.replace(/^\/+/, ''))
+      if (!/^[a-f0-9]{64}\.m4a$/.test(name)) throw new Error('invalid audio preview asset')
+      const file = path.join(audioPreviewCache, name)
+      const relative = path.relative(audioPreviewCache, file)
+      const stat = fs.statSync(file)
+      if (relative.startsWith('..') || path.isAbsolute(relative) || !stat.isFile()) throw new Error('missing audio preview asset')
+      const range = /^bytes=(\d*)-(\d*)$/i.exec(request.headers.range || '')
+      let start = 0
+      let end = stat.size - 1
+      const headers = { 'Content-Type': 'audio/mp4', 'Accept-Ranges': 'bytes' }
+      let statusCode = 200
+      if (range) {
+        start = range[1] ? Number(range[1]) : Math.max(0, stat.size - Number(range[2] || 0))
+        end = range[2] ? Number(range[2]) : end
+        end = Math.min(end, stat.size - 1)
+        if (!Number.isInteger(start) || start < 0 || start > end) throw new Error('invalid audio preview range')
+        statusCode = 206
+        headers['Content-Range'] = `bytes ${start}-${end}/${stat.size}`
+      }
+      headers['Content-Length'] = String(end - start + 1)
+      callback({ statusCode, headers, data: createReadStream(file, { start, end }) })
+    } catch (error) {
+      callback({ statusCode: 404, headers: { 'Content-Type': 'text/plain' }, data: Buffer.from(String(error.message || error)) })
+    }
+  })
+})
 
 const recorder = path.join(
   __dirname,

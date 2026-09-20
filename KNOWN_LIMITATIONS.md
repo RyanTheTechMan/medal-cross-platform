@@ -44,3 +44,10 @@ This file records observed limits, not excuses for successful no-op behavior.
 - Production contentCreate retry/idempotency and client path-renaming reconciliation.
 - Multi-track ordering, labels, editor metadata, and service acceptance.
 - Broadcast, overlay-injection, auto-clip plugin, and voice semantics not established by method names alone.
+# Audio review open gates (2026-09-20)
+
+- The native Specific Apps master currently uses one aggregate Core Audio tap for the selected PID set. Individual source gains are preserved on source stems; an independently clocked PCM mixer is still required before claiming that different per-app gains are reflected in the All Audio master itself.
+- The native Medal Clip Sound source is intentionally reported unavailable until a project-owned feedback PCM bus is implemented. It is never mapped to the Electron host PID or silently replaced by whole-system audio.
+- HAL process enumeration and bounded process-tap timing/format diagnostics are implemented and build-tested, but a permissioned per-app tone-isolation run on this Mac remains unverified.
+- The imported original-client sidecar audition controller and secure range-serving protocol are implemented and unit-tested. The actual authenticated renderer Audio popover → live toggle → Save/Save Copy → playback → full restart gate remains pending.
+- AVFoundation/ffprobe/writer-manifest tests are independent component evidence; they do not substitute for original Medal playback. No clip upload or publish test is run in this milestone.
