@@ -4,7 +4,7 @@ This file records observed limits, not excuses for successful no-op behavior.
 
 ## Environment
 
-- Stable Xcode 27 with the macOS 27 SDK is not installed. The user authorized Xcode 27.2 beta build 27B5019j / SDK 27.2 for implementation; beta-built artifacts remain development-only and release evidence still requires the specified stable-toolchain rerun.
+- Current fresh build uses installed Xcode 27.1 (27A9269), SDK 27.0; the former Xcode-beta installation is gone. Existing historical beta reports remain evidence for their exact builds only. No release/notarization claim.
 - A valid Apple Development identity now signs the stable `com.squirrel.medal.medal` host and `.recorder` helper IDs. `Medal.app` uses the imported Medal icon. No Developer ID Application/notarization evidence is claimed; Apple Development signing is not distribution signing or notarization.
 
 ## Current implementation state
@@ -44,10 +44,13 @@ This file records observed limits, not excuses for successful no-op behavior.
 - Production contentCreate retry/idempotency and client path-renaming reconciliation.
 - Multi-track ordering, labels, editor metadata, and service acceptance.
 - Broadcast, overlay-injection, auto-clip plugin, and voice semantics not established by method names alone.
-# Audio review open gates (2026-09-20)
+# Audio review open gates (updated 2026-09-25)
+
+- September 20 original audio-edit playback/restart claims are withdrawn: retained logs contain ENOENT and decoder-open errors. Fresh source-preserving edits pass 40 FFmpeg fixture checks and 11 AVFoundation MP4/M4A decodes. New September 25 synthetic original-UI overwrite/unmute/Save Copy/restart passes on exact persisted files. See `reports/native/audio-20260925-status.md` for narrow scope and remaining tests.
+- Xcode-beta is no longer installed; fresh builds use installed Xcode 27.1 (27A9269) in `build-macos-20260925`. Old generated artifact targets were removed outside this work; broken managed links are preserved, with new managed roots for these builds.
 
 - The native Specific Apps master currently uses one aggregate Core Audio tap for the selected PID set. Individual source gains are preserved on source stems; an independently clocked PCM mixer is still required before claiming that different per-app gains are reflected in the All Audio master itself.
 - The native Medal Clip Sound source is intentionally reported unavailable until a project-owned feedback PCM bus is implemented. It is never mapped to the Electron host PID or silently replaced by whole-system audio.
 - HAL process enumeration and bounded process-tap timing/format diagnostics are implemented and build-tested, but a permissioned per-app tone-isolation run on this Mac remains unverified.
-- The imported original-client sidecar audition controller and secure range-serving protocol are implemented and unit-tested. One authenticated original renderer Audio popover → Save Edits → playback → full restart overwrite path is verified against the actual persisted clip; Save Copy, unmute-after-restart, failure-rollback and an instrumented external-listening latency measurement remain open. The controller's immediate-audition state path is covered, but no claim of a measured sub-100-ms audible response is made.
-- The edited output is independently validated by ffprobe and the AVFoundation video+audio probe, and the original Medal player visibly renders it after restart. The existing AVFoundation probe intentionally requires a video track, so its audio-only sidecar attempts are retained as `playable=true`/`status=failed` evidence while ffprobe validates each AAC sidecar. No clip upload or publish test is run in this milestone.
+- The imported original-client sidecar audition controller and secure range-serving protocol pass short original-UI mute-both/save/restart/unmute/copy/restart tests, plus an actual browser audio-graph meter. Individual-source/restart and cancel/seek/rate/lifecycle coverage, physical sub-100-ms audible response and ten-minute sync remain open. Persistence failure/rollback is injected in unit tests, not the real user's library.
+- The AVFoundation probe now has an explicit audio-only mode; 11 synthetic MP4/M4A decodes pass. Old audio-only failures are preserved. Edited current-row media passes independent ffprobe/AVFoundation and actual imported-client decoded playback. No clip upload or publish test is run.

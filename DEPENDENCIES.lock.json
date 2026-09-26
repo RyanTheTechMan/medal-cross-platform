@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedOn": "2026-09-18",
+  "generatedOn": "2026-09-25",
   "status": "development_inventory_not_release_lock",
   "target": {
-    "os": "macOS 27.2 build 26B5086k",
+    "os": "macOS 27.2 build 26B5091g",
     "architecture": "arm64",
     "chip": "Apple M5 Max",
     "deploymentTarget": "27.0"
@@ -11,16 +11,16 @@
   "toolchains": [
     {
       "name": "required-stable-xcode-27",
-      "status": "blocked",
-      "reason": "not installed"
+      "status": "available",
+      "reason": "Xcode 27.1 (27A9269) is installed; fresh build and 6 CTests pass on 2026-09-25"
     },
     {
       "name": "development-xcode",
-      "version": "27.2 beta",
-      "build": "27B5019j",
-      "sdk": "macOS 27.2",
+      "version": "27.1",
+      "build": "27A9269",
+      "sdk": "macOS 27.0 (xcrun --show-sdk-version)",
       "compiler": "Apple clang 21.0.0 (clang-2100.3.34.2)",
-      "path": "/Applications/Xcode-beta.app/Contents/Developer",
+      "path": "/Applications/Xcode.app/Contents/Developer",
       "releaseEligible": false
     }
   ],

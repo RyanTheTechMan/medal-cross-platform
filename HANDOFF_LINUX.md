@@ -2,6 +2,18 @@
 
 Status: **not ready for transfer**. This file is live and must not be interpreted as a completed handoff.
 
+2026-09-25 correction: current base is `b1fa75a`, not the stale pre-amendment
+`590e471` below. The September 20 audio-edit playback/restart claims are withdrawn
+because the retained launch log contains missing-file/decoder failures. Shared
+JS native editing and preview repairs now pass short synthetic original-UI
+overwrite/unmute/Save Copy/restart checks on the exact persisted paths; see
+`reports/native/audio-20260925-status.md`. Xcode 27.1 (27A9269), macOS 27.2
+(26B5091g), `build-macos-20260925`: fresh build/6 CTests pass. The user's isolated
+profile is authenticated; no further login is needed. No uploads are authorized.
+Installed development build: `2637.461.1-development-m3.5-404b6fa35c7f97e3`.
+The historical sections below describe earlier gates; they do not supersede the
+September 25 audio report. Native PCM mixing/routing remains incomplete.
+
 ## Build identity
 
 - Commit / dirty-tree changes: checkpoint `590e471` and its parents cover M0, shared core/M1, authenticated actual-client/helper M2, deterministic signing, real H.264/HEVC capture, native AAC/MP4 export, typed audio routing, HAL process discovery, bounded process-tap handoff, the secure original-client sidecar audition path, and the original trim absolute-index/output-manifest fix. The current macOS evidence is not yet a Linux handoff because Save Copy/unmute rollback, microphone capture, per-app isolation and long-duration drift gates remain open.

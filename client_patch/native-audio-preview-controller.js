@@ -1,135 +1,166 @@
-/* Injected into the imported renderer. This owns only short-lived source
- * audition nodes; encoded recording packets never cross the renderer IPC. */
+/* Audition adapter for the imported Audio popovers, not a replacement player.
+ * Only opaque finalized-file URLs cross IPC; capture stays entirely native. */
 (function installNativeAudioPreviewController() {
   if (window.NativeMedalAudioPreviewController) return;
-  const state = {
-    generation: 0,
-    uuid: null,
-    path: null,
-    video: null,
-    baselineMuted: false,
-    context: null,
-    buses: new Map(),
-    listeners: [],
-    preparing: false,
+  let context, active, restore, generation = 0;
+  const originals = new WeakMap();
+  const audioContext = () => context ||= new AudioContext();
+  const release = lease => lease && window.MedalIPC.nativeAudioPreview.release({ lease }).catch(() => {});
+  const current = s => active === s && s.generation === generation;
+  const status = (s, name, message = '') => {
+    s.status = name;
+    if (s.label) { s.label.textContent = message; s.label.hidden = !message; }
+    window.dispatchEvent(new CustomEvent('native-audio-preview-state', { detail: { state: name, message } }));
   };
-  const emitError = error => {
-    window.dispatchEvent(new CustomEvent('native-audio-preview-error', {
-      detail: { message: String(error?.message || error || 'Audio preview unavailable') }
-    }));
+  const pause = s => { for (const b of s.buses.values()) b.audio.pause(); };
+  const gain = (s, bus) => {
+    const value = s.status === 'ready' && !s.seeking && !bus.waiting && !s.video.muted && !bus.muted ? s.video.volume : 0;
+    const param = bus.gain.gain;
+    param.cancelScheduledValues(context.currentTime);
+    param.setTargetAtTime(value, context.currentTime, 0.004);
   };
-  const pauseBuses = () => {
-    for (const bus of state.buses.values()) {
-      try { bus.audio.pause(); } catch {}
-    }
+  const gains = s => { for (const bus of s.buses.values()) gain(s, bus); };
+  const fail = (s, error) => {
+    if (!current(s)) return;
+    status(s, 'error', `Audio preview unavailable: ${error?.message || error}`);
+    pause(s); gains(s); s.video.pause();
+    // Keep the original audio disconnected. Failing open would leak a muted master.
   };
-  const detach = () => {
-    state.generation += 1;
-    pauseBuses();
-    for (const remove of state.listeners.splice(0)) {
-      try { remove(); } catch {}
+  function baseline(video) {
+    let node = originals.get(video);
+    if (!node) {
+      const source = audioContext().createMediaElementSource(video);
+      const gate = context.createGain();
+      source.connect(gate).connect(context.destination);
+      originals.set(video, node = { source, gate });
     }
-    for (const bus of state.buses.values()) {
-      try { bus.source.disconnect(); bus.gain.disconnect(); } catch {}
-      try { bus.audio.removeAttribute('src'); bus.audio.load(); } catch {}
+    node.gate.gain.value = 0;
+    return node;
+  }
+  function dispose(s, restore = true) {
+    if (!s) return;
+    ++generation; active = null;
+    pause(s); clearInterval(s.timer);
+    for (const remove of s.listeners) remove();
+    for (const bus of s.buses.values()) {
+      bus.source.disconnect(); bus.gain.disconnect(); bus.audio.removeAttribute('src'); bus.audio.load();
     }
-    state.buses.clear();
-    if (state.context) {
-      try { state.context.close(); } catch {}
-    }
-    state.context = null;
-    if (state.video && state.baselineMuted === false) state.video.muted = false;
-    state.video = null;
-    state.uuid = null;
-    state.path = null;
-    state.preparing = false;
-  };
-  const seekBus = bus => {
-    if (!state.video || !Number.isFinite(state.video.currentTime)) return;
+    s.buses.clear(); s.meter?.disconnect(); release(s.lease); s.label?.remove();
+    s.video.pause();
+    if (restore && s.baseline) s.baseline.gate.gain.value = 1;
+    s.status = 'disposed';
+  }
+  function waitMedia(audio, event, predicate, milliseconds = 15000) {
+    if (predicate()) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const finish = error => {
+        clearTimeout(timer); audio.removeEventListener(event, check); audio.removeEventListener('error', failed);
+        error ? reject(error) : resolve();
+      };
+      const check = () => { if (predicate()) finish(); };
+      const failed = () => finish(new Error(`Source playback failed (${audio.error?.code || 'unknown'})`));
+      const timer = setTimeout(() => finish(new Error(`Source ${event} timed out`)), milliseconds);
+      audio.addEventListener(event, check); audio.addEventListener('error', failed);
+    });
+  }
+  async function align(s) {
+    if (!current(s) || s.status !== 'ready' || s.syncing) return;
+    s.syncing = true;
     try {
-      if (Math.abs((bus.audio.currentTime || 0) - state.video.currentTime) > 0.08) {
-        bus.audio.currentTime = Math.max(0, state.video.currentTime);
+      const running = !s.video.paused && !s.video.ended && !s.video.seeking;
+      if (running) await context.resume();
+      if (!current(s)) return;
+      for (const bus of s.buses.values()) {
+        const target = s.video.currentTime - bus.offset;
+        bus.waiting = target < 0 || target >= bus.audio.duration;
+        bus.audio.playbackRate = s.video.playbackRate;
+        if (bus.waiting) { bus.audio.pause(); gain(s, bus); continue; }
+        const drift = Math.abs(bus.audio.currentTime - target);
+        s.maximumObservedDrift = Math.max(s.maximumObservedDrift, drift);
+        if (drift > 0.03 || s.seeking) {
+          bus.waiting = true; gain(s, bus); bus.audio.pause();
+          bus.audio.currentTime = target;
+          await waitMedia(bus.audio, 'seeked', () => !bus.audio.seeking);
+          if (!current(s)) return;
+          bus.waiting = false;
+        }
       }
-    } catch {}
-  };
-  const sync = async () => {
-    if (!state.video || state.preparing) return;
-    const playing = !state.video.paused && !state.video.ended;
-    if (playing) {
-      try { await state.context?.resume(); } catch {}
+      s.seeking = s.video.seeking;
+      const plays = [];
+      for (const bus of s.buses.values()) {
+        gain(s, bus);
+        if (!s.video.paused && !s.video.ended && !s.seeking && !bus.waiting) plays.push(bus.audio.play());
+        else bus.audio.pause();
+      }
+      await Promise.all(plays);
+      if (!current(s) || s.video.paused || s.video.ended) pause(s);
+    } catch (error) { fail(s, error); }
+    finally { s.syncing = false; }
+  }
+  function update(s, streams) {
+    s.streams = Array.isArray(streams) ? streams : [];
+    const selected = new Map(s.streams.map(row => [row.index, row]));
+    for (const [index, bus] of s.buses) {
+      if (selected.has(index)) bus.muted = selected.get(index).isMuted === true;
+      gain(s, bus);
     }
-    for (const bus of state.buses.values()) {
-      seekBus(bus);
-      bus.audio.playbackRate = state.video.playbackRate || 1;
-      if (playing) bus.audio.play().catch(emitError);
-      else bus.audio.pause();
-    }
-  };
-  const attach = async ({ uuid, path, video, streams }) => {
-    if (!uuid || !path || !video) return;
-    detach();
-    const generation = state.generation;
-    state.uuid = String(uuid);
-    state.path = String(path);
-    state.video = video;
-    state.baselineMuted = video.muted;
-    const sources = (Array.isArray(streams) ? streams : []).filter(stream =>
-      stream && stream.index !== undefined && stream.logicalId !== 'all-audio' &&
-      stream.title !== 'All Audio' && stream.isIncludeInMix !== false);
-    if (!sources.length) return;
-    state.preparing = true;
-    video.muted = true;
-    state.context = new AudioContext();
+  }
+  async function attach({ uuid, path, video, streams }) {
+    if (!uuid || !path || !video || !window.MedalIPC?.nativeAudioPreview) return;
+    if (active?.uuid === uuid && active.path === path && active.video === video) { update(active, streams); return; }
+    dispose(active);
+    const s = active = { uuid, path, video, generation: ++generation, buses: new Map(), listeners: [],
+      streams: streams || [], status: 'preparing', seeking: false, maximumObservedDrift: 0 };
     try {
-      for (const stream of sources) {
-        if (generation !== state.generation) return;
-        const prepared = await window.MedalIPC?.nativeAudioPreview?.prepare({
-          uuid: state.uuid,
-          path: state.path,
-          index: Number(stream.index),
-          audioOrdinal: Number.isInteger(stream.audioOrdinal) ? Number(stream.audioOrdinal) : Number(stream.index),
-          generation
-        });
-        if (generation !== state.generation || !prepared?.url) return;
-        const audio = new Audio();
-        audio.preload = 'auto';
-        audio.crossOrigin = 'anonymous';
-        audio.src = prepared.url;
-        const source = state.context.createMediaElementSource(audio);
-        const gain = state.context.createGain();
-        gain.gain.value = stream.isMuted ? 0 : 1;
-        source.connect(gain).connect(state.context.destination);
-        state.buses.set(Number(stream.index), { audio, source, gain });
+      // A zero gain node is independent of the user's master mute/volume controls.
+      s.baseline = baseline(video);
+      s.meter = context.createAnalyser(); s.meter.fftSize = 2048; s.meter.connect(context.destination);
+      s.label = document.createElement('div'); s.label.setAttribute('role', 'status');
+      s.label.dataset.nativeAudioStatus = '';
+      s.label.style.cssText = 'position:absolute;bottom:48px;left:12px;right:12px;z-index:1000;color:white;background:#222;padding:8px;pointer-events:none';
+      video.parentElement?.appendChild(s.label);
+      status(s, 'preparing', 'Preparing audio preview…');
+      const listen = (name, fn) => { video.addEventListener(name, fn); s.listeners.push(() => video.removeEventListener(name, fn)); };
+      listen('pause', () => pause(s)); listen('ended', () => pause(s));
+      listen('seeking', () => { s.seeking = true; pause(s); gains(s); });
+      for (const name of ['play', 'seeked', 'ratechange']) listen(name, () => align(s));
+      listen('volumechange', () => gains(s));
+      listen('emptied', () => { s.seeking = true; pause(s); gains(s); });
+      const prepared = await window.MedalIPC.nativeAudioPreview.prepare({ uuid, path });
+      if (!current(s)) { release(prepared.lease); return; }
+      s.lease = prepared.lease;
+      for (const stream of prepared.streams) {
+        const audio = new Audio(); audio.preload = 'auto'; audio.crossOrigin = 'anonymous';
+        const source = context.createMediaElementSource(audio), node = context.createGain();
+        node.gain.value = 0; source.connect(node).connect(s.meter);
+        const bus = { audio, source, gain: node, offset: stream.offset, muted: stream.isMuted, waiting: true };
+        s.buses.set(stream.index, bus); audio.src = stream.url; audio.load();
+        await waitMedia(audio, 'canplay', () => audio.readyState >= 3);
+        if (!current(s)) return;
       }
-      const onPlay = () => { sync().catch(emitError); };
-      const onPause = () => pauseBuses();
-      const onSeek = () => { for (const bus of state.buses.values()) seekBus(bus); };
-      const onRate = () => { sync().catch(emitError); };
-      const onEnd = () => pauseBuses();
-      for (const [name, listener] of [['play', onPlay], ['pause', onPause], ['seeking', onSeek],
-        ['seeked', onSeek], ['ratechange', onRate], ['ended', onEnd]]) {
-        video.addEventListener(name, listener);
-        state.listeners.push(() => video.removeEventListener(name, listener));
+      status(s, 'ready'); update(s, s.streams);
+      if (restore?.uuid === uuid && restore.path === path) {
+        const saved = restore; restore = null;
+        video.currentTime = Math.max(0, Math.min(saved.time, video.duration || saved.time));
+        if (saved.playing) await video.play();
       }
-      state.preparing = false;
-      await sync();
-    } catch (error) {
-      emitError(error);
-      detach();
-    }
-  };
-  const toggle = (index, muted) => {
-    const bus = state.buses.get(Number(index));
-    if (!bus || !state.context) return;
-    try {
-      bus.gain.gain.setTargetAtTime(muted ? 0 : 1, state.context.currentTime, 0.01);
-    } catch (error) { emitError(error); }
-  };
-  const reset = () => {
-    for (const bus of state.buses.values()) {
-      try { bus.gain.gain.setTargetAtTime(0, state.context?.currentTime || 0, 0.01); } catch {}
-    }
-    detach();
-  };
-  window.NativeMedalAudioPreviewController = Object.freeze({ attach, detach, reset, toggle });
+      await align(s);
+      if (current(s)) s.timer = setInterval(() => align(s), 100);
+    } catch (error) { fail(s, error); }
+  }
+  window.addEventListener('pagehide', () => dispose(active));
+  window.NativeMedalAudioPreviewController = Object.freeze({ attach,
+    detach: () => dispose(active),
+    editCheckpoint: uuid => active?.uuid === uuid ? { time: active.video.currentTime, playing: !active.video.paused } : null,
+    expectSaved: checkpoint => { restore = checkpoint; },
+    snapshot: () => {
+      if (!active) return { state: 'disposed' };
+      const samples = new Float32Array(active.meter?.fftSize || 0); active.meter?.getFloatTimeDomainData(samples);
+      return { state: active.status, buses: active.buses.size, baselineGain: active.baseline?.gate.gain.value,
+        outputPeak: samples.reduce((peak, value) => Math.max(peak, Math.abs(value)), 0),
+        maximumObservedDrift: active.maximumObservedDrift, muted: [...active.buses.values()].map(b => b.muted),
+        busesState: [...active.buses.values()].map(b => ({ time: b.audio.currentTime, paused: b.audio.paused,
+          gain: b.gain.gain.value, ready: b.audio.readyState, offset: b.offset })) };
+    },
+  });
 })();

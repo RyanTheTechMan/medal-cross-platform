@@ -1,5 +1,24 @@
 # Implementation decisions
 
+## Decision D015 — Source-preserving native audio edits and audition ownership (2026-09-25)
+
+- Native editing resolves a local UUID through Medal's actual library API, probes
+  real absolute audio indexes, writes a new file, validates the output manifest,
+  then uses the original persistence IPC with readback before updating UI caches.
+  Original files are retained; source GC is deferred because other rows/undo may
+  reference them. FFmpeg operates only on completed media, never live frames.
+- Existing no-master clips migrate to a real `All Audio` mix plus copied sources.
+  Save Copy's zero/full-range defaults are not treated as a seek, preserving AAC
+  priming packets. Windows' original trim body stays byte-for-byte unchanged;
+  native media capability supports Darwin/Linux with explicit failure otherwise.
+- Original Audio popovers drive audition through state effects. A zero-gain
+  Web Audio gate owns baseline suppression independently of the user's mute and
+  volume. Failures remain silent and visible. Sidecars use opaque, leased local
+  assets and measured timeline offsets. No arbitrary-file or encoder RPC exists.
+- September 20 audio-edit restart assertions were retracted after auditing actual
+  ENOENT/decoder errors. A visible thumbnail is not a playback test. All failed
+  evidence remains on disk; native live master/per-app gates stay incomplete.
+
 ## Decision D001 — Keep native verification blocked while using the available beta SDK for compile-only progress
 
 - Date / commit: 2026-09-18 / `9082bbe`, updated by pending checkpoint.

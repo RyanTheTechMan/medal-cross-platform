@@ -6,6 +6,9 @@ const crypto = require('node:crypto')
 const { app, BrowserWindow, ipcMain, protocol } = require('electron')
 const { spawn } = require('node:child_process')
 const { createReadStream } = require('node:fs')
+const { pathToFileURL } = require('node:url')
+const { Readable } = require('node:stream')
+const { createAudioMedia, mergeClientProbeAudio, byteRange } = require('./native-audio-media.cjs')
 
 protocol.registerSchemesAsPrivileged([{
   scheme: 'native-audio-preview',
@@ -51,88 +54,70 @@ const audioPreviewCache = path.join(profile, 'Audio Preview')
 fs.mkdirSync(audioPreviewCache, { recursive: true, mode: 0o700 })
 const clipLibrary = path.join(profile, 'Clips')
 fs.mkdirSync(clipLibrary, { recursive: true, mode: 0o700 })
-const safePreviewUuid = value => typeof value === 'string' && /^[A-Za-z0-9_-]{6,128}$/.test(value)
-const resolvePreviewInput = (value, uuid) => {
-  if (typeof value !== 'string' || !path.isAbsolute(value)) fail('audio preview path must be absolute')
-  const resolved = fs.realpathSync(value)
-  const inRoot = root => {
-    const relative = path.relative(root, resolved)
-    return !relative.startsWith('..') && !path.isAbsolute(relative)
+let nativeAudioMedia
+let nativeAudioMainWindow
+const previewOwners = new Map()
+const previewSenders = new WeakSet()
+const mainRendererUrl = pathToFileURL(path.join(path.dirname(__dirname), 'renderer.min.html')).href
+const assertAudioSender = event => {
+  const main = nativeAudioMainWindow?.()
+  if (!main || main.isDestroyed() || event.sender !== main.webContents ||
+      event.senderFrame !== main.webContents.mainFrame ||
+      event.senderFrame.url.split(/[?#]/, 1)[0] !== mainRendererUrl) {
+    throw new Error('Audio operation is restricted to the local main Medal window')
   }
-  if (!inRoot(isolatedMedia) && !inRoot(clipLibrary)) fail('audio preview path is outside the isolated clip profile')
-  const pathUuid = path.basename(resolved).split('.', 1)[0]
-  if (!safePreviewUuid(pathUuid)) fail('audio preview path does not have a safe library UUID')
-  // Medal's local content UUID and the on-disk filename are not guaranteed to
-  // be the same identifier (the imported client may expose local_content_id),
-  // so bind the cache key to the validated filename while still requiring a
-  // valid caller UUID above. The profile-root and safe filename checks prevent
-  // arbitrary file reads without rejecting real local clips.
-  if (!fs.statSync(resolved).isFile()) fail('audio preview input is not a file')
-  return resolved
 }
-const runAudioPreviewExtraction = ({ uuid, input, audioOrdinal }) => new Promise((resolve, reject) => {
-  const stat = fs.statSync(input)
-  const key = crypto.createHash('sha256').update(`${uuid}\0${input}\0${stat.size}\0${stat.mtimeMs}\0${audioOrdinal}`).digest('hex')
-  const output = path.join(audioPreviewCache, `${key}.m4a`)
-  if (fs.statSync(output, { throwIfNoEntry: false })?.isFile()) {
-    resolve({ url: `native-audio-preview://${path.basename(output)}`, generation: key })
-    return
-  }
-  const temporary = `${output}.${process.pid}.${crypto.randomUUID()}.tmp`
-  const child = spawn(path.join(tools, 'ffmpeg'), [
-    '-v', 'error', '-nostdin', '-y', '-i', input, '-map', `0:a:${audioOrdinal}`,
-    '-vn', '-c:a', 'copy', '-movflags', '+faststart', '-f', 'mp4', temporary
-  ], { stdio: ['ignore', 'ignore', 'pipe'] })
-  let stderr = ''
-  child.stderr.on('data', chunk => { stderr += String(chunk).slice(0, 2000) })
-  child.once('error', error => { try { fs.unlinkSync(temporary) } catch {}; reject(error) })
-  child.once('exit', (code, signal) => {
-    if (code !== 0 || signal) {
-      try { fs.unlinkSync(temporary) } catch {}
-      reject(new Error(`native audio preview extraction failed (${code ?? signal}): ${stderr.trim()}`))
-      return
-    }
-    fs.renameSync(temporary, output)
-    resolve({ url: `native-audio-preview://${path.basename(output)}`, generation: key })
-  })
+global.nativePortAudio = Object.freeze({
+  mergeProbeAudio: mergeClientProbeAudio,
+  configure({ getContent, getEditDirectory, getMainWindow }) {
+    if (nativeAudioMedia) throw new Error('Audio service is already initialized')
+    nativeAudioMainWindow = getMainWindow
+    nativeAudioMedia = createAudioMedia({ tools, cacheDirectory: audioPreviewCache, getContent, getEditDirectory })
+  },
+  assertSender: assertAudioSender,
+  trim: options => {
+    if (!nativeAudioMedia) throw new Error('Native media tools are not ready')
+    return nativeAudioMedia.trim(options)
+  },
 })
 ipcMain.handle('native-port:audio-preview', async (event, params = {}) => {
-  if (!event.sender || event.sender.isDestroyed()) throw new Error('audio preview sender is unavailable')
-  if (!safePreviewUuid(params.uuid)) throw new Error('audio preview UUID is invalid')
-  if (params.action === 'release') return { released: true }
+  assertAudioSender(event)
+  if (!nativeAudioMedia) throw new Error('Native media tools are not ready')
+  if (params.action === 'release') {
+    if (previewOwners.get(params.lease) !== event.sender.id) throw new Error('Unknown preview lease')
+    nativeAudioMedia.release(params.lease); previewOwners.delete(params.lease)
+    return { released: true }
+  }
   if (params.action !== 'prepare') throw new Error('unsupported native audio preview action')
-  const audioOrdinal = Number.isInteger(params.audioOrdinal) ? Number(params.audioOrdinal) : Number(params.index)
-  if (!Number.isInteger(audioOrdinal) || audioOrdinal < 0 || audioOrdinal > 64) throw new Error('audio preview stream ordinal is invalid')
-  const input = resolvePreviewInput(params.path, params.uuid)
-  const filenameUuid = path.basename(input).split('.', 1)[0]
-  return runAudioPreviewExtraction({ uuid: filenameUuid, input, audioOrdinal })
+  const prepared = await nativeAudioMedia.prepare({ uuid: params.uuid, expectedPath: params.path })
+  try { assertAudioSender(event) } catch (error) { nativeAudioMedia.release(prepared.lease); throw error }
+  previewOwners.set(prepared.lease, event.sender.id)
+  if (!previewSenders.has(event.sender)) {
+    previewSenders.add(event.sender)
+    const owner = event.sender.id
+    event.sender.once('destroyed', () => {
+      for (const [lease, sender] of previewOwners) if (sender === owner) {
+        nativeAudioMedia.release(lease); previewOwners.delete(lease)
+      }
+    })
+  }
+  return prepared
 })
 app.whenReady().then(() => {
   protocol.registerStreamProtocol('native-audio-preview', (request, callback) => {
+    let size = 0
     try {
-      const name = decodeURIComponent(new URL(request.url).pathname.replace(/^\/+/, ''))
-      if (!/^[a-f0-9]{64}\.m4a$/.test(name)) throw new Error('invalid audio preview asset')
-      const file = path.join(audioPreviewCache, name)
-      const relative = path.relative(audioPreviewCache, file)
+      if (!['GET', 'HEAD'].includes(request.method)) throw new Error('Unsupported preview method')
+      const file = nativeAudioMedia.asset(request.url)
       const stat = fs.statSync(file)
-      if (relative.startsWith('..') || path.isAbsolute(relative) || !stat.isFile()) throw new Error('missing audio preview asset')
-      const range = /^bytes=(\d*)-(\d*)$/i.exec(request.headers.range || '')
-      let start = 0
-      let end = stat.size - 1
-      const headers = { 'Content-Type': 'audio/mp4', 'Accept-Ranges': 'bytes' }
-      let statusCode = 200
-      if (range) {
-        start = range[1] ? Number(range[1]) : Math.max(0, stat.size - Number(range[2] || 0))
-        end = range[2] ? Number(range[2]) : end
-        end = Math.min(end, stat.size - 1)
-        if (!Number.isInteger(start) || start < 0 || start > end) throw new Error('invalid audio preview range')
-        statusCode = 206
-        headers['Content-Range'] = `bytes ${start}-${end}/${stat.size}`
-      }
+      size = stat.size
+      const { start, end, statusCode } = byteRange(request.headers.range || request.headers.Range, size)
+      const headers = { 'Content-Type': 'audio/mp4', 'Accept-Ranges': 'bytes', 'Access-Control-Allow-Origin': 'null', 'Cache-Control': 'private, no-store' }
+      if (statusCode === 206) headers['Content-Range'] = `bytes ${start}-${end}/${size}`
       headers['Content-Length'] = String(end - start + 1)
-      callback({ statusCode, headers, data: createReadStream(file, { start, end }) })
+      callback({ statusCode, headers, data: request.method === 'HEAD' ? Readable.from([]) : createReadStream(file, { start, end }) })
     } catch (error) {
-      callback({ statusCode: 404, headers: { 'Content-Type': 'text/plain' }, data: Buffer.from(String(error.message || error)) })
+      callback({ statusCode: size ? 416 : 404, headers: size ? { 'Content-Range': `bytes */${size}` } : {}, data: Readable.from([]) })
     }
   })
 })

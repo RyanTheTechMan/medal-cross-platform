@@ -9,6 +9,7 @@
 #include <iostream>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include <nlohmann/json.hpp>
 
@@ -168,6 +169,9 @@ namespace {
     return result;
   }
   result["readerStarted"] = true;
+  std::uint64_t decoded_pcm_samples = 0;
+  double pcm_peak = 0.0;
+  double pcm_square_sum = 0.0;
   while (CMSampleBufferRef sample = [output copyNextSampleBuffer]) {
     const bool decoded_buffer_present = is_video
         ? CMSampleBufferGetImageBuffer(sample) != nullptr
@@ -177,7 +181,30 @@ namespace {
           result["missingDecodedBufferCount"].get<std::uint64_t>() + 1;
     }
     result["decodedSampleCount"] = result["decodedSampleCount"].get<std::uint64_t>() + 1;
+    if (!is_video && decoded_buffer_present) {
+      CMBlockBufferRef data = CMSampleBufferGetDataBuffer(sample);
+      const auto bytes = CMBlockBufferGetDataLength(data);
+      std::vector<float> values(bytes / sizeof(float));
+      if (bytes % sizeof(float) != 0 || CMBlockBufferCopyDataBytes(data, 0, bytes, values.data()) != noErr) {
+        result["missingDecodedBufferCount"] = result["missingDecodedBufferCount"].get<std::uint64_t>() + 1;
+      } else {
+        for (float value : values) {
+          if (!std::isfinite(value)) {
+            result["missingDecodedBufferCount"] = result["missingDecodedBufferCount"].get<std::uint64_t>() + 1;
+            continue;
+          }
+          pcm_peak = std::max(pcm_peak, std::abs(static_cast<double>(value)));
+          pcm_square_sum += static_cast<double>(value) * value;
+          ++decoded_pcm_samples;
+        }
+      }
+    }
     CFRelease(sample);
+  }
+  if (!is_video) {
+    result["decodedPcmSampleCount"] = decoded_pcm_samples;
+    result["peak"] = pcm_peak;
+    result["rms"] = decoded_pcm_samples ? std::sqrt(pcm_square_sum / decoded_pcm_samples) : 0.0;
   }
   result["readerStatus"] = static_cast<std::int64_t>(reader.status);
   result["readerCompleted"] = reader.status == AVAssetReaderStatusCompleted;
@@ -193,6 +220,7 @@ namespace {
          compressed.value("sampleCount", 0U) > 0 && decoded.value("decodedSampleCount", 0U) > 0 &&
          compressed.value("nonMonotonicPtsCount", 1U) == 0 &&
          decoded.value("missingDecodedBufferCount", 1U) == 0 &&
+         (video || decoded.value("decodedPcmSampleCount", 0U) > 0) &&
          (!video || compressed.value("firstSampleIsSync", false));
 }
 
@@ -243,8 +271,9 @@ int main(int argc, char** argv) {
         {"status", "failed"},
         {"probe", "AVFoundation AVAssetReader compressed and decoded sample validation"},
     };
-    if (argc != 2) {
-      report["error"] = "usage: native_port_macos_avfoundation_file_probe /absolute/path/to/file.mp4";
+    const bool audio_only = argc == 3 && std::string(argv[2]) == "--audio-only";
+    if (argc != 2 && !audio_only) {
+      report["error"] = "usage: native_port_macos_avfoundation_file_probe /absolute/path/to/file [--audio-only]";
       std::cout << report.dump(2) << '\n';
       return 2;
     }
@@ -296,14 +325,14 @@ int main(int argc, char** argv) {
       std::cout << report.dump(2) << '\n';
       return 1;
     }
-    if (!asset.playable || video_tracks.count != 1 || audio_tracks.count < 1 ||
+    if (!asset.playable || video_tracks.count != (audio_only ? 0U : 1U) || audio_tracks.count < 1 ||
         !std::isfinite(seconds(asset.duration)) || seconds(asset.duration) <= 0.0) {
-      report["error"] = "asset did not expose one playable video track and at least one playable audio track";
+      report["error"] = "asset did not expose the requested playable video/audio track layout";
       std::cout << report.dump(2) << '\n';
       return 1;
     }
 
-    report["video"] = {
+    if (!audio_only) report["video"] = {
         {"compressed", compressed_track_probe(asset, video_tracks.firstObject, true)},
         {"decoded", decoded_track_probe(asset, video_tracks.firstObject, true)},
         {"metadata", metadata_probe(video_tracks.firstObject)},
@@ -326,9 +355,8 @@ int main(int argc, char** argv) {
       all_audio_tracks_passed = all_audio_tracks_passed && track_passed_result;
     }
     report["audioTracks"] = std::move(audio_tracks_report);
-    const bool passed = track_passed(report["video"]["compressed"], report["video"]["decoded"], true) &&
-                        report["video"]["compressed"].value("codec", "") == "avc1" &&
-                        all_audio_tracks_passed;
+    const bool passed = (audio_only || (track_passed(report["video"]["compressed"], report["video"]["decoded"], true) &&
+                        report["video"]["compressed"].value("codec", "") == "avc1")) && all_audio_tracks_passed;
     report["status"] = passed ? "passed" : "failed";
     if (!passed) {
       report["error"] = "one or more AVFoundation compressed/decode validations failed";

@@ -1,73 +1,78 @@
 'use strict'
-
-const assert = require('node:assert/strict')
-const vm = require('node:vm')
-const fs = require('node:fs')
-
+const assert = require('node:assert/strict'), vm = require('node:vm'), fs = require('node:fs')
 const source = fs.readFileSync(require('node:path').join(__dirname, 'native-audio-preview-controller.js'), 'utf8')
-const events = new Map()
-const preparedRequests = []
-const window = {
-  MedalIPC: {
-    nativeAudioPreview: {
-      async prepare(request) {
-        preparedRequests.push(request)
-        return { url: `native-audio-preview://${request.audioOrdinal}.m4a` }
-      }
-    }
-  },
-  addEventListener(name, callback) { events.set(name, callback) },
-  removeEventListener() {},
-  dispatchEvent() {}
-}
-class GainNode {
-  constructor() { this.gain = { value: 1, setTargetAtTime(value) { this.value = value } } }
-  connect() { return this }
-  disconnect() {}
-}
-class AudioNode {
-  connect(node) { return node }
-  disconnect() {}
-}
-class FakeAudio {
-  constructor() { this.paused = true; this.ended = false; this.currentTime = 0; this.playbackRate = 1 }
-  addEventListener() {}
-  removeEventListener() {}
+const elements = [], nodes = [], timers = new Set(), released = []
+let prepares = 0, failure = false, pending
+class Media extends EventTarget {
+  constructor() { super(); this.paused = true; this.ended = false; this.currentTime = 0; this.playbackRate = 1;
+    this.muted = false; this.volume = .75; this.readyState = 4; this.duration = 30; this.seeking = false; elements.push(this) }
   async play() { this.paused = false }
   pause() { this.paused = true }
   load() {}
   removeAttribute() {}
 }
-class AudioContext {
-  constructor() { this.currentTime = 0; this.destination = new AudioNode() }
-  createMediaElementSource() { return new AudioNode() }
-  createGain() { return new GainNode() }
+class Node { connect(to) { this.to = to; return to } disconnect() { this.to = null } }
+class Gain extends Node { constructor() { super(); this.gain = { value: 1, cancelScheduledValues() {}, setTargetAtTime(v) { this.value = v } }; nodes.push(this) } }
+class Context {
+  constructor() { this.currentTime = 0; this.destination = new Node() }
+  createMediaElementSource() { return new Node() }
+  createGain() { return new Gain() }
+  createAnalyser() { return Object.assign(new Node(), { fftSize: 2048, getFloatTimeDomainData() {} }) }
   async resume() {}
-  async close() {}
 }
-const context = vm.createContext({ window, AudioContext, Audio: FakeAudio, CustomEvent: class CustomEvent {
-  constructor(type, init) { this.type = type; this.detail = init?.detail }
-}, console, setTimeout })
-vm.runInContext(source, context)
-assert.ok(window.NativeMedalAudioPreviewController)
-const video = {
-  muted: false, paused: true, ended: false, currentTime: 0, playbackRate: 1,
-  addEventListener() {}, removeEventListener() {}
-}
+const window = new EventTarget()
+window.MedalIPC = { nativeAudioPreview: {
+  async prepare() {
+    ++prepares
+    if (pending) await pending
+    if (failure) throw new Error('fixture unavailable')
+    return { lease: `lease-${prepares}`, streams: [{ index: 2, offset: 0, isMuted: false, url: 'fixture-pc' },
+      { index: 5, offset: .2, isMuted: false, url: 'fixture-mic' }] }
+  },
+  async release(p) { released.push(p.lease) },
+} }
+const document = { createElement: () => ({ dataset: {}, style: {}, setAttribute() {}, remove() {} }) }
+vm.runInNewContext(source, { window, document, AudioContext: Context, Audio: Media, CustomEvent,
+  setTimeout, clearTimeout, setInterval(fn) { timers.add(fn); return fn }, clearInterval(id) { timers.delete(id) } })
+const controller = window.NativeMedalAudioPreviewController
+const video = new Media()
+const attach = streams => controller.attach({ uuid: 'fixture-uuid', path: '/fixture.mp4', video, streams })
+const turn = () => new Promise(resolve => setImmediate(resolve))
 ;(async () => {
-  await window.NativeMedalAudioPreviewController.attach({
-    uuid: 'fixture-uuid', path: '/profile/Media/fixture.mp4', video,
-    streams: [{ index: 1, logicalId: 'all-audio', title: 'All Audio', isIncludeInMix: true },
-      { index: 2, audioOrdinal: 0, logicalId: 'pc-audio', title: 'PC Audio', isIncludeInMix: true, isMuted: false }]
-  })
-  assert.equal(video.muted, true, 'audition must suppress the original master')
-  assert.equal(preparedRequests.length, 1)
-  assert.equal(preparedRequests[0].index, 2)
-  assert.equal(preparedRequests[0].audioOrdinal, 0,
-    'preview must address the audio ordinal even when the media stream index is absolute')
-  window.NativeMedalAudioPreviewController.toggle(2, true)
-  window.NativeMedalAudioPreviewController.toggle(2, false)
-  window.NativeMedalAudioPreviewController.reset()
-  assert.equal(video.muted, false, 'cancel/reset must restore the saved baseline mute state')
-  console.log('PASS native audio preview controller attach/toggle/reset')
+  await attach([{ index: 2, isMuted: false }, { index: 5, isMuted: false }])
+  assert.equal(controller.snapshot().state, 'ready')
+  assert.equal(prepares, 1)
+  assert.equal(nodes[0].gain.value, 0, 'baseline disconnected independently of user mute')
+  assert.equal(video.muted, false, 'do not corrupt user master mute')
+  assert.equal(nodes[1].gain.value, .75)
+  assert.equal(nodes[2].gain.value, 0, 'delayed source not started before offset')
+  video.currentTime = 1; await video.play(); video.dispatchEvent(new Event('play')); await turn()
+  assert.equal(elements[1].currentTime, 1)
+  assert.equal(elements[2].currentTime, .8)
+  assert.equal(nodes[2].gain.value, .75)
+  await attach([{ index: 2, isMuted: true }, { index: 5, isMuted: true }])
+  assert.equal(prepares, 1, 'toggles never rebuild sidecars')
+  assert(nodes.every(n => n.gain.value === 0), 'all-muted includes original baseline')
+  await attach([{ index: 2, isMuted: false }, { index: 5, isMuted: false }])
+  assert.equal(nodes[1].gain.value, .75, 'cancel state restores gains')
+  video.muted = true; video.dispatchEvent(new Event('volumechange'))
+  assert(nodes.every(n => n.gain.value === 0), 'user master mute applies to every stem')
+  video.muted = false; video.volume = .25; video.dispatchEvent(new Event('volumechange'))
+  assert.equal(nodes[1].gain.value, .25)
+  assert.equal(nodes[0].gain.value, 0, 'original player volume handler cannot leak master')
+  video.pause(); video.dispatchEvent(new Event('pause')); assert(elements.every(e => e.paused))
+  video.seeking = true; video.dispatchEvent(new Event('seeking')); assert(nodes.every(n => n.gain.value === 0))
+  video.currentTime = 2; video.seeking = false; video.dispatchEvent(new Event('seeked')); await turn()
+  assert.equal(elements[1].currentTime, 2)
+  controller.detach(); assert.equal(timers.size, 0); assert.equal(released.length, 1)
+  failure = true; await attach([])
+  assert.equal(controller.snapshot().state, 'error')
+  assert.equal(nodes[0].gain.value, 0, 'failure must remain fail-closed')
+  assert(video.paused)
+  controller.detach(); failure = false
+  let resume; pending = new Promise(resolve => { resume = resolve })
+  const late = attach([]); controller.detach(); resume(); await late
+  assert.equal(controller.snapshot().state, 'disposed')
+  assert.equal(released.length, 2, 'late prepare lease released')
+  console.log('PASS preview ownership, in-place gain updates, cancel, master mute, offsets, seeking, pause, errors and async disposal (mock media, not GUI)')
 })().catch(error => { console.error(error); process.exitCode = 1 })

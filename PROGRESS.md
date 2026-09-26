@@ -1,6 +1,26 @@
 # Implementation progress
 
-## Audio review checkpoint — 2026-09-20
+## Current audio repair — 2026-09-25
+
+**Evidence correction:** the September 20 audio overwrite/playback/restart claims
+below are withdrawn, not completion evidence. The retained restart log contains
+missing-file and decoder-open failures. See `reports/native/audio-20260925-status.md`
+for the audit, fresh commands/results and current next gates.
+
+New source-preserving edit transactions, real output manifests and repaired
+audition ownership pass 40 real-media fixture checks plus controller tests.
+Xcode 27.1 fresh build, 6/6 CTest, 7/7 importer tests and 11/11 AVFoundation
+MP4/M4A fixture decodes pass. Original UI synthetic import → mute both → Save →
+restart → unmute → Save as Copy → restart now passes on the actual referenced
+files, including regenerated thumbnails and decoded playback. Read-only renderer
+metering verifies zero all-muted output and nonzero live unmuted output without
+Save. Physical latency/long-run sync and native clock-aligned master mixing and
+per-app isolation remain unverified/incomplete.
+
+Next runnable task: replace aggregate native master with source-aware PCM mixing;
+continue individual-mute/cancel/seek/rate and sustained preview/routing gates.
+
+## Historical audio review checkpoint — 2026-09-20 (see correction above)
 
 - Resumed from `016b2ae` without resetting to `f6bdb31`; supplied source-reviewed audio reproductions ran in `reports/audio-review-baseline-20260920-154910-9458/` (23 behavioral assertions, including intentionally reproduced bugs).
 - Checkpoint `4d02dd7` adds the typed native audio-client plan, HAL-backed `audioProcesses`, per-source process taps, absolute stream manifests, validated importer merging, timestamped bounded PCM handoff and explicit tap errors. Xcode 27.2 beta build and all 6 CTest targets pass; the added audio routing suite is 8/8.

@@ -1,0 +1,1 @@
+PASS 40 fixed-behavior checks (real FFmpeg; mocked client persistence, not GUI/native capture)

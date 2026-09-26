@@ -2156,7 +2156,7 @@
           "reports/native/audio-preview-sidecar-ffprobe-restart-final.log"
         ],
         "limitations": [
-          "One guest/local H.264/AAC physical hotkey export and an authenticated Balatro overwrite edit are verified through contentCreate, probing, thumbnail generation, original playback and full application restart. The output audio manifest persists absolute stream indexes and labels. Save Copy, unmute-after-restart, rollback injection, duplicate idempotency, authenticated contentId/upload and original-client cloud behavior remain unverified."
+          "Historical hotkey/library evidence remains. The September 20 audio-edit restart claim is withdrawn: retained logs contain missing-file/decoder failures. Fresh source-preserving audio edits pass synthetic FFmpeg and AVFoundation checks; original-UI save/restart verification is in progress. See reports/native/audio-20260925-status.md. No upload/publish gate has passed."
         ]
       },
       "linux": {
@@ -2270,7 +2270,7 @@
           "reports/native/native-audio-edit-manifest-final-test-r2.log"
         ],
         "limitations": [
-          "Typed global/per-game storage and scoped deletion are implemented. Native PC Audio/Game Audio/Microphone routing, HAL audio-client discovery, absolute multi-track indexes and secure sidecar audition wiring are implemented. One authenticated original UI Save Edits overwrite, output probe, imported playback and full restart pass; Save Copy, unmute-after-restart, true per-app tone isolation, microphone packets and measured live-audition latency remain open."
+          "Typed audio routing, HAL discovery and absolute track identities are implemented but native master mixing is incomplete. The September 20 UI audio restart claim is withdrawn due to missing-file errors. Source-preserving edits and audition ownership now pass fixture/unit tests; live UI, per-app isolation, microphone and long-run timing remain open. See reports/native/audio-20260925-status.md."
         ]
       },
       "linux": {
@@ -2347,7 +2347,7 @@
           "reports/native/native-audio-edit-manifest-final-test-r2.log"
         ],
         "limitations": [
-          "Typed global/per-game storage and scoped deletion are implemented. Native PC Audio/Game Audio/Microphone routing, HAL audio-client discovery, absolute multi-track indexes and secure sidecar audition wiring are implemented. One authenticated original UI Save Edits overwrite, output probe, imported playback and full restart pass; Save Copy, unmute-after-restart, true per-app tone isolation, microphone packets and measured live-audition latency remain open."
+          "Typed audio routing, HAL discovery and absolute track identities are implemented but native master mixing is incomplete. The September 20 UI audio restart claim is withdrawn due to missing-file errors. Source-preserving edits and audition ownership now pass fixture/unit tests; live UI, per-app isolation, microphone and long-run timing remain open. See reports/native/audio-20260925-status.md."
         ]
       },
       "linux": {
@@ -4901,7 +4901,10 @@
         "implementation_files": [
           "native/backends/macos/mp4_writer.mm",
           "native/helper/main.cpp",
-          "tools/native_port_importer.py"
+          "tools/native_port_importer.py",
+          "client_patch/native-audio-media.cjs",
+          "client_patch/native-audio-editor.js",
+          "client_patch/native-audio-preview-controller.js"
         ],
         "test_ids": [
           "E06"
@@ -4909,10 +4912,15 @@
         "report_paths": [
           "reports/native/m3.9-audio-mute-absolute-index-ffmpeg.log",
           "reports/native/m3.9-audio-mute-absolute-index-volumedetect.log",
-          "reports/native/m3.9-audio-mute-absolute-index-ffprobe.json"
+          "reports/native/m3.9-audio-mute-absolute-index-ffprobe.json",
+          "reports/native/audio-20260925-status.md",
+          "reports/audio-fixed-20260925-r5/results.json",
+          "reports/audio-ui-20260925-muted/results.json",
+          "reports/audio-ui-20260925-copy/results.json",
+          "reports/audio-ui-20260925-copy-r2/results.json"
         ],
         "limitations": [
-          "Native PC Audio/Game Audio/Microphone tracks and absolute stream indexes are implemented. The original Medal editor's UI toggle and Save Edits/overwrite-or-copy flow still needs an end-to-end imported playback check."
+          "September 25 short synthetic original-UI import, live all-muted/unmuted browser graph, overwrite, Save Copy by new UUID and full restart playback pass on exact persisted files. Forty real-media regression checks pass, with old failures preserved. Individual-source GUI matrix, physical latency, ten-minute preview sync and real native master/routing remain incomplete; this is not an audio-complete claim."
         ]
       },
       "linux": {
