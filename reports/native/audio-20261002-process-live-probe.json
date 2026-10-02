@@ -1,0 +1,71 @@
+{
+  "fixtures": [
+    {
+      "object": 305,
+      "output": {
+        "bytes": 4,
+        "status": 0,
+        "value": 0
+      },
+      "pid": 80169,
+      "running": {
+        "bytes": 4,
+        "status": 0,
+        "value": 0
+      },
+      "snapshot": {
+        "active": false,
+        "devices": 0,
+        "ownerBundle": "com.squirrel.medal.medal.audiofixture440",
+        "ownerName": "Medal Audio Fixture 440",
+        "ownerPid": 80169
+      },
+      "translateStatus": 0
+    },
+    {
+      "object": 289,
+      "output": {
+        "bytes": 4,
+        "status": 0,
+        "value": 0
+      },
+      "pid": 80177,
+      "running": {
+        "bytes": 4,
+        "status": 0,
+        "value": 0
+      },
+      "snapshot": {
+        "active": false,
+        "devices": 0,
+        "ownerBundle": "com.squirrel.medal.medal.audiofixture660",
+        "ownerName": "Medal Audio Fixture 660",
+        "ownerPid": 80177
+      },
+      "translateStatus": 0
+    },
+    {
+      "object": 292,
+      "output": {
+        "bytes": 4,
+        "status": 0,
+        "value": 0
+      },
+      "pid": 80185,
+      "running": {
+        "bytes": 4,
+        "status": 0,
+        "value": 0
+      },
+      "snapshot": {
+        "active": false,
+        "devices": 0,
+        "ownerBundle": "com.squirrel.medal.medal.audiofixture880",
+        "ownerName": "Medal Audio Fixture 880",
+        "ownerPid": 80185
+      },
+      "translateStatus": 0
+    }
+  ],
+  "snapshotCount": 53
+}

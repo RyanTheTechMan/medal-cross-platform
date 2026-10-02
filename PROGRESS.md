@@ -1,5 +1,39 @@
 # Implementation progress
 
+## Current original native audio round trips — 2026-10-02
+
+Continued main from `dd66b00`; no reset, uploads or library DB writes. The installed
+signed development build is `2637.461.1-development-m3.5-0ab219782f8c066e`
+at `/Applications/Medal.app`. It uses the existing isolated authenticated profile
+and deterministic signing identities. The previous routing/mixer/editor apps
+remain recoverable. Exactly one host/helper was verified after restart.
+
+Actual normal application targeting → physical F8 `clip;length=30` → native
+SCK/PCM/AAC replay → original contentCreate/probe/thumbnail/library/player passes
+for All PC Audio and Specific Apps synthetic clips. Independent AVFoundation,
+ffprobe and decoded spectral tests prove All PC includes all three test apps;
+Specific Apps includes the 440 Hz game and selected 660 Hz app, excluding 880 Hz.
+Both modes pass original live mute → Save → full restart → persisted playback;
+masters decode to digital zero while original source stems survive. Individual
+Specific Apps stems unmute independently after restart. No physical latency or
+long-duration drift pass is claimed.
+
+Fixed an actual hidden-master audition failure: original main library metadata
+is JSON text, unlike preload renderer metadata. Parse/validate it at the native
+media service boundary and reject hidden master-plus-stem preview manifests.
+Added regressions (45 real-media checks), a synthetic live validator and fixture
+health/quit controls. Actual uncategorized capture now says Clipping: <app> in
+the original header, without fabricating a game category.
+
+Evidence: `reports/native/audio-20261002-live-routing.md` and fresh
+`reports/audio-live-{allpc,specific}-20261002{-muted,}-r1/results.json`.
+Failed earlier audition evidence and all original recordings remain intact.
+
+Next runnable task: fix press-anchored replay tail coverage (actual AAC ends
+211.666–228.333 ms before video), test gains/device changes/microphone and native
+listeners/feedback; then sustained routing/preview A/V timing and failure gates.
+Linux transfer and audio completion remain open.
+
 ## Current audio routing continuation — 2026-10-02
 
 On `3a0f3f7`: model-tested native helper-family ownership, UID/stream-bound output

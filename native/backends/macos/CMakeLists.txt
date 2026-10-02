@@ -134,6 +134,9 @@ target_compile_options(native_port_macos_avfoundation_file_probe PRIVATE
 )
 
 if(BUILD_TESTING)
+  add_executable(native_port_macos_audio_process_registry_probe audio_process_registry_probe.mm)
+  target_link_libraries(native_port_macos_audio_process_registry_probe PRIVATE native_port_macos_adapter native_port_core)
+  target_compile_options(native_port_macos_audio_process_registry_probe PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
   add_executable(native_port_macos_audio_process_registry_tests audio_process_registry_tests.mm)
   target_link_libraries(native_port_macos_audio_process_registry_tests PRIVATE native_port_macos_adapter native_port_core)
   target_compile_options(native_port_macos_audio_process_registry_tests PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -UNDEBUG)

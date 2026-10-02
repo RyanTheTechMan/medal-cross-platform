@@ -1,0 +1,30 @@
+[1/6] Building OBJCXX object native/backends/macos/CMakeFiles/native_port_audio_fixture_440.dir/audio_tone_fixture.mm.o
+/Users/ryan/Developer/medal-cross-platform/native/backends/macos/audio_tone_fixture.mm:60:16: warning: 'connect:to:format:' is deprecated: first deprecated in macOS 27.0 [-Wdeprecated-declarations]
+   60 |   [self.engine connect:self.source to:self.engine.mainMixerNode format:format];
+      |                ^~~~~~~
+      |                connect:to:format:error:
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/AVFAudio.framework/Headers/AVAudioEngine.h:281:1: note: 'connect:to:format:' has been explicitly marked deprecated here
+  281 | - (void)connect:(AVAudioNode *)node1 to:(AVAudioNode *)node2 format:(AVAudioFormat * __nullable)format API_DEPRECATED_WITH_REPLACEMENT("connect:to:format:error:", ios(8.0, 27.0), watchos(2.0, 27.0), macos(10.10, 27.0), tvos(9.0, 27.0));
+      | ^
+1 warning generated.
+[2/6] Building OBJCXX object native/backends/macos/CMakeFiles/native_port_audio_fixture_660.dir/audio_tone_fixture.mm.o
+/Users/ryan/Developer/medal-cross-platform/native/backends/macos/audio_tone_fixture.mm:60:16: warning: 'connect:to:format:' is deprecated: first deprecated in macOS 27.0 [-Wdeprecated-declarations]
+   60 |   [self.engine connect:self.source to:self.engine.mainMixerNode format:format];
+      |                ^~~~~~~
+      |                connect:to:format:error:
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/AVFAudio.framework/Headers/AVAudioEngine.h:281:1: note: 'connect:to:format:' has been explicitly marked deprecated here
+  281 | - (void)connect:(AVAudioNode *)node1 to:(AVAudioNode *)node2 format:(AVAudioFormat * __nullable)format API_DEPRECATED_WITH_REPLACEMENT("connect:to:format:error:", ios(8.0, 27.0), watchos(2.0, 27.0), macos(10.10, 27.0), tvos(9.0, 27.0));
+      | ^
+1 warning generated.
+[3/6] Building OBJCXX object native/backends/macos/CMakeFiles/native_port_audio_fixture_880.dir/audio_tone_fixture.mm.o
+/Users/ryan/Developer/medal-cross-platform/native/backends/macos/audio_tone_fixture.mm:60:16: warning: 'connect:to:format:' is deprecated: first deprecated in macOS 27.0 [-Wdeprecated-declarations]
+   60 |   [self.engine connect:self.source to:self.engine.mainMixerNode format:format];
+      |                ^~~~~~~
+      |                connect:to:format:error:
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/AVFAudio.framework/Headers/AVAudioEngine.h:281:1: note: 'connect:to:format:' has been explicitly marked deprecated here
+  281 | - (void)connect:(AVAudioNode *)node1 to:(AVAudioNode *)node2 format:(AVAudioFormat * __nullable)format API_DEPRECATED_WITH_REPLACEMENT("connect:to:format:error:", ios(8.0, 27.0), watchos(2.0, 27.0), macos(10.10, 27.0), tvos(9.0, 27.0));
+      | ^
+1 warning generated.
+[4/6] Linking OBJCXX executable native/backends/macos/native_port_audio_fixture_880.app/Contents/MacOS/native_port_audio_fixture_880
+[5/6] Linking OBJCXX executable native/backends/macos/native_port_audio_fixture_440.app/Contents/MacOS/native_port_audio_fixture_440
+[6/6] Linking OBJCXX executable native/backends/macos/native_port_audio_fixture_660.app/Contents/MacOS/native_port_audio_fixture_660

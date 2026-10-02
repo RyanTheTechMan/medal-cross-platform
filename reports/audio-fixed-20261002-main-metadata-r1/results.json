@@ -1,0 +1,1801 @@
+{
+  "checks": [
+    "mute-pc-migration: fresh output manifest",
+    "mute-pc-migration: preserved video packets",
+    "mute-pc-migration: preserved PC packets",
+    "mute-pc-migration: preserved mic packets",
+    "migration excludes PC, retains mic in master",
+    "mute-both: fresh output manifest",
+    "mute-both: preserved video packets",
+    "mute-both: preserved PC packets",
+    "mute-both: preserved mic packets",
+    "all muted master is digital silence with samples",
+    "unmute-after-save: fresh output manifest",
+    "unmute-after-save: preserved video packets",
+    "unmute-after-save: preserved PC packets",
+    "unmute-after-save: preserved mic packets",
+    "saved stems can both be unmuted",
+    "mute-mic: fresh output manifest",
+    "mute-mic: preserved video packets",
+    "mute-mic: preserved PC packets",
+    "mute-mic: preserved mic packets",
+    "mic-only mute preserves PC",
+    "original unchanged",
+    "master excluded from audition",
+    "sidecar packets preserved: PC Audio",
+    "sidecar packets preserved: Microphone",
+    "main JSON-text metadata excludes hidden master from preview",
+    "main JSON-text metadata retains source mute mask and identity",
+    "main JSON-text edit excludes master and preserves source topology",
+    "main JSON-text all-muted edit is silent",
+    "malformed main metadata fails closed before audition",
+    "delayed source retains measured timeline offset",
+    "delayed sidecar starts at zero",
+    "delayed source AAC packets unchanged",
+    "expired assets/path traversal/stale source/non-audio/duplicate selections rejected",
+    "arbitrary absolute indexes preserved",
+    "missing labels retained",
+    "native master metadata survives actual original-client merge",
+    "manifest and range validation",
+    "ffmpeg failure preserves source",
+    "ffprobe failure preserves source",
+    "failed library update reported and UI state unchanged",
+    "failed readback rolled back, UI unchanged",
+    "Save Copy has separate UUID and retains original reference",
+    "Save Copy all muted master",
+    "Save Copy zero/full range preserves AAC priming packets",
+    "overwrite commits fresh path and output manifest"
+  ],
+  "signals": {
+    "mute-pc-migration": {
+      "count": 144384,
+      "peak": 0.2310357242822647,
+      "rms": 0.0883291338713787,
+      "tones": {
+        "440": 0.000001101348612133873,
+        "660": 0.1249369131097948
+      }
+    },
+    "mute-both": {
+      "count": 144384,
+      "peak": 0,
+      "rms": 0,
+      "tones": {
+        "440": 0,
+        "660": 0
+      }
+    },
+    "unmute-after-save": {
+      "count": 144384,
+      "peak": 0.2944619655609131,
+      "rms": 0.12481729645447376,
+      "tones": {
+        "440": 0.12491476010659962,
+        "660": 0.12493631645716724
+      }
+    },
+    "mute-mic": {
+      "count": 144384,
+      "peak": 0.1502179503440857,
+      "rms": 0.08819123616588842,
+      "tones": {
+        "440": 0.12491487727004805,
+        "660": 5.201715398579001e-7
+      }
+    }
+  },
+  "calls": [
+    {
+      "tool": "/opt/homebrew/bin/ffmpeg",
+      "args": [
+        "-v",
+        "error",
+        "-nostdin",
+        "-n",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=s=160x90:r=15:d=3",
+        "-f",
+        "lavfi",
+        "-i",
+        "sine=frequency=440:sample_rate=48000:duration=3",
+        "-f",
+        "lavfi",
+        "-i",
+        "sine=frequency=660:sample_rate=48000:duration=3",
+        "-map",
+        "0:v",
+        "-map",
+        "1:a",
+        "-map",
+        "2:a",
+        "-c:v",
+        "libx264",
+        "-bf",
+        "0",
+        "-threads",
+        "1",
+        "-pix_fmt",
+        "yuv420p",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "128k",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/stems.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/stems.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffmpeg",
+      "args": [
+        "-v",
+        "error",
+        "-nostdin",
+        "-n",
+        "-copyts",
+        "-start_at_zero",
+        "-i",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/stems.mp4",
+        "-filter_complex",
+        "[0:1]aresample=48000:async=0:first_pts=0,volume=0[source0];[0:2]aresample=48000:async=0:first_pts=0,volume=1[source1];[source0][source1]amix=inputs=2:normalize=0:duration=longest:dropout_transition=0,alimiter=limit=0.97:level=false:latency=1[master]",
+        "-map",
+        "0:v:0",
+        "-map",
+        "[master]",
+        "-map",
+        "0:1",
+        "-map",
+        "0:2",
+        "-c:v",
+        "copy",
+        "-c:a",
+        "copy",
+        "-c:a:0",
+        "aac",
+        "-b:a:0",
+        "192k",
+        "-ar:a:0",
+        "48000",
+        "-disposition:a:0",
+        "default",
+        "-metadata:s:a:0",
+        "handler_name=All Audio",
+        "-disposition:a:1",
+        "0",
+        "-metadata:s:a:1",
+        "handler_name=PC Audio",
+        "-disposition:a:2",
+        "0",
+        "-metadata:s:a:2",
+        "handler_name=Microphone",
+        "-movflags",
+        "+faststart",
+        "-use_editlist",
+        "1",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/.native-audio-asTnZt/result.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/.native-audio-asTnZt/result.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffmpeg",
+      "args": [
+        "-v",
+        "error",
+        "-i",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-b7a02572-611d-4ecf-ace8-85bdda5fadc6.mp4",
+        "-map",
+        "0:1",
+        "-ac",
+        "1",
+        "-ar",
+        "48000",
+        "-f",
+        "f32le",
+        "-"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "v:0",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/stems.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "v:0",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-b7a02572-611d-4ecf-ace8-85bdda5fadc6.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "a:0",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/stems.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "a:1",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-b7a02572-611d-4ecf-ace8-85bdda5fadc6.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "a:1",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/stems.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "a:2",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-b7a02572-611d-4ecf-ace8-85bdda5fadc6.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-b7a02572-611d-4ecf-ace8-85bdda5fadc6.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffmpeg",
+      "args": [
+        "-v",
+        "error",
+        "-nostdin",
+        "-n",
+        "-copyts",
+        "-start_at_zero",
+        "-i",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-b7a02572-611d-4ecf-ace8-85bdda5fadc6.mp4",
+        "-filter_complex",
+        "[0:2]aresample=48000:async=0:first_pts=0,volume=0[source0];[0:3]aresample=48000:async=0:first_pts=0,volume=0[source1];[source0][source1]amix=inputs=2:normalize=0:duration=longest:dropout_transition=0,alimiter=limit=0.97:level=false:latency=1[master]",
+        "-map",
+        "0:v:0",
+        "-map",
+        "[master]",
+        "-map",
+        "0:2",
+        "-map",
+        "0:3",
+        "-c:v",
+        "copy",
+        "-c:a",
+        "copy",
+        "-c:a:0",
+        "aac",
+        "-b:a:0",
+        "192k",
+        "-ar:a:0",
+        "48000",
+        "-disposition:a:0",
+        "default",
+        "-metadata:s:a:0",
+        "handler_name=All Audio",
+        "-disposition:a:1",
+        "0",
+        "-metadata:s:a:1",
+        "handler_name=PC Audio",
+        "-disposition:a:2",
+        "0",
+        "-metadata:s:a:2",
+        "handler_name=Microphone",
+        "-movflags",
+        "+faststart",
+        "-use_editlist",
+        "1",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/.native-audio-Megp5O/result.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/.native-audio-Megp5O/result.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffmpeg",
+      "args": [
+        "-v",
+        "error",
+        "-i",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-767a713c-eccf-4f6f-86ea-3f2b097877ce.mp4",
+        "-map",
+        "0:1",
+        "-ac",
+        "1",
+        "-ar",
+        "48000",
+        "-f",
+        "f32le",
+        "-"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "v:0",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/stems.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "v:0",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-767a713c-eccf-4f6f-86ea-3f2b097877ce.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "a:0",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/stems.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "a:1",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-767a713c-eccf-4f6f-86ea-3f2b097877ce.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "a:1",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/stems.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "a:2",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-767a713c-eccf-4f6f-86ea-3f2b097877ce.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-767a713c-eccf-4f6f-86ea-3f2b097877ce.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffmpeg",
+      "args": [
+        "-v",
+        "error",
+        "-nostdin",
+        "-n",
+        "-copyts",
+        "-start_at_zero",
+        "-i",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-767a713c-eccf-4f6f-86ea-3f2b097877ce.mp4",
+        "-filter_complex",
+        "[0:2]aresample=48000:async=0:first_pts=0,volume=1[source0];[0:3]aresample=48000:async=0:first_pts=0,volume=1[source1];[source0][source1]amix=inputs=2:normalize=0:duration=longest:dropout_transition=0,alimiter=limit=0.97:level=false:latency=1[master]",
+        "-map",
+        "0:v:0",
+        "-map",
+        "[master]",
+        "-map",
+        "0:2",
+        "-map",
+        "0:3",
+        "-c:v",
+        "copy",
+        "-c:a",
+        "copy",
+        "-c:a:0",
+        "aac",
+        "-b:a:0",
+        "192k",
+        "-ar:a:0",
+        "48000",
+        "-disposition:a:0",
+        "default",
+        "-metadata:s:a:0",
+        "handler_name=All Audio",
+        "-disposition:a:1",
+        "0",
+        "-metadata:s:a:1",
+        "handler_name=PC Audio",
+        "-disposition:a:2",
+        "0",
+        "-metadata:s:a:2",
+        "handler_name=Microphone",
+        "-movflags",
+        "+faststart",
+        "-use_editlist",
+        "1",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/.native-audio-JjBID8/result.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/.native-audio-JjBID8/result.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffmpeg",
+      "args": [
+        "-v",
+        "error",
+        "-i",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-9809c313-972b-4f93-bdba-a63c5f945cfe.mp4",
+        "-map",
+        "0:1",
+        "-ac",
+        "1",
+        "-ar",
+        "48000",
+        "-f",
+        "f32le",
+        "-"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "v:0",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/stems.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "v:0",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-9809c313-972b-4f93-bdba-a63c5f945cfe.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "a:0",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/stems.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "a:1",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-9809c313-972b-4f93-bdba-a63c5f945cfe.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "a:1",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/stems.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "a:2",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-9809c313-972b-4f93-bdba-a63c5f945cfe.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-9809c313-972b-4f93-bdba-a63c5f945cfe.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffmpeg",
+      "args": [
+        "-v",
+        "error",
+        "-nostdin",
+        "-n",
+        "-copyts",
+        "-start_at_zero",
+        "-i",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-9809c313-972b-4f93-bdba-a63c5f945cfe.mp4",
+        "-filter_complex",
+        "[0:2]aresample=48000:async=0:first_pts=0,volume=1[source0];[0:3]aresample=48000:async=0:first_pts=0,volume=0[source1];[source0][source1]amix=inputs=2:normalize=0:duration=longest:dropout_transition=0,alimiter=limit=0.97:level=false:latency=1[master]",
+        "-map",
+        "0:v:0",
+        "-map",
+        "[master]",
+        "-map",
+        "0:2",
+        "-map",
+        "0:3",
+        "-c:v",
+        "copy",
+        "-c:a",
+        "copy",
+        "-c:a:0",
+        "aac",
+        "-b:a:0",
+        "192k",
+        "-ar:a:0",
+        "48000",
+        "-disposition:a:0",
+        "default",
+        "-metadata:s:a:0",
+        "handler_name=All Audio",
+        "-disposition:a:1",
+        "0",
+        "-metadata:s:a:1",
+        "handler_name=PC Audio",
+        "-disposition:a:2",
+        "0",
+        "-metadata:s:a:2",
+        "handler_name=Microphone",
+        "-movflags",
+        "+faststart",
+        "-use_editlist",
+        "1",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/.native-audio-iPcH6k/result.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/.native-audio-iPcH6k/result.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffmpeg",
+      "args": [
+        "-v",
+        "error",
+        "-i",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-29ce4f8e-7550-4c48-af91-47a0d4c2c0f4.mp4",
+        "-map",
+        "0:1",
+        "-ac",
+        "1",
+        "-ar",
+        "48000",
+        "-f",
+        "f32le",
+        "-"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "v:0",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/stems.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "v:0",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-29ce4f8e-7550-4c48-af91-47a0d4c2c0f4.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "a:0",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/stems.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "a:1",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-29ce4f8e-7550-4c48-af91-47a0d4c2c0f4.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "a:1",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/stems.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "a:2",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-29ce4f8e-7550-4c48-af91-47a0d4c2c0f4.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-29ce4f8e-7550-4c48-af91-47a0d4c2c0f4.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffmpeg",
+      "args": [
+        "-v",
+        "error",
+        "-nostdin",
+        "-n",
+        "-copyts",
+        "-itsoffset",
+        "0",
+        "-i",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-29ce4f8e-7550-4c48-af91-47a0d4c2c0f4.mp4",
+        "-map",
+        "0:2",
+        "-vn",
+        "-c:a",
+        "copy",
+        "-use_editlist",
+        "1",
+        "-movflags",
+        "+faststart",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/cache/.extract-vbb9qL/audio.m4a"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/cache/a587dbb7a47b553e6605f56bf4463dbf7f57e904cc56106e4ddaa8d31b8f8334.m4a"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffmpeg",
+      "args": [
+        "-v",
+        "error",
+        "-nostdin",
+        "-n",
+        "-copyts",
+        "-itsoffset",
+        "0",
+        "-i",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-29ce4f8e-7550-4c48-af91-47a0d4c2c0f4.mp4",
+        "-map",
+        "0:3",
+        "-vn",
+        "-c:a",
+        "copy",
+        "-use_editlist",
+        "1",
+        "-movflags",
+        "+faststart",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/cache/.extract-IIa22d/audio.m4a"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/cache/99dab04870d43a5d7cfa4f53ffaccf92f31d92167c097ac2e0e954a1775da59f.m4a"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "a:0",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/cache/a587dbb7a47b553e6605f56bf4463dbf7f57e904cc56106e4ddaa8d31b8f8334.m4a"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "a:0",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/stems.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "a:0",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/cache/99dab04870d43a5d7cfa4f53ffaccf92f31d92167c097ac2e0e954a1775da59f.m4a"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "a:1",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/stems.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-29ce4f8e-7550-4c48-af91-47a0d4c2c0f4.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/cache/a587dbb7a47b553e6605f56bf4463dbf7f57e904cc56106e4ddaa8d31b8f8334.m4a"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/cache/99dab04870d43a5d7cfa4f53ffaccf92f31d92167c097ac2e0e954a1775da59f.m4a"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-29ce4f8e-7550-4c48-af91-47a0d4c2c0f4.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffmpeg",
+      "args": [
+        "-v",
+        "error",
+        "-nostdin",
+        "-n",
+        "-copyts",
+        "-start_at_zero",
+        "-i",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-29ce4f8e-7550-4c48-af91-47a0d4c2c0f4.mp4",
+        "-filter_complex",
+        "[0:2]aresample=48000:async=0:first_pts=0,volume=0[source0];[0:3]aresample=48000:async=0:first_pts=0,volume=0[source1];[source0][source1]amix=inputs=2:normalize=0:duration=longest:dropout_transition=0,alimiter=limit=0.97:level=false:latency=1[master]",
+        "-map",
+        "0:v:0",
+        "-map",
+        "[master]",
+        "-map",
+        "0:2",
+        "-map",
+        "0:3",
+        "-c:v",
+        "copy",
+        "-c:a",
+        "copy",
+        "-c:a:0",
+        "aac",
+        "-b:a:0",
+        "192k",
+        "-ar:a:0",
+        "48000",
+        "-disposition:a:0",
+        "default",
+        "-metadata:s:a:0",
+        "handler_name=All Audio",
+        "-disposition:a:1",
+        "0",
+        "-metadata:s:a:1",
+        "handler_name=PC Audio",
+        "-disposition:a:2",
+        "0",
+        "-metadata:s:a:2",
+        "handler_name=Microphone",
+        "-movflags",
+        "+faststart",
+        "-use_editlist",
+        "1",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/.native-audio-tiFvvl/result.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/.native-audio-tiFvvl/result.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffmpeg",
+      "args": [
+        "-v",
+        "error",
+        "-i",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-b90f6f5f-6dda-43d3-a61a-f7a332c9aff3.mp4",
+        "-map",
+        "0:1",
+        "-ac",
+        "1",
+        "-ar",
+        "48000",
+        "-f",
+        "f32le",
+        "-"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffmpeg",
+      "args": [
+        "-v",
+        "error",
+        "-nostdin",
+        "-n",
+        "-i",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/stems.mp4",
+        "-itsoffset",
+        "1.2",
+        "-i",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/stems.mp4",
+        "-map",
+        "0:v:0",
+        "-map",
+        "0:a:0",
+        "-map",
+        "1:a:1",
+        "-c",
+        "copy",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/delayed.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/delayed.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/delayed.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffmpeg",
+      "args": [
+        "-v",
+        "error",
+        "-nostdin",
+        "-n",
+        "-copyts",
+        "-itsoffset",
+        "0",
+        "-i",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/delayed.mp4",
+        "-map",
+        "0:1",
+        "-vn",
+        "-c:a",
+        "copy",
+        "-use_editlist",
+        "1",
+        "-movflags",
+        "+faststart",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/cache/.extract-ziGanQ/audio.m4a"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/cache/b5c7fb7d679197047fc32411c5a21c6f540d6d1eb6b300509d196ec46a394a5f.m4a"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffmpeg",
+      "args": [
+        "-v",
+        "error",
+        "-nostdin",
+        "-n",
+        "-copyts",
+        "-itsoffset",
+        "-1.178",
+        "-i",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/delayed.mp4",
+        "-map",
+        "0:2",
+        "-vn",
+        "-c:a",
+        "copy",
+        "-use_editlist",
+        "1",
+        "-movflags",
+        "+faststart",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/cache/.extract-wLXpUd/audio.m4a"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/cache/2e1d5ea2cfcbd6483eeacbc2d634d5b510ec17cc52e49299fa4a05cab164c29e.m4a"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/cache/2e1d5ea2cfcbd6483eeacbc2d634d5b510ec17cc52e49299fa4a05cab164c29e.m4a"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "a:1",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/delayed.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "a:0",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/cache/2e1d5ea2cfcbd6483eeacbc2d634d5b510ec17cc52e49299fa4a05cab164c29e.m4a"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-29ce4f8e-7550-4c48-af91-47a0d4c2c0f4.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-29ce4f8e-7550-4c48-af91-47a0d4c2c0f4.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-29ce4f8e-7550-4c48-af91-47a0d4c2c0f4.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-29ce4f8e-7550-4c48-af91-47a0d4c2c0f4.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffmpeg",
+      "args": [
+        "-v",
+        "error",
+        "-nostdin",
+        "-n",
+        "-copyts",
+        "-start_at_zero",
+        "-i",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-29ce4f8e-7550-4c48-af91-47a0d4c2c0f4.mp4",
+        "-filter_complex",
+        "[0:2]aresample=48000:async=0:first_pts=0,volume=1[source0];[0:3]aresample=48000:async=0:first_pts=0,volume=0[source1];[source0][source1]amix=inputs=2:normalize=0:duration=longest:dropout_transition=0,alimiter=limit=0.97:level=false:latency=1[master]",
+        "-map",
+        "0:v:0",
+        "-map",
+        "[master]",
+        "-map",
+        "0:2",
+        "-map",
+        "0:3",
+        "-c:v",
+        "copy",
+        "-c:a",
+        "copy",
+        "-c:a:0",
+        "aac",
+        "-b:a:0",
+        "192k",
+        "-ar:a:0",
+        "48000",
+        "-disposition:a:0",
+        "default",
+        "-metadata:s:a:0",
+        "handler_name=All Audio",
+        "-disposition:a:1",
+        "0",
+        "-metadata:s:a:1",
+        "handler_name=PC Audio",
+        "-disposition:a:2",
+        "0",
+        "-metadata:s:a:2",
+        "handler_name=Microphone",
+        "-movflags",
+        "+faststart",
+        "-use_editlist",
+        "1",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/.native-audio-UaZwXC/result.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-29ce4f8e-7550-4c48-af91-47a0d4c2c0f4.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffmpeg",
+      "args": [
+        "-v",
+        "error",
+        "-nostdin",
+        "-n",
+        "-copyts",
+        "-start_at_zero",
+        "-i",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-29ce4f8e-7550-4c48-af91-47a0d4c2c0f4.mp4",
+        "-filter_complex",
+        "[0:2]aresample=48000:async=0:first_pts=0,volume=1[source0];[0:3]aresample=48000:async=0:first_pts=0,volume=0[source1];[source0][source1]amix=inputs=2:normalize=0:duration=longest:dropout_transition=0,alimiter=limit=0.97:level=false:latency=1[master]",
+        "-map",
+        "0:v:0",
+        "-map",
+        "[master]",
+        "-map",
+        "0:2",
+        "-map",
+        "0:3",
+        "-c:v",
+        "copy",
+        "-c:a",
+        "copy",
+        "-c:a:0",
+        "aac",
+        "-b:a:0",
+        "192k",
+        "-ar:a:0",
+        "48000",
+        "-disposition:a:0",
+        "default",
+        "-metadata:s:a:0",
+        "handler_name=All Audio",
+        "-disposition:a:1",
+        "0",
+        "-metadata:s:a:1",
+        "handler_name=PC Audio",
+        "-disposition:a:2",
+        "0",
+        "-metadata:s:a:2",
+        "handler_name=Microphone",
+        "-movflags",
+        "+faststart",
+        "-use_editlist",
+        "1",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/.native-audio-6DY1Q3/result.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/.native-audio-6DY1Q3/result.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-29ce4f8e-7550-4c48-af91-47a0d4c2c0f4.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffmpeg",
+      "args": [
+        "-v",
+        "error",
+        "-nostdin",
+        "-n",
+        "-copyts",
+        "-start_at_zero",
+        "-i",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-29ce4f8e-7550-4c48-af91-47a0d4c2c0f4.mp4",
+        "-filter_complex",
+        "[0:2]aresample=48000:async=0:first_pts=0,volume=1[source0];[0:3]aresample=48000:async=0:first_pts=0,volume=0[source1];[source0][source1]amix=inputs=2:normalize=0:duration=longest:dropout_transition=0,alimiter=limit=0.97:level=false:latency=1[master]",
+        "-map",
+        "0:v:0",
+        "-map",
+        "[master]",
+        "-map",
+        "0:2",
+        "-map",
+        "0:3",
+        "-c:v",
+        "copy",
+        "-c:a",
+        "copy",
+        "-c:a:0",
+        "aac",
+        "-b:a:0",
+        "192k",
+        "-ar:a:0",
+        "48000",
+        "-disposition:a:0",
+        "default",
+        "-metadata:s:a:0",
+        "handler_name=All Audio",
+        "-disposition:a:1",
+        "0",
+        "-metadata:s:a:1",
+        "handler_name=PC Audio",
+        "-disposition:a:2",
+        "0",
+        "-metadata:s:a:2",
+        "handler_name=Microphone",
+        "-movflags",
+        "+faststart",
+        "-use_editlist",
+        "1",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/.native-audio-4VIek2/result.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/.native-audio-4VIek2/result.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-29ce4f8e-7550-4c48-af91-47a0d4c2c0f4.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffmpeg",
+      "args": [
+        "-v",
+        "error",
+        "-nostdin",
+        "-n",
+        "-copyts",
+        "-start_at_zero",
+        "-i",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-29ce4f8e-7550-4c48-af91-47a0d4c2c0f4.mp4",
+        "-filter_complex",
+        "[0:2]aresample=48000:async=0:first_pts=0,volume=0[source0];[0:3]aresample=48000:async=0:first_pts=0,volume=0[source1];[source0][source1]amix=inputs=2:normalize=0:duration=longest:dropout_transition=0,alimiter=limit=0.97:level=false:latency=1[master]",
+        "-map",
+        "0:v:0",
+        "-map",
+        "[master]",
+        "-map",
+        "0:2",
+        "-map",
+        "0:3",
+        "-c:v",
+        "copy",
+        "-c:a",
+        "copy",
+        "-c:a:0",
+        "aac",
+        "-b:a:0",
+        "192k",
+        "-ar:a:0",
+        "48000",
+        "-disposition:a:0",
+        "default",
+        "-metadata:s:a:0",
+        "handler_name=All Audio",
+        "-disposition:a:1",
+        "0",
+        "-metadata:s:a:1",
+        "handler_name=PC Audio",
+        "-disposition:a:2",
+        "0",
+        "-metadata:s:a:2",
+        "handler_name=Microphone",
+        "-movflags",
+        "+faststart",
+        "-use_editlist",
+        "1",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/.native-audio-ZWFwzK/result.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/.native-audio-ZWFwzK/result.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffmpeg",
+      "args": [
+        "-v",
+        "error",
+        "-i",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-e53621ef-cab4-4572-a487-c2288245eb42.mp4",
+        "-map",
+        "0:1",
+        "-ac",
+        "1",
+        "-ar",
+        "48000",
+        "-f",
+        "f32le",
+        "-"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "a:0",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/stems.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-select_streams",
+        "a:1",
+        "-show_packets",
+        "-show_data_hash",
+        "sha256",
+        "-show_entries",
+        "packet=data_hash",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-e53621ef-cab4-4572-a487-c2288245eb42.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-29ce4f8e-7550-4c48-af91-47a0d4c2c0f4.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffmpeg",
+      "args": [
+        "-v",
+        "error",
+        "-nostdin",
+        "-n",
+        "-copyts",
+        "-start_at_zero",
+        "-i",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/audio-fixture-20260925-audio-29ce4f8e-7550-4c48-af91-47a0d4c2c0f4.mp4",
+        "-filter_complex",
+        "[0:2]aresample=48000:async=0:first_pts=0,volume=1[source0];[0:3]aresample=48000:async=0:first_pts=0,volume=1[source1];[source0][source1]amix=inputs=2:normalize=0:duration=longest:dropout_transition=0,alimiter=limit=0.97:level=false:latency=1[master]",
+        "-map",
+        "0:v:0",
+        "-map",
+        "[master]",
+        "-map",
+        "0:2",
+        "-map",
+        "0:3",
+        "-c:v",
+        "copy",
+        "-c:a",
+        "copy",
+        "-c:a:0",
+        "aac",
+        "-b:a:0",
+        "192k",
+        "-ar:a:0",
+        "48000",
+        "-disposition:a:0",
+        "default",
+        "-metadata:s:a:0",
+        "handler_name=All Audio",
+        "-disposition:a:1",
+        "0",
+        "-metadata:s:a:1",
+        "handler_name=PC Audio",
+        "-disposition:a:2",
+        "0",
+        "-metadata:s:a:2",
+        "handler_name=Microphone",
+        "-movflags",
+        "+faststart",
+        "-use_editlist",
+        "1",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/.native-audio-sW642X/result.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Developer/medal-cross-platform/reports/audio-fixed-20261002-main-metadata-r1/Edits/.native-audio-sW642X/result.mp4"
+      ]
+    }
+  ],
+  "environment": {
+    "node": "v24.18.0",
+    "platform": "darwin"
+  }
+}

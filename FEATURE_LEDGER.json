@@ -2273,7 +2273,7 @@
           "reports/native/native-audio-edit-manifest-final-test-r2.log"
         ],
         "limitations": [
-          "Native PCM master/stems and strict normalization pass native fixtures. Original editor short UI/restart gates pass September 25 evidence. October 2 native acquisition ran, but hotkey/isolation/restart gates became blocked by a locked Mac. Live source/device routing and sustained timing remain unverified; see reports/native/audio-20261002-routing-status.md."
+          "Native fixtures and October 2 normal All PC/Specific Apps physical-F8 replay/contentCreate/probe/thumbnail/player/mute/Save/restart pass; exact evidence is reports/native/audio-20261002-live-routing.md. Original main JSON-text metadata is parsed and hidden preview masters rejected. Explicit device/microphone/listener/sustained timing gates remain open; actual replay AAC tails are 211.666–228.333 ms short."
         ]
       },
       "linux": {
@@ -2350,7 +2350,7 @@
           "reports/native/native-audio-edit-manifest-final-test-r2.log"
         ],
         "limitations": [
-          "Native PCM master/stems and strict normalization pass native fixtures. Original H4 explicit-empty device selection is authoritative over legacy Auto. Native UID/stream taps and helper families are built/model-tested, not live-isolation evidence. GUI/replay/restart blocked by locked Mac; see reports/native/audio-20261002-routing-status.md."
+          "Original H4 explicit-empty device selection is authoritative over legacy Auto. Original normal All PC and Specific Apps native process-tap isolation/physical-F8 replay/probe/player/Save/restart pass in reports/native/audio-20261002-live-routing.md. Explicit UID/stream devices, full family lifecycle, microphone and sustained timing are not yet live-verified. Replay AAC tails are short; no audio-complete claim."
         ]
       },
       "linux": {
@@ -4591,8 +4591,8 @@
           "tools/native_port_importer.py"
         ],
         "test_ids": ["M05", "M07", "M10"],
-        "report_paths": ["reports/native/m3.9-permissions-onboarding.md", "reports/native/m3.9-aac-mic-error-loop-fix.md", "reports/native/audio-20261002-status.md", "reports/native/audio-20261002-capture-mixer-ctest-r4.log"],
-        "limitations": ["Native master/stems pass synthetic hardware encode/mux, AVFoundation, ffprobe and spectral gains/delayed-mic tests. Original UI synthetic window plus Auto-PC native acquisition ran. Physical hotkey/replay/isolation/player/restart blocked when Mac locked; live microphone and sustained drift remain unverified. See reports/native/audio-20261002-routing-status.md."]
+        "report_paths": ["reports/native/m3.9-permissions-onboarding.md", "reports/native/m3.9-aac-mic-error-loop-fix.md", "reports/native/audio-20261002-status.md", "reports/native/audio-20261002-capture-mixer-ctest-r4.log", "reports/native/audio-20261002-live-routing.md"],
+        "limitations": ["Native synthetic gains/delayed-mic probes and original normal All PC physical-F8 replay/probe/player/mute/Save/restart pass. Actual microphone and explicit device/listener gates remain open. Replay audio tail is 211.666–228.333 ms short; sustained A/V drift not passed."]
       },
       "linux": {
         "status": "not_started",
@@ -4616,8 +4616,8 @@
         "status": "implemented_unverified",
         "implementation_files": ["native/core/src/audio_routing.cpp", "native/core/src/pcm_mixer.cpp", "native/backends/macos/audio_process_registry.mm", "native/backends/macos/process_audio_tap.mm", "native/backends/macos/screen_capture_session.mm"],
         "test_ids": ["M06"],
-        "report_paths": ["reports/native/audio-20261002-status.md"],
-        "limitations": ["Selected family taps feed independent PCM buses and real master without whole-PC fallback. Helper/two-instance/PID-ancestry ownership is model-tested; permissioned tone isolation and relaunch/device listeners remain open. GUI blocked when Mac locked; see reports/native/audio-20261002-routing-status.md."]
+        "report_paths": ["reports/native/audio-20261002-status.md", "reports/native/audio-20261002-live-routing.md", "reports/audio-live-specific-20261002-r1/results.json"],
+        "limitations": ["Actual selected game 440 Hz and app 660 Hz process taps have independent stems; unselected 880 Hz app absent from master/stems. Normal original hotkey/probe/player/Save/restart passes. Family/two-instance ownership is model-tested; full target relaunch/device listeners and live 25/50/150% gains remain open. No whole-PC fallback."]
       },
       "linux": {
         "status": "not_started",
@@ -4640,8 +4640,8 @@
         "status": "implemented_unverified",
         "implementation_files": ["native/backends/macos/platform_adapter.mm", "native/helper/main.cpp", "native/core/src/clip_action.cpp"],
         "test_ids": ["M08"],
-        "report_paths": ["reports/native/m3.5-operational-replay-result.md", "reports/native/audio-20261002-routing-status.md"],
-        "limitations": ["Platform Carbon clip action exists and earlier physical shortcut evidence is scoped to its report. Current original generic rebind listening is rejected/unsupported, not a successful no-op. Original Unset Bookmark removes F8 conflict. Automated F8 did not dispatch; physical input and full PTT/layout/suspend/sleep-wake matrix remain open."]
+        "report_paths": ["reports/native/m3.5-operational-replay-result.md", "reports/native/audio-20261002-routing-status.md", "reports/native/audio-20261002-live-routing.md"],
+        "limitations": ["Two physical F8 normal original clip actions each dispatched once and completed native replay/contentCreate/library/player. Automated F8 did not dispatch. Generic rebind listening is rejected/unsupported, not a successful no-op; original Unset Bookmark removes conflict. Full PTT/layout/suspend/sleep-wake matrix remains open."]
       },
       "linux": {
         "status": "not_started",
@@ -4928,10 +4928,14 @@
           "reports/audio-fixed-20260925-r5/results.json",
           "reports/audio-ui-20260925-muted/results.json",
           "reports/audio-ui-20260925-copy/results.json",
-          "reports/audio-ui-20260925-copy-r2/results.json"
+          "reports/audio-ui-20260925-copy-r2/results.json",
+          "reports/native/audio-20261002-live-routing.md",
+          "reports/audio-fixed-20261002-main-metadata-r1/results.json",
+          "reports/audio-live-allpc-20261002-muted-r1/results.json",
+          "reports/audio-live-specific-20261002-muted-r1/results.json"
         ],
         "limitations": [
-          "September 25 short synthetic original-UI import, live all-muted/unmuted browser graph, overwrite, Save Copy by new UUID and full restart playback pass on exact persisted files. Forty real-media regression checks pass, with old failures preserved. Individual-source GUI matrix, physical latency, ten-minute preview sync and real native master/routing remain incomplete; this is not an audio-complete claim."
+          "October 2 real native All PC and Specific Apps original mute/Save/full restart/persistent playback pass on authoritative files. Muted masters decode to digital zero and preserved stems unmute independently; 45 real-media regressions pass. Hidden-master failure evidence retained. Physical response latency, ten-minute preview sync, live gain/device/mic/listener/feedback matrix and replay tail timing remain open; not audio-complete."
         ]
       },
       "linux": {

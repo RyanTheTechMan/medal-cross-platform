@@ -101,7 +101,9 @@
     s.streams = Array.isArray(streams) ? streams : [];
     const selected = new Map(s.streams.map(row => [row.index, row]));
     for (const [index, bus] of s.buses) {
-      if (selected.has(index)) bus.muted = selected.get(index).isMuted === true;
+      // A prepared bus without a matching original control must never be an
+      // audible hidden master. Also fail closed during asynchronous UI loading.
+      bus.muted = !selected.has(index) || selected.get(index).isMuted === true;
       gain(s, bus);
     }
   }
@@ -129,6 +131,10 @@
       const prepared = await window.MedalIPC.nativeAudioPreview.prepare({ uuid, path });
       if (!current(s)) { release(prepared.lease); return; }
       s.lease = prepared.lease;
+      if (prepared.streams.length > 1 && prepared.streams.some(row =>
+          row.title === 'All Audio' || row.logicalId === 'all-audio')) {
+        throw new Error('Audition manifest contains a hidden master');
+      }
       for (const stream of prepared.streams) {
         const audio = new Audio(); audio.preload = 'auto'; audio.crossOrigin = 'anonymous';
         const source = context.createMediaElementSource(audio), node = context.createGain();
@@ -159,7 +165,7 @@
       return { state: active.status, buses: active.buses.size, baselineGain: active.baseline?.gate.gain.value,
         outputPeak: samples.reduce((peak, value) => Math.max(peak, Math.abs(value)), 0),
         maximumObservedDrift: active.maximumObservedDrift, muted: [...active.buses.values()].map(b => b.muted),
-        busesState: [...active.buses.values()].map(b => ({ time: b.audio.currentTime, paused: b.audio.paused,
+        busesState: [...active.buses.entries()].map(([index, b]) => ({ index, time: b.audio.currentTime, paused: b.audio.paused,
           gain: b.gain.gain.value, ready: b.audio.readyState, offset: b.offset })) };
     },
   });

@@ -75,6 +75,25 @@ async function main() {
     }
     service.release(preview.lease)
     assert.throws(() => service.asset(preview.streams[0].url), /Expired/)
+    // Match the original main::wi contract, not preload::y's already parsed
+    // renderer shape. Native AVAssetWriter titles need not be ffprobe tags.
+    rows.set(record.local_content_id, {...record, metadata: JSON.stringify(record.metadata)})
+    const fromMain = await service.prepare({uuid: record.local_content_id})
+    check('main JSON-text metadata excludes hidden master from preview',
+      fromMain.streams.length === 2 && fromMain.streams.every(s => s.title !== 'All Audio'))
+    check('main JSON-text metadata retains source mute mask and identity',
+      fromMain.streams[1].isMuted && fromMain.streams[1].logicalId === 'microphone')
+    service.release(fromMain.lease)
+    const mainEdited = await service.trim({uuid: record.local_content_id,
+      audioStreams: [{index: 2, isMuted: true}, {index: 3, isMuted: true}]})
+    check('main JSON-text edit excludes master and preserves source topology', mainEdited.audioStreams.length === 3)
+    check('main JSON-text all-muted edit is silent', (await pcm(mainEdited.outputPath, 1)).peak === 0)
+    for (const metadata of ['{bad json', 'null', '[]', '{"audioStreams":{}}']) {
+      rows.set(record.local_content_id, {...record, metadata})
+      await assert.rejects(service.prepare({uuid: record.local_content_id}), /Invalid library metadata/)
+    }
+    checks.push('malformed main metadata fails closed before audition')
+    rows.set(record.local_content_id, record)
     const delayedPath = path.join(root, 'delayed.mp4')
     await execute(ffmpeg, ['-v', 'error', '-nostdin', '-n', '-i', input, '-itsoffset', '1.2', '-i', input,
       '-map', '0:v:0', '-map', '0:a:0', '-map', '1:a:1', '-c', 'copy', delayedPath])

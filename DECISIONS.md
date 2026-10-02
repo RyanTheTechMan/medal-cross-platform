@@ -1,5 +1,22 @@
 # Implementation decisions
 
+## Decision D018 — Authoritative audio metadata and uncategorized capture status (2026-10-02)
+
+Original main library `wi` returns metadata as JSON text; preload `y` parses it
+for renderer callers. Native media services must parse/bound/validate this trusted
+row rather than infer source identities from ffprobe tags. Native AVAssetWriter
+uiso/titl titles are not FFmpeg handler_name tags. Missing UI source controls mute
+their buses; a prepared manifest containing both master and stems fails closed.
+Preserve nondestructive stems while regenerating the selected default master.
+
+The original header is category-driven. Add namespaced read-only
+`nativePort.captureActivity` schema 1 with actual state and targeted application
+name, and use it only when the original header would say Waiting For Game during
+real native capture. It does not classify games or report unsupported RPC success.
+Raw frames/packets remain native. Windows behavior and original error/disabled/
+category precedence remain intact. Actual original UI/header tests pass on the
+new signed build; see `reports/native/audio-20261002-live-routing.md`.
+
 ## Decision D017 — Native audio families and explicit outputs (2026-10-02)
 
 Use HAL audio objects as authority, with native executable/bundle/ancestor

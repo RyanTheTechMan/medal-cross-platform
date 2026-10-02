@@ -2,7 +2,7 @@
 const assert = require('node:assert/strict'), vm = require('node:vm'), fs = require('node:fs')
 const source = fs.readFileSync(require('node:path').join(__dirname, 'native-audio-preview-controller.js'), 'utf8')
 const elements = [], nodes = [], timers = new Set(), released = []
-let prepares = 0, failure = false, pending
+let prepares = 0, failure = false, pending, hiddenMaster = false
 class Media extends EventTarget {
   constructor() { super(); this.paused = true; this.ended = false; this.currentTime = 0; this.playbackRate = 1;
     this.muted = false; this.volume = .75; this.readyState = 4; this.duration = 30; this.seeking = false; elements.push(this) }
@@ -26,6 +26,8 @@ window.MedalIPC = { nativeAudioPreview: {
     ++prepares
     if (pending) await pending
     if (failure) throw new Error('fixture unavailable')
+    if (hiddenMaster) return {lease: `lease-${prepares}`, streams: [
+      {index: 1, title: 'All Audio', logicalId: 'all-audio'}, {index: 2, title: 'PC Audio'}]}
     return { lease: `lease-${prepares}`, streams: [{ index: 2, offset: 0, isMuted: false, url: 'fixture-pc' },
       { index: 5, offset: .2, isMuted: false, url: 'fixture-mic' }] }
   },
@@ -50,6 +52,8 @@ const turn = () => new Promise(resolve => setImmediate(resolve))
   assert.equal(elements[1].currentTime, 1)
   assert.equal(elements[2].currentTime, .8)
   assert.equal(nodes[2].gain.value, .75)
+  await attach([{index: 2, isMuted: true}])
+  assert(nodes.every(n => n.gain.value === 0), 'bus absent from original controls cannot leak audio')
   await attach([{ index: 2, isMuted: true }, { index: 5, isMuted: true }])
   assert.equal(prepares, 1, 'toggles never rebuild sidecars')
   assert(nodes.every(n => n.gain.value === 0), 'all-muted includes original baseline')
@@ -74,5 +78,11 @@ const turn = () => new Promise(resolve => setImmediate(resolve))
   const late = attach([]); controller.detach(); resume(); await late
   assert.equal(controller.snapshot().state, 'disposed')
   assert.equal(released.length, 2, 'late prepare lease released')
+  pending = undefined; hiddenMaster = true
+  await attach([{index: 2, isMuted: true}])
+  assert.equal(controller.snapshot().state, 'error', 'master plus stem manifest rejected')
+  assert.equal(controller.snapshot().buses, 0)
+  assert.equal(nodes[0].gain.value, 0, 'invalid prepared master cannot leak baseline')
+  controller.detach()
   console.log('PASS preview ownership, in-place gain updates, cancel, master mute, offsets, seeking, pause, errors and async disposal (mock media, not GUI)')
 })().catch(error => { console.error(error); process.exitCode = 1 })

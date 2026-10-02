@@ -55,6 +55,22 @@ function audioManifest(probe, metadata = [], { allowLegacyOrdinals = false } = {
   })
 }
 
+function libraryMetadata(value) {
+  // Original main::wi returns JSON text; the original preload::y parses it for
+  // renderer callers. Our privileged media service calls wi directly and must
+  // perform that same boundary conversion before reading the trusted manifest.
+  if (value === undefined) return {}
+  if (typeof value === 'string') {
+    if (Buffer.byteLength(value) > 4 * 1024 * 1024) throw new Error('Library metadata is too large')
+    try { value = JSON.parse(value) } catch { throw new Error('Invalid library metadata JSON') }
+  }
+  if (!value || typeof value !== 'object' || Array.isArray(value) || Buffer.isBuffer(value) ||
+      (value.audioStreams !== undefined && !Array.isArray(value.audioStreams))) {
+    throw new Error('Invalid library metadata shape')
+  }
+  return value
+}
+
 function createAudioMedia({ tools, cacheDirectory, getContent, getEditDirectory, execute = runTool }) {
   const ffmpeg = path.join(tools, 'ffmpeg'); const ffprobe = path.join(tools, 'ffprobe')
   const assets = new Map(); const leases = new Map(); const jobs = new Map(); const edits = new Set()
@@ -64,7 +80,8 @@ function createAudioMedia({ tools, cacheDirectory, getContent, getEditDirectory,
     ['-v', 'error', '-show_streams', '-show_format', '-of', 'json', input])).toString())
   async function resolveContent(uuid, expectedPath) {
     if (typeof uuid !== 'string' || !/^[A-Za-z0-9_-]{6,128}$/.test(uuid)) throw new Error('Invalid local content ID')
-    const content = await getContent(uuid)
+    const rawContent = await getContent(uuid)
+    const content = rawContent && {...rawContent, metadata: libraryMetadata(rawContent.metadata)}
     if (!content || content.local_content_id !== uuid || !path.isAbsolute(content.video_path || '')) {
       throw new Error('Local library video was not found')
     }

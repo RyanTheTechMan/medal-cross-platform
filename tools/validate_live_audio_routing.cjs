@@ -1,0 +1,82 @@
+'use strict'
+// Read-only validation of an explicitly named synthetic clip created by Medal's
+// normal hotkey/contentCreate path. Never discovers or exports other user media.
+const fs = require('node:fs/promises'), path = require('node:path'), cp = require('node:child_process')
+const assert = require('node:assert/strict'), crypto = require('node:crypto')
+const {runTool} = require('../client_patch/native-audio-media.cjs')
+
+async function main() {
+  const [database, uuid, expectation, destination] = process.argv.slice(2)
+  assert(database && /^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(uuid) && destination)
+  const expected = JSON.parse(expectation)
+  assert(Array.isArray(expected) && expected.length > 0)
+  await fs.mkdir(destination) // Refuse reuse: failed attempts remain evidence.
+  const report = {uuid, expected, status: 'failed', commands: [],
+    environment: {node: process.version, platform: process.platform, architecture: process.arch}}
+  const run = async (tool, args, options) => {report.commands.push({tool, args}); return runTool(tool, args, options)}
+  try {
+    const sql = `select json_object('uuid',local_content_id,'video_path',video_path,'thumbnail_path',thumbnail_path,'audioStreams',json_extract(metadata,'$.audioStreams')) from contents where local_content_id='${uuid}';`
+    report.commands.push({tool: '/usr/bin/sqlite3', args: ['-readonly', database, sql]})
+    const row = report.content = JSON.parse(cp.execFileSync('/usr/bin/sqlite3', ['-readonly', database, sql], {encoding: 'utf8'}))
+    assert(row.video_path && path.isAbsolute(row.video_path) && row.thumbnail_path)
+    assert((await fs.stat(row.thumbnail_path)).size > 0, 'Original Medal thumbnail required')
+    report.fileSha256 = crypto.createHash('sha256').update(await fs.readFile(row.video_path)).digest('hex')
+    report.thumbnailSha256 = crypto.createHash('sha256').update(await fs.readFile(row.thumbnail_path)).digest('hex')
+    report.ffprobe = JSON.parse(await run('/opt/homebrew/bin/ffprobe', ['-v', 'error', '-show_streams', '-show_format', '-of', 'json', row.video_path]))
+    report.avfoundation = JSON.parse(await run(path.resolve('build-macos-20260925/native/backends/macos/native_port_macos_avfoundation_file_probe'), [row.video_path]))
+    assert.equal(report.avfoundation.status, 'passed')
+    const audio = report.ffprobe.streams.filter(s => s.codec_type === 'audio')
+    assert.equal(report.ffprobe.streams.filter(s => s.codec_type === 'video').length, 1)
+    assert.equal(audio.length, expected.length)
+    assert.deepEqual(audio.map(s => s.index), row.audioStreams.map(s => s.index))
+    assert.deepEqual(row.audioStreams.map(s => s.logicalId), expected.map(s => s.logicalId))
+    assert.equal(row.audioStreams[0].title, 'All Audio')
+    assert.deepEqual(audio.map(s => s.disposition.default), audio.map((_, i) => i === 0 ? 1 : 0))
+    const video = report.ffprobe.streams.find(s => s.codec_type === 'video')
+    assert.equal(video.codec_name, 'h264')
+    report.audioTailRelativeToVideoSeconds = audio.map(s => ({index: s.index,
+      delta: Number(s.start_time) + Number(s.duration) - Number(video.start_time) - Number(video.duration)}))
+    report.signals = []
+    for (let ordinal = 0; ordinal < audio.length; ++ordinal) {
+      const stream = audio[ordinal], required = expected[ordinal]
+      assert.equal(stream.codec_name, 'aac'); assert.equal(Number(stream.sample_rate), 48000)
+      // Inspect one channel, not ffmpeg's equal-power stereo downmix (which
+      // boosts identical stereo tones and would give a false gain failure).
+      const bytes = await run('/opt/homebrew/bin/ffmpeg', ['-v', 'error', '-i', row.video_path,
+        '-map', `0:${stream.index}`, '-af', 'pan=mono|c0=c0', '-ar', '48000', '-f', 'f32le', '-'], {maxOutput: 64 * 1024 * 1024})
+      const samples = bytes.length / 4
+      assert(samples > 3 * 48000, 'Positive decoded PCM count required')
+      if (required.digitalSilence) {
+        for (let i = 0; i < samples; ++i) assert.equal(bytes.readFloatLE(i * 4), 0, 'Muted master must be digital zero')
+      }
+      const starts = [1, Math.floor(samples / 48000 / 2), Math.floor(samples / 48000) - 2]
+      const segments = starts.map(start => {
+        const first = start * 48000, count = 48000
+        assert(first + count <= samples)
+        let peak = 0, sum = 0
+        const bins = {440: [0, 0], 660: [0, 0], 880: [0, 0]}
+        for (let i = 0; i < count; ++i) {
+          const x = bytes.readFloatLE((first + i) * 4)
+          assert(Number.isFinite(x)); peak = Math.max(peak, Math.abs(x)); sum += x * x
+          for (const [hz, bin] of Object.entries(bins)) {
+            const angle = 2 * Math.PI * Number(hz) * i / 48000
+            bin[0] += x * Math.cos(angle); bin[1] += x * Math.sin(angle)
+          }
+        }
+        return {startSeconds: start, samples: count, peak, rms: Math.sqrt(sum / count),
+          tones: Object.fromEntries(Object.entries(bins).map(([hz, bin]) => [hz, 2 * Math.hypot(...bin) / count]))}
+      })
+      report.signals.push({index: stream.index, logicalId: required.logicalId, samples, segments})
+      for (const segment of segments) for (const [hz, amplitude] of Object.entries(required.tones)) {
+        const measured = segment.tones[hz]
+        assert(amplitude === 0 ? measured < .003 : Math.abs(measured - amplitude) < Math.max(.008, amplitude * .2),
+          `${required.logicalId} ${hz} Hz @ ${segment.startSeconds}s: expected ${amplitude}, measured ${measured}`)
+      }
+    }
+    report.status = 'passed'
+    console.log(`PASS ${uuid}: original library path/thumbnail, native decode, independent probe, source tones/gains/defaults`)
+    // GUI playback and restart are deliberately separate manual evidence.
+  } catch (error) {report.error = String(error); throw error}
+  finally {await fs.writeFile(path.join(destination, 'results.json'), JSON.stringify(report, null, 2))}
+}
+main().catch(error => {console.error(error); process.exitCode = 1})

@@ -1839,6 +1839,15 @@ class HelperSession final {
         respond(request, {{"accepted", true}});
       } else if (request.method == "nativePort.captureStatus") {
         respond(request, capture_status());
+      } else if (request.method == "nativePort.captureActivity") {
+        const auto state = capture_->status();
+        const auto active = state.value("state", std::string{}) == "capturing";
+        const auto name = active && targeted_process_
+                              ? targeted_process_->application_name
+                              : std::string{};
+        respond(request, {{"schemaVersion", 1},
+                          {"state", state.value("state", std::string{"unavailable"})},
+                          {"applicationName", name}});
       } else if (request.method == "nativePort.effectiveCaptureConfiguration") {
         respond(request, effective_capture_configuration(request.params));
       } else if (request.method == "nativePort.saveReplay") {

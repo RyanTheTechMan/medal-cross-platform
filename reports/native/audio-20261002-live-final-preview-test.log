@@ -1,0 +1,1 @@
+PASS preview ownership, in-place gain updates, cancel, master mute, offsets, seeking, pause, errors and async disposal (mock media, not GUI)

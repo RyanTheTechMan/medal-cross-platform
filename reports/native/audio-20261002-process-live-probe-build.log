@@ -1,0 +1,6 @@
+[0/1] Re-running CMake...
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/ryan/Developer/medal-cross-platform/build-macos-20260925
+[1/3] Building OBJCXX object native/backends/macos/CMakeFiles/native_port_macos_audio_process_registry_probe.dir/audio_process_registry_probe.mm.o
+[2/3] Linking CXX executable native/backends/macos/native_port_macos_audio_process_registry_probe

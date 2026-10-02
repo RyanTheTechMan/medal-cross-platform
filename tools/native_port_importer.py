@@ -36,6 +36,7 @@ MEDIA_SELFTEST_HTML_PATH = ROOT / 'client_patch' / 'media-selftest.html'
 NATIVE_AUDIO_PREVIEW_CONTROLLER_PATH = ROOT / 'client_patch' / 'native-audio-preview-controller.js'
 NATIVE_AUDIO_MEDIA_PATH = ROOT / 'client_patch' / 'native-audio-media.cjs'
 NATIVE_AUDIO_EDITOR_PATH = ROOT / 'client_patch' / 'native-audio-editor.js'
+NATIVE_CAPTURE_STATUS_PATH = ROOT / 'client_patch' / 'native-capture-status.js'
 UPDATE_ADAPTER_PATH = ROOT / 'client_patch' / 'velopack-manual-adapter.js'
 MAX_COPY_BYTES = 2 * 1024**3
 NATIVE_HELPER_BUNDLE_ID = 'com.squirrel.medal.medal.recorder'
@@ -578,6 +579,22 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
     renderer_path = stage_app / 'renderer.min.js'
     preload_path = stage_app / 'preload.min.js'
     operations.append(exact_replace(
+        renderer_path,
+        'oK=({currentGameToDisplay:e,recorderMode:t})=>{const[r,i]=(0,p.useState)(!1),',
+        'oK=({currentGameToDisplay:e,recorderMode:t})=>{const nativeApplicationName=window.NativeMedalCaptureStatus?.useApplicationName(p);const[r,i]=(0,p.useState)(!1),',
+        1,
+        'show-actual-native-application-in-original-capture-header',
+        'renderer.min.js',
+    ))
+    operations.append(exact_replace(
+        renderer_path,
+        'children:g?(0,n.jsx)(iK,{state:g}):e&&(0,n.jsx)(zY,{category:e,recorderMode:t})',
+        'children:g==="waiting"&&nativeApplicationName?(0,n.jsxs)("span",{className:"text-sm font-medium text-foreground-300",children:["Clipping: ",nativeApplicationName]}):g?(0,n.jsx)(iK,{state:g}):e&&(0,n.jsx)(zY,{category:e,recorderMode:t})',
+        1,
+        'keep-category-and-error-header-precedence-with-native-fallback',
+        'renderer.min.js',
+    ))
+    operations.append(exact_replace(
         main_path,
         'c=["\'self\'","data:","blob:","file:","medal-fs:",...xg,...OWe].join(" ")',
         'c=["\'self\'","data:","blob:","file:","medal-fs:","native-audio-preview://asset",...xg,...OWe].join(" ")',
@@ -593,7 +610,7 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
         'expose-secure-native-audio-preview-ipc',
         'preload.min.js',
     ))
-    controller_source = NATIVE_AUDIO_PREVIEW_CONTROLLER_PATH.read_text()
+    controller_source = NATIVE_CAPTURE_STATUS_PATH.read_text() + '\n' + NATIVE_AUDIO_PREVIEW_CONTROLLER_PATH.read_text()
     operations.append(exact_replace(
         renderer_path,
         ',mk=({clip:e,videoRef:t',
@@ -722,6 +739,7 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
                  stage_app / 'native-port' / 'native-audio-preview-controller.js')
     shutil.copy2(NATIVE_AUDIO_MEDIA_PATH, stage_app / 'native-port' / 'native-audio-media.cjs')
     shutil.copy2(NATIVE_AUDIO_EDITOR_PATH, stage_app / 'native-port' / 'native-audio-editor.js')
+    shutil.copy2(NATIVE_CAPTURE_STATUS_PATH, stage_app / 'native-port' / 'native-capture-status.js')
     default_clip_sound = install_default_clip_sound(
         recorder_archive,
         stage_app / 'native-port' / 'assets' / 'ClipEffect.wav',

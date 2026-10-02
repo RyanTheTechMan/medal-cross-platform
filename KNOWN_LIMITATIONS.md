@@ -2,19 +2,22 @@
 
 This file records observed limits, not excuses for successful no-op behavior.
 
-Current continuation: `reports/native/audio-20261002-routing-status.md`.
-Original-UI synthetic acquisition and active audio-app enumeration ran; physical
-F8 was not received, then the Mac locked. Native replay/contentCreate/player/
-restart and live isolation are blocked until manual unlock. Family/device code
-has 9 passing CTests but is not live-verified. Device taps currently require
-mono/stereo; multichannel and process/default-device/format listeners remain open.
-Generic rebind listening was rejected; original Unset Hotkey worked. Test apps/
-capture stopped. No automatic unlock, TCC reset or uploads.
+Current continuation: `reports/native/audio-20261002-live-routing.md` supersedes
+the earlier locked-session gate, without erasing that failed/blocked evidence.
+Original UI physical F8 → replay/contentCreate/probe/thumbnail/player passes
+for synthetic All PC Audio and Specific Apps. Native process-tap isolation,
+original mute/Save/full restart and independent post-save digital-silence/source
+preservation pass. Explicit output-device, microphone, process/default-device/
+format listeners and sustained routing remain open; taps currently require
+mono/stereo. Generic rebind listening was rejected; original Unset Hotkey worked.
+Test tones stopped after validation. No automatic unlock, TCC reset or uploads.
 
-The PCM graph buffers 200 ms for reorder; observed packet endpoint backlog was
-about 241 ms. Offline probes drain before muxing, so running hotkey replay tail
-coverage is not thereby proven. Inspect the actual press-anchored export and
-separate buffering/tail coverage from audible A/V offset before passing timing.
+The PCM graph buffers 200 ms for reorder. Actual running-hotkey exports have
+AAC endpoints 211.666–228.333 ms before video. Preserve the physical press
+endpoint while waiting for required packets; merely delaying a latest snapshot
+would shift the requested moment. This observed missing tail is not a long-run
+drift pass. Preview maximumObservedDrift currently includes loops/seeks and must
+not be presented as a steady-play timing measurement.
 
 ## Environment
 

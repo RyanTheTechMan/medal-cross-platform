@@ -2,6 +2,19 @@
 
 Status: **not ready for transfer**. This file is live and must not be interpreted as a completed handoff.
 
+Latest 2026-10-02 original native audio gates: All PC and Specific Apps synthetic
+normal targeting/physical F8/replay/contentCreate/probe/thumbnail/player pass,
+including original mute/Save/full restart and independently decodable preserved
+stems. Installed signed build `2637.461.1-development-m3.5-0ab219782f8c066e`;
+prepared client `2637.461.1-native-port-m3.5-f22cd77d94c6`. Original main library
+metadata is JSON text; parse/validate it in the shared native media service.
+New namespaced read-only `nativePort.captureActivity` schema 1 exposes real state
+and targeted app name only; it does not replace game classification. Retain these
+contracts on Linux. Exact tests/failures are in
+`reports/native/audio-20261002-live-routing.md`. Actual replay AAC tails remain
+211.666–228.333 ms short; device/mic/listener/feedback/sustained timing gates open.
+No Linux capture, release or cloud claim.
+
 2026-10-02 continuation: native HAL helper-family ownership and UID/stream taps
 are build/model-tested; 9 CTests and native single/multiple media validations pass.
 Shared `EncodedPacket.logical_source_name`/`PcmSource.display_name` separate source
