@@ -1,5 +1,28 @@
 # Implementation progress
 
+## Current press-anchored replay continuation — 2026-10-02
+
+Known-good original audio checkpoint `7e319cd` retained. The new native endpoint
+path pins the OS hotkey timestamp, generation and audio identities; waits for
+all required AAC tracks under a bounded deadline; preserves encoded bytes and
+target metadata. Built/10 CTests and independent real H.264/AAC fixture decode,
+spectral/default/keyframe/PTS-DTS checks pass. Failed measurement and fixture
+overwrite evidence retained. Actual original clips were -221.001/-243.667 ms
+short by packet timelines; earlier container-derived tail numbers were not exact.
+
+Installed signed build `2637.461.1-development-m3.5-e78f3ce58a85e573`, prepared
+client `2637.461.1-native-port-m3.5-0396a759169f`, single host/helper. Prior known-
+good app retained at `/Applications/Medal.app.previous-audio-roundtrip-20261002`.
+Physical original F8 clip `31bdef5a-5619-4048-9b19-6a0d8dc9f4b2` now passes normal
+native replay/contentCreate/probe/thumbnail/player/full restart. Wait 208 ms;
+all required AAC packet endpoints match video within MP4 time-base precision.
+Actual Specific Apps 25% game/50% selected app gains and unselected-app exclusion
+pass independent spectral decode. Gains restored to 100%; fixture apps stopped;
+one installed host/helper remains idle, all recordings retained.
+Next runnable task: live 150%/microphone/input/output devices and native lifecycle/
+feedback PCM, then sustained preview/routing timing/failure gates. See
+`reports/native/audio-20261002-endpoint.md`. No uploads; no Linux handoff yet.
+
 ## Current original native audio round trips — 2026-10-02
 
 Continued main from `dd66b00`; no reset, uploads or library DB writes. The installed

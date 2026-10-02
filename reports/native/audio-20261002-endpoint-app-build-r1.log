@@ -1,0 +1,30 @@
+{
+  "app": "/Users/ryan/Developer/medal-cross-platform/artifacts/macos-development-app-audio-20261002/versions/2637.461.1-development-m3.5-e78f3ce58a85e573/Medal.app",
+  "client": {
+    "authorities": "Apple Development: Ryan Ernest (D56WR683CZ) | Apple Worldwide Developer Relations Certification Authority | Apple Root CA",
+    "designatedRequirement": "identifier \"com.squirrel.medal.medal\" and anchor apple generic and certificate leaf[subject.CN] = \"Apple Development: Ryan Ernest (D56WR683CZ)\" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */",
+    "identifier": "com.squirrel.medal.medal",
+    "teamIdentifier": "XDB9K8JX58"
+  },
+  "current": "/Users/ryan/Developer/medal-cross-platform/artifacts/macos-development-app-audio-20261002/current",
+  "icon": {
+    "installedSha256": "6e587f48c3447b08f39a89cd46f2ce418e083ea1647970d33efb62b64eac474c",
+    "sourceSha256": "70e478d514f6519cc38081a0c28bb22869f3b815e4a661079b7179d5b6274bf9"
+  },
+  "idempotent": false,
+  "manualTccPrerequisite": "Launch this exact signed development app as the interactive user and approve only the individual macOS prompts/settings needed by the test. Do not reset TCC or disable macOS security.",
+  "preparedClientManifestSha256": "b18f219a5372662ffd557aa61f64283eeeea1c5a6a425bc46dc8b4638d99e27d",
+  "recorder": {
+    "authorities": "Apple Development: Ryan Ernest (D56WR683CZ) | Apple Worldwide Developer Relations Certification Authority | Apple Root CA",
+    "designatedRequirement": "identifier \"com.squirrel.medal.medal.recorder\" and anchor apple generic and certificate leaf[subject.CN] = \"Apple Development: Ryan Ernest (D56WR683CZ)\" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */",
+    "identifier": "com.squirrel.medal.medal.recorder",
+    "teamIdentifier": "XDB9K8JX58"
+  },
+  "releaseStatus": "local_development_only_not_notarized",
+  "schemaVersion": 1,
+  "signingIdentityCommonName": "Apple Development: Ryan Ernest (D56WR683CZ)",
+  "signingIdentityFingerprint": "32396A31EA92D7AB513FC0B8EFB8F22E3CC83320",
+  "status": "ready_for_manual_tcc_prerequisite",
+  "upstreamWindowsAppUserModelId": "com.squirrel.medal.medal",
+  "versionKey": "2637.461.1-development-m3.5-e78f3ce58a85e573"
+}

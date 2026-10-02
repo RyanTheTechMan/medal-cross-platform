@@ -1,0 +1,842 @@
+{
+  "uuid": "31bdef5a-5619-4048-9b19-6a0d8dc9f4b2",
+  "expected": [
+    {
+      "logicalId": "all-audio",
+      "tones": {
+        "440": 0.015,
+        "660": 0.03,
+        "880": 0
+      }
+    },
+    {
+      "logicalId": "Medal Audio Fixture 660",
+      "tones": {
+        "440": 0,
+        "660": 0.03,
+        "880": 0
+      }
+    },
+    {
+      "logicalId": "game-audio",
+      "tones": {
+        "440": 0.015,
+        "660": 0,
+        "880": 0
+      }
+    }
+  ],
+  "status": "passed",
+  "commands": [
+    {
+      "tool": "/usr/bin/sqlite3",
+      "args": [
+        "-readonly",
+        "/Users/ryan/Library/Application Support/Native Medal Development Profile/Session Data/medal-371913.db",
+        "select json_object('uuid',local_content_id,'video_path',video_path,'thumbnail_path',thumbnail_path,'audioStreams',json_extract(metadata,'$.audioStreams')) from contents where local_content_id='31bdef5a-5619-4048-9b19-6a0d8dc9f4b2';"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_streams",
+        "-show_format",
+        "-of",
+        "json",
+        "/Users/ryan/Library/Application Support/Native Medal Development Profile/Clips/31bdef5a-5619-4048-9b19-6a0d8dc9f4b2.mp4"
+      ]
+    },
+    {
+      "tool": "/Users/ryan/Developer/medal-cross-platform/build-macos-20260925/native/backends/macos/native_port_macos_avfoundation_file_probe",
+      "args": [
+        "/Users/ryan/Library/Application Support/Native Medal Development Profile/Clips/31bdef5a-5619-4048-9b19-6a0d8dc9f4b2.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_packets",
+        "-show_entries",
+        "packet=stream_index,pts_time,dts_time,duration_time,flags",
+        "-of",
+        "json",
+        "/Users/ryan/Library/Application Support/Native Medal Development Profile/Clips/31bdef5a-5619-4048-9b19-6a0d8dc9f4b2.mp4"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffmpeg",
+      "args": [
+        "-v",
+        "error",
+        "-i",
+        "/Users/ryan/Library/Application Support/Native Medal Development Profile/Clips/31bdef5a-5619-4048-9b19-6a0d8dc9f4b2.mp4",
+        "-map",
+        "0:1",
+        "-af",
+        "pan=mono|c0=c0",
+        "-ar",
+        "48000",
+        "-f",
+        "f32le",
+        "-"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffmpeg",
+      "args": [
+        "-v",
+        "error",
+        "-i",
+        "/Users/ryan/Library/Application Support/Native Medal Development Profile/Clips/31bdef5a-5619-4048-9b19-6a0d8dc9f4b2.mp4",
+        "-map",
+        "0:2",
+        "-af",
+        "pan=mono|c0=c0",
+        "-ar",
+        "48000",
+        "-f",
+        "f32le",
+        "-"
+      ]
+    },
+    {
+      "tool": "/opt/homebrew/bin/ffmpeg",
+      "args": [
+        "-v",
+        "error",
+        "-i",
+        "/Users/ryan/Library/Application Support/Native Medal Development Profile/Clips/31bdef5a-5619-4048-9b19-6a0d8dc9f4b2.mp4",
+        "-map",
+        "0:3",
+        "-af",
+        "pan=mono|c0=c0",
+        "-ar",
+        "48000",
+        "-f",
+        "f32le",
+        "-"
+      ]
+    }
+  ],
+  "invocation": {
+    "tool": "/Users/ryan/.nvm/versions/node/v24.18.0/bin/node",
+    "args": [
+      "/Users/ryan/Developer/medal-cross-platform/tools/validate_live_audio_routing.cjs",
+      "/Users/ryan/Library/Application Support/Native Medal Development Profile/Session Data/medal-371913.db",
+      "31bdef5a-5619-4048-9b19-6a0d8dc9f4b2",
+      "[{\"logicalId\":\"all-audio\",\"tones\":{\"440\":0.015,\"660\":0.03,\"880\":0}},{\"logicalId\":\"Medal Audio Fixture 660\",\"tones\":{\"440\":0,\"660\":0.03,\"880\":0}},{\"logicalId\":\"game-audio\",\"tones\":{\"440\":0.015,\"660\":0,\"880\":0}}]",
+      "reports/audio-live-endpoint-20261002-r1",
+      "--require-endpoint-coverage"
+    ]
+  },
+  "environment": {
+    "node": "v24.18.0",
+    "platform": "darwin",
+    "architecture": "arm64"
+  },
+  "content": {
+    "uuid": "31bdef5a-5619-4048-9b19-6a0d8dc9f4b2",
+    "video_path": "/Users/ryan/Library/Application Support/Native Medal Development Profile/Clips/31bdef5a-5619-4048-9b19-6a0d8dc9f4b2.mp4",
+    "thumbnail_path": "/Users/ryan/Library/Application Support/Native Medal Development Profile/Media/Medal/Thumbnails/31bdef5a-5619-4048-9b19-6a0d8dc9f4b2.jpg",
+    "audioStreams": [
+      {
+        "index": 1,
+        "title": "All Audio",
+        "codecName": "aac",
+        "sampleRate": 48000,
+        "bitRate": 119631,
+        "audioOrdinal": 0,
+        "logicalId": "all-audio",
+        "isMuted": false,
+        "default": true
+      },
+      {
+        "index": 2,
+        "title": "Medal Audio Fixture 660",
+        "codecName": "aac",
+        "sampleRate": 48000,
+        "bitRate": 120032,
+        "audioOrdinal": 1,
+        "logicalId": "Medal Audio Fixture 660",
+        "isMuted": false,
+        "default": false
+      },
+      {
+        "index": 3,
+        "title": "Game Audio",
+        "codecName": "aac",
+        "sampleRate": 48000,
+        "bitRate": 117060,
+        "audioOrdinal": 2,
+        "logicalId": "game-audio",
+        "isMuted": false,
+        "default": false
+      }
+    ]
+  },
+  "fileSha256": "9dc81cef84a4ab21a9055d5c780d562433843a7ebc73638589c8223f19a98a8b",
+  "thumbnailSha256": "a241a188e9351960b84c54e2c6c33185c6c237639e743c8675e41603137044e4",
+  "ffprobe": {
+    "streams": [
+      {
+        "index": 0,
+        "codec_name": "h264",
+        "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+        "profile": "High",
+        "codec_type": "video",
+        "codec_tag_string": "avc1",
+        "codec_tag": "0x31637661",
+        "mime_codec_string": "avc1.64002a",
+        "width": 1762,
+        "height": 1080,
+        "coded_width": 1762,
+        "coded_height": 1080,
+        "has_b_frames": 0,
+        "pix_fmt": "yuv420p",
+        "level": 42,
+        "color_range": "tv",
+        "color_space": "bt709",
+        "color_transfer": "bt709",
+        "color_primaries": "bt709",
+        "field_order": "progressive",
+        "is_avc": "true",
+        "nal_length_size": "4",
+        "id": "0x1",
+        "r_frame_rate": "600/1",
+        "avg_frame_rate": "44800/887",
+        "time_base": "1/600",
+        "start_pts": 0,
+        "start_time": "0.000000",
+        "duration_ts": 18627,
+        "duration": "31.045000",
+        "bit_rate": "137394",
+        "bits_per_raw_sample": "8",
+        "nb_frames": "1568",
+        "extradata_size": 31,
+        "disposition": {
+          "default": 1,
+          "dub": 0,
+          "original": 0,
+          "comment": 0,
+          "lyrics": 0,
+          "karaoke": 0,
+          "forced": 0,
+          "hearing_impaired": 0,
+          "visual_impaired": 0,
+          "clean_effects": 0,
+          "attached_pic": 0,
+          "timed_thumbnails": 0,
+          "non_diegetic": 0,
+          "captions": 0,
+          "descriptions": 0,
+          "metadata": 0,
+          "dependent": 0,
+          "still_image": 0,
+          "multilayer": 0
+        },
+        "tags": {
+          "creation_time": "2026-10-02T17:40:20.000000Z",
+          "language": "und",
+          "handler_name": "Core Media Video"
+        }
+      },
+      {
+        "index": 1,
+        "codec_name": "aac",
+        "codec_long_name": "AAC (Advanced Audio Coding)",
+        "profile": "LC",
+        "codec_type": "audio",
+        "codec_tag_string": "mp4a",
+        "codec_tag": "0x6134706d",
+        "mime_codec_string": "mp4a.40.2",
+        "sample_fmt": "fltp",
+        "sample_rate": "48000",
+        "channels": 2,
+        "channel_layout": "stereo",
+        "bits_per_sample": 0,
+        "initial_padding": 0,
+        "id": "0x2",
+        "r_frame_rate": "0/0",
+        "avg_frame_rate": "0/0",
+        "time_base": "1/48000",
+        "start_pts": 240,
+        "start_time": "0.005000",
+        "duration_ts": 1490160,
+        "duration": "31.045000",
+        "bit_rate": "119631",
+        "nb_frames": "1456",
+        "extradata_size": 2,
+        "disposition": {
+          "default": 1,
+          "dub": 0,
+          "original": 0,
+          "comment": 0,
+          "lyrics": 0,
+          "karaoke": 0,
+          "forced": 0,
+          "hearing_impaired": 0,
+          "visual_impaired": 0,
+          "clean_effects": 0,
+          "attached_pic": 0,
+          "timed_thumbnails": 0,
+          "non_diegetic": 0,
+          "captions": 0,
+          "descriptions": 0,
+          "metadata": 0,
+          "dependent": 0,
+          "still_image": 0,
+          "multilayer": 0
+        },
+        "tags": {
+          "creation_time": "2026-10-02T17:40:20.000000Z",
+          "language": "und",
+          "handler_name": "Core Media Audio"
+        }
+      },
+      {
+        "index": 2,
+        "codec_name": "aac",
+        "codec_long_name": "AAC (Advanced Audio Coding)",
+        "profile": "LC",
+        "codec_type": "audio",
+        "codec_tag_string": "mp4a",
+        "codec_tag": "0x6134706d",
+        "mime_codec_string": "mp4a.40.2",
+        "sample_fmt": "fltp",
+        "sample_rate": "48000",
+        "channels": 2,
+        "channel_layout": "stereo",
+        "bits_per_sample": 0,
+        "initial_padding": 0,
+        "id": "0x3",
+        "r_frame_rate": "0/0",
+        "avg_frame_rate": "0/0",
+        "time_base": "1/48000",
+        "start_pts": 240,
+        "start_time": "0.005000",
+        "duration_ts": 1490160,
+        "duration": "31.045000",
+        "bit_rate": "120032",
+        "nb_frames": "1456",
+        "extradata_size": 2,
+        "disposition": {
+          "default": 0,
+          "dub": 0,
+          "original": 0,
+          "comment": 0,
+          "lyrics": 0,
+          "karaoke": 0,
+          "forced": 0,
+          "hearing_impaired": 0,
+          "visual_impaired": 0,
+          "clean_effects": 0,
+          "attached_pic": 0,
+          "timed_thumbnails": 0,
+          "non_diegetic": 0,
+          "captions": 0,
+          "descriptions": 0,
+          "metadata": 0,
+          "dependent": 0,
+          "still_image": 0,
+          "multilayer": 0
+        },
+        "tags": {
+          "creation_time": "2026-10-02T17:40:20.000000Z",
+          "language": "und",
+          "handler_name": "Core Media Audio"
+        }
+      },
+      {
+        "index": 3,
+        "codec_name": "aac",
+        "codec_long_name": "AAC (Advanced Audio Coding)",
+        "profile": "LC",
+        "codec_type": "audio",
+        "codec_tag_string": "mp4a",
+        "codec_tag": "0x6134706d",
+        "mime_codec_string": "mp4a.40.2",
+        "sample_fmt": "fltp",
+        "sample_rate": "48000",
+        "channels": 2,
+        "channel_layout": "stereo",
+        "bits_per_sample": 0,
+        "initial_padding": 0,
+        "id": "0x4",
+        "r_frame_rate": "0/0",
+        "avg_frame_rate": "0/0",
+        "time_base": "1/48000",
+        "start_pts": 240,
+        "start_time": "0.005000",
+        "duration_ts": 1490160,
+        "duration": "31.045000",
+        "bit_rate": "117060",
+        "nb_frames": "1456",
+        "extradata_size": 2,
+        "disposition": {
+          "default": 0,
+          "dub": 0,
+          "original": 0,
+          "comment": 0,
+          "lyrics": 0,
+          "karaoke": 0,
+          "forced": 0,
+          "hearing_impaired": 0,
+          "visual_impaired": 0,
+          "clean_effects": 0,
+          "attached_pic": 0,
+          "timed_thumbnails": 0,
+          "non_diegetic": 0,
+          "captions": 0,
+          "descriptions": 0,
+          "metadata": 0,
+          "dependent": 0,
+          "still_image": 0,
+          "multilayer": 0
+        },
+        "tags": {
+          "creation_time": "2026-10-02T17:40:20.000000Z",
+          "language": "und",
+          "handler_name": "Core Media Audio"
+        }
+      }
+    ],
+    "format": {
+      "filename": "/Users/ryan/Library/Application Support/Native Medal Development Profile/Clips/31bdef5a-5619-4048-9b19-6a0d8dc9f4b2.mp4",
+      "nb_streams": 4,
+      "nb_programs": 0,
+      "nb_stream_groups": 0,
+      "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+      "format_long_name": "QuickTime / MOV",
+      "start_time": "0.000000",
+      "duration": "31.050000",
+      "size": "1963508",
+      "bit_rate": "505895",
+      "probe_score": 100,
+      "tags": {
+        "major_brand": "mp42",
+        "minor_version": "1",
+        "compatible_brands": "isommp41mp42",
+        "creation_time": "2026-10-02T17:40:20.000000Z"
+      }
+    }
+  },
+  "avfoundation": {
+    "audioTrackCount": 3,
+    "audioTracks": [
+      {
+        "compressed": {
+          "channelCount": 2,
+          "codec": "aac ",
+          "emptySampleBufferCount": 3,
+          "firstPtsSeconds": 0,
+          "firstSampleIsSync": null,
+          "nonMonotonicPtsCount": 0,
+          "ptsDtsMismatchCount": 0,
+          "readerCompleted": true,
+          "readerCreated": true,
+          "readerStarted": true,
+          "readerStatus": 2,
+          "sampleBufferCount": 63,
+          "sampleCount": 1456,
+          "sampleRate": 48000
+        },
+        "decoded": {
+          "decodedPcmSampleCount": 2978144,
+          "decodedSampleCount": 187,
+          "missingDecodedBufferCount": 0,
+          "peak": 0.043744657188653946,
+          "readerCompleted": true,
+          "readerCreated": true,
+          "readerStarted": true,
+          "readerStatus": 2,
+          "rms": 0.0237148775217325
+        },
+        "index": 0,
+        "metadata": [
+          {
+            "identifier": "uiso/titl",
+            "key": "1953068140",
+            "keySpace": "uiso",
+            "value": "All Audio"
+          },
+          {
+            "identifier": "uiso/titl",
+            "key": "1953068140",
+            "keySpace": "uiso",
+            "value": "All Audio"
+          }
+        ],
+        "passed": true
+      },
+      {
+        "compressed": {
+          "channelCount": 2,
+          "codec": "aac ",
+          "emptySampleBufferCount": 3,
+          "firstPtsSeconds": 0,
+          "firstSampleIsSync": null,
+          "nonMonotonicPtsCount": 0,
+          "ptsDtsMismatchCount": 0,
+          "readerCompleted": true,
+          "readerCreated": true,
+          "readerStarted": true,
+          "readerStatus": 2,
+          "sampleBufferCount": 63,
+          "sampleCount": 1456,
+          "sampleRate": 48000
+        },
+        "decoded": {
+          "decodedPcmSampleCount": 2978144,
+          "decodedSampleCount": 186,
+          "missingDecodedBufferCount": 0,
+          "peak": 0.03001282550394535,
+          "readerCompleted": true,
+          "readerCreated": true,
+          "readerStarted": true,
+          "readerStatus": 2,
+          "rms": 0.021210606009154653
+        },
+        "index": 1,
+        "metadata": [
+          {
+            "identifier": "uiso/titl",
+            "key": "1953068140",
+            "keySpace": "uiso",
+            "value": "Medal Audio Fixture 660"
+          },
+          {
+            "identifier": "uiso/titl",
+            "key": "1953068140",
+            "keySpace": "uiso",
+            "value": "Medal Audio Fixture 660"
+          }
+        ],
+        "passed": true
+      },
+      {
+        "compressed": {
+          "channelCount": 2,
+          "codec": "aac ",
+          "emptySampleBufferCount": 3,
+          "firstPtsSeconds": 0,
+          "firstSampleIsSync": null,
+          "nonMonotonicPtsCount": 0,
+          "ptsDtsMismatchCount": 0,
+          "readerCompleted": true,
+          "readerCreated": true,
+          "readerStarted": true,
+          "readerStatus": 2,
+          "sampleBufferCount": 63,
+          "sampleCount": 1456,
+          "sampleRate": 48000
+        },
+        "decoded": {
+          "decodedPcmSampleCount": 2978144,
+          "decodedSampleCount": 187,
+          "missingDecodedBufferCount": 0,
+          "peak": 0.015007778070867062,
+          "readerCompleted": true,
+          "readerCreated": true,
+          "readerStarted": true,
+          "readerStatus": 2,
+          "rms": 0.010605512606346922
+        },
+        "index": 2,
+        "metadata": [
+          {
+            "identifier": "uiso/titl",
+            "key": "1953068140",
+            "keySpace": "uiso",
+            "value": "Game Audio"
+          },
+          {
+            "identifier": "uiso/titl",
+            "key": "1953068140",
+            "keySpace": "uiso",
+            "value": "Game Audio"
+          }
+        ],
+        "passed": true
+      }
+    ],
+    "durationSeconds": 31.045,
+    "fileName": "31bdef5a-5619-4048-9b19-6a0d8dc9f4b2.mp4",
+    "playable": true,
+    "probe": "AVFoundation AVAssetReader compressed and decoded sample validation",
+    "schemaVersion": 1,
+    "status": "passed",
+    "video": {
+      "compressed": {
+        "codec": "avc1",
+        "emptySampleBufferCount": 4,
+        "firstPtsSeconds": 0,
+        "firstSampleIsSync": true,
+        "height": 1080,
+        "nonMonotonicPtsCount": 0,
+        "ptsDtsMismatchCount": 0,
+        "readerCompleted": true,
+        "readerCreated": true,
+        "readerStarted": true,
+        "readerStatus": 2,
+        "sampleBufferCount": 1572,
+        "sampleCount": 1568,
+        "width": 1762
+      },
+      "decoded": {
+        "decodedSampleCount": 1568,
+        "missingDecodedBufferCount": 0,
+        "readerCompleted": true,
+        "readerCreated": true,
+        "readerStarted": true,
+        "readerStatus": 2
+      },
+      "metadata": [
+        {
+          "identifier": "uiso/titl",
+          "key": "1953068140",
+          "keySpace": "uiso",
+          "value": "Video"
+        },
+        {
+          "identifier": "uiso/titl",
+          "key": "1953068140",
+          "keySpace": "uiso",
+          "value": "Video"
+        }
+      ]
+    },
+    "videoTrackCount": 1
+  },
+  "containerAudioTailRelativeToVideoSeconds": [
+    {
+      "index": 1,
+      "delta": 0.004999999999999005
+    },
+    {
+      "index": 2,
+      "delta": 0.004999999999999005
+    },
+    {
+      "index": 3,
+      "delta": 0.004999999999999005
+    }
+  ],
+  "packetTimelines": [
+    {
+      "index": 0,
+      "count": 1568,
+      "first": {
+        "stream_index": 0,
+        "pts_time": "0.000000",
+        "dts_time": "0.000000",
+        "duration_time": "0.016667",
+        "flags": "K__"
+      },
+      "last": {
+        "stream_index": 0,
+        "pts_time": "31.030000",
+        "dts_time": "31.030000",
+        "duration_time": "0.015000",
+        "flags": "___"
+      },
+      "end": 31.045
+    },
+    {
+      "index": 1,
+      "count": 1455,
+      "first": {
+        "stream_index": 1,
+        "pts_time": "0.005000",
+        "dts_time": "0.005000",
+        "duration_time": "0.021333",
+        "flags": "K__"
+      },
+      "last": {
+        "stream_index": 1,
+        "pts_time": "31.023667",
+        "dts_time": "31.023667",
+        "duration_time": "0.021333",
+        "flags": "K__"
+      },
+      "end": 31.044999999999998
+    },
+    {
+      "index": 2,
+      "count": 1455,
+      "first": {
+        "stream_index": 2,
+        "pts_time": "0.005000",
+        "dts_time": "0.005000",
+        "duration_time": "0.021333",
+        "flags": "K__"
+      },
+      "last": {
+        "stream_index": 2,
+        "pts_time": "31.023667",
+        "dts_time": "31.023667",
+        "duration_time": "0.021333",
+        "flags": "K__"
+      },
+      "end": 31.044999999999998
+    },
+    {
+      "index": 3,
+      "count": 1455,
+      "first": {
+        "stream_index": 3,
+        "pts_time": "0.005000",
+        "dts_time": "0.005000",
+        "duration_time": "0.021333",
+        "flags": "K__"
+      },
+      "last": {
+        "stream_index": 3,
+        "pts_time": "31.023667",
+        "dts_time": "31.023667",
+        "duration_time": "0.021333",
+        "flags": "K__"
+      },
+      "end": 31.044999999999998
+    }
+  ],
+  "audioTailRelativeToVideoSeconds": [
+    {
+      "index": 1,
+      "delta": -3.552713678800501e-15
+    },
+    {
+      "index": 2,
+      "delta": -3.552713678800501e-15
+    },
+    {
+      "index": 3,
+      "delta": -3.552713678800501e-15
+    }
+  ],
+  "signals": [
+    {
+      "index": 1,
+      "logicalId": "all-audio",
+      "samples": 1489920,
+      "segments": [
+        {
+          "startSeconds": 1,
+          "samples": 48000,
+          "peak": 0.043738946318626404,
+          "rms": 0.023715603068926627,
+          "tones": {
+            "440": 0.014950149971489423,
+            "660": 0.02980906422790468,
+            "880": 0.000010157395796264666
+          }
+        },
+        {
+          "startSeconds": 15,
+          "samples": 48000,
+          "peak": 0.04373820498585701,
+          "rms": 0.02371578910648929,
+          "tones": {
+            "440": 0.014956436453504507,
+            "660": 0.029801766751085486,
+            "880": 0.000007514687399400055
+          }
+        },
+        {
+          "startSeconds": 29,
+          "samples": 48000,
+          "peak": 0.043739937245845795,
+          "rms": 0.023717700682658067,
+          "tones": {
+            "440": 0.014964390171641152,
+            "660": 0.029801106331109144,
+            "880": 0.00000691963462772503
+          }
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "logicalId": "Medal Audio Fixture 660",
+      "samples": 1489920,
+      "segments": [
+        {
+          "startSeconds": 1,
+          "samples": 48000,
+          "peak": 0.030011875554919243,
+          "rms": 0.02121240459852565,
+          "tones": {
+            "440": 0.000008559126670019645,
+            "660": 0.029806753523687248,
+            "880": 0.000008579726824103026
+          }
+        },
+        {
+          "startSeconds": 15,
+          "samples": 48000,
+          "peak": 0.030011363327503204,
+          "rms": 0.021211560646929303,
+          "tones": {
+            "440": 0.000010218174600711996,
+            "660": 0.029801568225452206,
+            "880": 0.000007389954950493972
+          }
+        },
+        {
+          "startSeconds": 29,
+          "samples": 48000,
+          "peak": 0.030009344220161438,
+          "rms": 0.021211835636005597,
+          "tones": {
+            "440": 0.000008947277752928609,
+            "660": 0.029802202104991272,
+            "880": 0.00000849870568633239
+          }
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "logicalId": "game-audio",
+      "samples": 1489920,
+      "segments": [
+        {
+          "startSeconds": 1,
+          "samples": 48000,
+          "peak": 0.015003804117441177,
+          "rms": 0.01060667432722758,
+          "tones": {
+            "440": 0.014957316891956106,
+            "660": 0.000003217922740481593,
+            "880": 0.0000017467257523027353
+          }
+        },
+        {
+          "startSeconds": 15,
+          "samples": 48000,
+          "peak": 0.015005900524556637,
+          "rms": 0.010606922366363562,
+          "tones": {
+            "440": 0.014956827261875347,
+            "660": 0.000003418201894512109,
+            "880": 0.0000018939187020281355
+          }
+        },
+        {
+          "startSeconds": 29,
+          "samples": 48000,
+          "peak": 0.015005013905465603,
+          "rms": 0.010606614111805034,
+          "tones": {
+            "440": 0.014956455422634546,
+            "660": 0.0000030522790168570886,
+            "880": 0.0000016313057945482292
+          }
+        }
+      ]
+    }
+  ]
+}

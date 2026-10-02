@@ -2,6 +2,18 @@
 
 Status: **not ready for transfer**. This file is live and must not be interpreted as a completed handoff.
 
+New endpoint continuation from known-good original audio checkpoint `7e319cd`:
+shared ReplayEndpoint/snapshot_at pins OS event time, codec generation and audio
+track identities; waits for AAC coverage without shifting the interval; excludes
+post-press packets. Platform shortcut callback now receives capture nanoseconds
+as its second argument. Linux must convert its own shortcut/portal clock into
+the same native media epoch, not blindly use std::steady_clock. Native hardware
+fixture/10 CTests and real physical original-client endpoint/25%/50% isolated gain/
+probe/thumbnail/player/full restart gates pass. Installed
+build `2637.461.1-development-m3.5-e78f3ce58a85e573`; exact failures/commands in
+`reports/native/audio-20261002-endpoint.md`. Actual prior AAC packet tails were
+-221.001/-243.667 ms, not the historical container-derived values below.
+
 Latest 2026-10-02 original native audio gates: All PC and Specific Apps synthetic
 normal targeting/physical F8/replay/contentCreate/probe/thumbnail/player pass,
 including original mute/Save/full restart and independently decodable preserved

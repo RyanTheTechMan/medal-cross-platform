@@ -250,6 +250,14 @@ class HelperSession final {
   }
 
  private:
+  struct PendingClipAction final {
+    native_port::ClipHotkeyBinding binding;
+    native_port::ReplayEndpoint endpoint;
+    std::chrono::steady_clock::time_point deadline;
+    std::optional<std::string> category_id;
+    std::optional<std::string> process_name;
+  };
+
   struct ClipRegistration final {
     std::string uuid;
     std::string request_id;
@@ -525,9 +533,45 @@ class HelperSession final {
     }
   }
 
-  void enqueue_clip_action(const native_port::ClipHotkeyBinding& binding) {
-    std::scoped_lock lock(clip_actions_mutex_);
-    clip_actions_.push_back(binding);
+  void enqueue_clip_action(const native_port::ClipHotkeyBinding& binding, std::int64_t event_nanoseconds) {
+    try {
+      const auto endpoint = replay_.pin_endpoint(event_nanoseconds);
+      if (!endpoint) throw std::runtime_error("no native replay generation is available for the clip hotkey");
+      const auto category_id = !target_game_category_id_.empty()
+          ? std::optional<std::string>(target_game_category_id_)
+          : (!announced_capture_category_id_.empty()
+              ? std::optional<std::string>(announced_capture_category_id_) : std::nullopt);
+      const auto process_name = targeted_process_
+          ? std::optional<std::string>(targeted_process_->application_name.empty()
+              ? targeted_process_->executable_name : targeted_process_->application_name) : std::nullopt;
+      {
+        std::scoped_lock lock(clip_actions_mutex_);
+        if (clip_actions_.size() >= 8) throw std::runtime_error("native clip finalization queue is full");
+        clip_actions_.push_back({binding, *endpoint, std::chrono::steady_clock::now() + std::chrono::seconds(3),
+                                 category_id, process_name});
+      }
+      set_hotkey_result({{"action", binding.action}, {"inputs", binding.inputs},
+                         {"state", "waiting_for_encoded_endpoint"},
+                         {"endpointMonotonicNanoseconds", endpoint->monotonic_nanoseconds},
+                         {"configurationGeneration", endpoint->configuration_generation},
+                         {"requiredAudioTrackCount", endpoint->required_audio_tracks.size()}});
+    } catch (const std::exception& error) {
+      fail_clip_action(binding, error.what());
+    }
+  }
+
+  void fail_clip_action(const native_port::ClipHotkeyBinding& binding, std::string error) {
+    const auto result = nlohmann::json{{"action", binding.action}, {"inputs", binding.inputs},
+                                       {"state", "failed"}, {"error", error}};
+    set_hotkey_result(result);
+    try { persist_hotkey_diagnostics("failed-" + make_uuid(), result); }
+    catch (const std::exception& journal_error) {
+      std::cerr << "native clip failure journal unavailable: " << journal_error.what() << '\n';
+    }
+    dispatch_to_network([this, error = std::move(error)] {
+      send_request("native-port:clip-error:" + std::to_string(++capture_event_sequence_),
+                   "recorderError", {{"type", "recorder-failure"}, {"fallback", error}});
+    });
   }
 
   void set_hotkey_result(nlohmann::json result) {
@@ -536,17 +580,25 @@ class HelperSession final {
   }
 
   void drain_clip_actions() {
-    std::deque<native_port::ClipHotkeyBinding> actions;
+    std::deque<PendingClipAction> actions;
     {
       std::scoped_lock lock(clip_actions_mutex_);
       actions.swap(clip_actions_);
     }
-    for (const auto& action : actions) {
+    for (auto& pending : actions) {
+      const auto& action = pending.binding;
       try {
-        const auto snapshot = replay_.snapshot(action.duration);
+        const auto snapshot = replay_.snapshot_at(action.duration, pending.endpoint);
         if (!snapshot) {
-          throw std::runtime_error("no decodable replay snapshot is available for the clip hotkey");
+          if (std::chrono::steady_clock::now() < pending.deadline) {
+            std::scoped_lock lock(clip_actions_mutex_);
+            clip_actions_.push_back(std::move(pending));
+            continue;
+          }
+          throw std::runtime_error("encoded replay media did not reach the fixed hotkey endpoint before the deadline");
         }
+        const auto endpoint_wait_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now() - (pending.deadline - std::chrono::seconds(3))).count();
         const auto uuid = make_uuid();
         const auto output_directory = profile_root() / "Clips";
         std::filesystem::create_directories(output_directory);
@@ -592,6 +644,10 @@ class HelperSession final {
             {"state", "registration_pending"},
             {"requestedDurationSeconds", action.duration.count()},
             {"actualDurationNanoseconds", write_result.duration.count()},
+            {"endpointMonotonicNanoseconds", pending.endpoint.monotonic_nanoseconds},
+            {"configurationGeneration", pending.endpoint.configuration_generation},
+            {"requiredAudioTrackCount", pending.endpoint.required_audio_tracks.size()},
+            {"endpointWaitMilliseconds", endpoint_wait_milliseconds},
             {"videoPacketCount", write_result.video_packets},
             {"systemAudioPacketCount", write_result.system_audio_packets},
             {"microphonePacketCount", write_result.microphone_packets},
@@ -612,22 +668,10 @@ class HelperSession final {
         persist_hotkey_diagnostics(uuid, hotkey_result);
         // The imported client already resolved the running target through its
         // authenticated game-request/category path.  Carry that same category
-        // into contentCreate; otherwise the original library quite correctly
-        // files the clip under Discover even though the active-session UI said
-        // Minecraft.  Snapshot the identity before handing the request to the
-        // network queue because source-disappearance cleanup clears these
-        // members asynchronously.
-        const auto category_id = !target_game_category_id_.empty()
-                                     ? std::optional<std::string>(target_game_category_id_)
-                                     : (!announced_capture_category_id_.empty()
-                                            ? std::optional<std::string>(announced_capture_category_id_)
-                                            : std::nullopt);
-        const auto process_name = targeted_process_
-                                      ? std::optional<std::string>(
-                                            !targeted_process_->application_name.empty()
-                                                ? targeted_process_->application_name
-                                                : targeted_process_->executable_name)
-                                      : std::nullopt;
+        // into contentCreate. Identity is pinned with the hotkey, before the
+        // encoded-tail wait: source disappearance/switching cannot relabel it.
+        const auto category_id = pending.category_id;
+        const auto process_name = pending.process_name;
         nlohmann::json audio_streams = nlohmann::json::array();
         // The writer's finalized manifest is authoritative. Medal's edit path
         // consumes absolute MP4 stream indexes (`0:<index>`), so do not
@@ -645,10 +689,7 @@ class HelperSession final {
                                    audio_streams);
         });
       } catch (const std::exception& error) {
-        set_hotkey_result({{"action", action.action},
-                           {"inputs", action.inputs},
-                           {"state", "failed"},
-                           {"error", error.what()}});
+        fail_clip_action(action, error.what());
       }
     }
   }
@@ -1971,8 +2012,8 @@ class HelperSession final {
       const auto bindings = hotkeys ? native_port::parse_clip_hotkeys(*hotkeys)
                                     : std::vector<native_port::ClipHotkeyBinding>{};
       adapter_->configure_clip_hotkeys(
-          bindings, [this](const native_port::ClipHotkeyBinding& binding) {
-            enqueue_clip_action(binding);
+          bindings, [this](const native_port::ClipHotkeyBinding& binding, std::int64_t event_nanoseconds) {
+            enqueue_clip_action(binding, event_nanoseconds);
           });
     }
   }
@@ -2019,7 +2060,7 @@ class HelperSession final {
   std::mutex network_actions_mutex_;
   std::deque<std::function<void()>> network_actions_;
   std::mutex clip_actions_mutex_;
-  std::deque<native_port::ClipHotkeyBinding> clip_actions_;
+  std::deque<PendingClipAction> clip_actions_;
   mutable std::mutex hotkey_result_mutex_;
   nlohmann::json last_hotkey_result_{{"state", "not_triggered"}};
   std::mutex network_error_mutex_;

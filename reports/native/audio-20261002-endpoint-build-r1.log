@@ -1,0 +1,32 @@
+[1/21] Building CXX object native/core/CMakeFiles/native_port_core.dir/src/replay_store.cpp.o
+[2/21] Linking CXX static library native/core/libnative_port_core.a
+[3/21] Building OBJCXX object native/backends/macos/CMakeFiles/native_port_macos_api_probe.dir/api_surface_probe.mm.o
+[4/21] Building OBJCXX object native/backends/macos/CMakeFiles/native_port_macos_adapter.dir/mp4_writer.mm.o
+[5/21] Building OBJCXX object native/backends/macos/CMakeFiles/native_port_macos_hotkey_event_pump_probe.dir/hotkey_event_pump_probe.mm.o
+[6/21] Building OBJCXX object native/backends/macos/CMakeFiles/native_port_macos_mp4_writer_probe.dir/mp4_writer_probe.mm.o
+[7/21] Building OBJCXX object native/backends/macos/CMakeFiles/native_port_macos_audio_mix_graph_probe.dir/audio_mix_graph_probe.mm.o
+In file included from /Users/ryan/Developer/medal-cross-platform/native/backends/macos/audio_mix_graph_probe.mm:2:
+/Users/ryan/Developer/medal-cross-platform/native/backends/macos/mp4_writer_probe.mm:238:20: warning: unused function 'encode_audio' [-Wunused-function]
+  238 | [[nodiscard]] bool encode_audio(
+      |                    ^~~~~~~~~~~~
+/Users/ryan/Developer/medal-cross-platform/native/backends/macos/mp4_writer_probe.mm:273:27: warning: unused function 'readable_sample_count' [-Wunused-function]
+  273 | [[nodiscard]] std::size_t readable_sample_count(NSURL* url, AVMediaType type) {
+      |                           ^~~~~~~~~~~~~~~~~~~~~
+2 warnings generated.
+[8/21] Building OBJCXX object native/backends/macos/CMakeFiles/native_port_macos_adapter.dir/platform_adapter.mm.o
+[9/21] Linking CXX executable native/backends/macos/native_port_macos_api_probe
+[10/21] Linking OBJCXX static library native/backends/macos/libnative_port_macos_adapter.a
+[11/21] Linking CXX executable native/backends/macos/native_port_macos_audio_encoder_probe
+[12/21] Linking CXX executable native/backends/macos/native_port_macos_mp4_writer_probe
+[13/21] Linking CXX executable native/backends/macos/native_port_macos_hotkey_event_pump_probe
+[14/21] Linking CXX executable native/backends/macos/native_port_macos_audio_process_registry_probe
+[15/21] Linking CXX executable native/backends/macos/native_port_macos_audio_process_registry_tests
+[16/21] Linking CXX executable native/backends/macos/native_port_macos_audio_mix_graph_probe
+[17/21] Linking CXX executable native/tests/native_port_pcm_mixer_tests
+[18/21] Building CXX object native/tests/CMakeFiles/native_port_core_tests.dir/core_tests.cpp.o
+[19/21] Linking CXX executable native/tests/native_port_core_tests
+[20/21] Building CXX object native/helper/CMakeFiles/native_medal_recorder.dir/main.cpp.o
+[21/21] Linking CXX executable native/helper/native_medal_recorder.app/Contents/MacOS/native_medal_recorder; Signing the stable Native Medal Recorder development identity
+/Users/ryan/Developer/medal-cross-platform/build-macos-20260925/native/helper/native_medal_recorder.app: replacing existing signature
+/Users/ryan/Developer/medal-cross-platform/build-macos-20260925/native/helper/native_medal_recorder.app: valid on disk
+/Users/ryan/Developer/medal-cross-platform/build-macos-20260925/native/helper/native_medal_recorder.app: satisfies its Designated Requirement

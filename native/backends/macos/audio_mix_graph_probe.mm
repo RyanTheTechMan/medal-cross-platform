@@ -35,6 +35,7 @@ CMSampleBufferRef tone_sample(int rate, unsigned channels, bool planar, bool int
 int main(int argc, char** argv) {
   @autoreleasepool {
     const bool stems = argc < 3 || std::string(argv[2]) != "single";
+    const bool anchored = argc > 3 && std::string(argv[3]) == "endpoint";
     constexpr std::int64_t epoch = 12'345;
     VideoOutput video;
     std::vector<std::shared_ptr<const native_port::EncodedPacket>> audio;
@@ -82,13 +83,29 @@ int main(int argc, char** argv) {
     std::sort(packets.begin(), packets.end(), [](const auto& a, const auto& b) { return a->monotonic_nanoseconds < b->monotonic_nanoseconds; });
     native_port::ReplayStore replay({.maximum_duration = std::chrono::seconds(10), .maximum_bytes = 64U * 1024U * 1024U});
     native_port::Mp4WriteResult result;
-    const auto output = argc > 1 ? std::filesystem::path(argv[1]) : std::filesystem::temp_directory_path() /
+    const bool temporary_output = argc < 2 || std::string(argv[1]) == "--temporary-output";
+    const auto output = !temporary_output ? std::filesystem::path(argv[1]) : std::filesystem::temp_directory_path() /
       ("medal-audio-mixer-probe-" + std::to_string(::getpid()) + ".mp4");
     try {
       if (!ok) throw std::runtime_error(error.empty() ? "PCM or native encoder assertion failed" : error);
-      for (const auto& packet : packets) replay.push(packet);
-      const auto snapshot = replay.snapshot(std::chrono::seconds(5));
+      const auto endpoint_time = epoch * 1'000'000'000LL + 1'500'000'000LL;
+      std::optional<native_port::ReplayEndpoint> endpoint;
+      if (anchored) {
+        // Real AAC packets deliberately arrive behind video, just as with
+        // the live graph. This is not ScreenCaptureKit or physical-input proof.
+        for (const auto& packet : packets) if (packet->track == native_port::TrackKind::video ||
+            packet->monotonic_nanoseconds < endpoint_time - 250'000'000) replay.push(packet);
+        endpoint = replay.pin_endpoint(endpoint_time);
+        if (!endpoint || replay.snapshot_at(std::chrono::seconds(1), *endpoint))
+          throw std::runtime_error("delayed real AAC endpoint finalized before required audio arrived");
+        for (const auto& packet : packets) if (packet->track != native_port::TrackKind::video &&
+            packet->monotonic_nanoseconds >= endpoint_time - 250'000'000) replay.push(packet);
+      } else for (const auto& packet : packets) replay.push(packet);
+      const auto snapshot = anchored ? replay.snapshot_at(std::chrono::seconds(1), *endpoint)
+                                    : replay.snapshot(std::chrono::seconds(5));
       if (!snapshot) throw std::runtime_error("host-clock replay snapshot missing");
+      if (anchored && snapshot->end_monotonic_nanoseconds != endpoint_time)
+        throw std::runtime_error("delayed native snapshot changed endpoint");
       result = native_port::write_mp4(output, *snapshot);
       ok = result.audio_streams.size() == (stems ? 3U : 1U) && result.audio_streams[0].title == "All Audio" &&
            result.audio_streams[0].default_track;
@@ -96,8 +113,8 @@ int main(int argc, char** argv) {
     } catch (const std::exception& failure) { ok = false; error = failure.what(); }
     std::cout << nlohmann::json({{"status", ok ? "passed" : "failed"}, {"error", error}, {"stems", stems},
       {"audioPackets", audio.size()}, {"videoPackets", video.packets.size()}, {"audioStreams", result.audio_streams.size()},
-      {"hostEpochSeconds", epoch}, {"outputPath", output.string()}}).dump(2) << '\n';
-    if (argc < 2 && ok) std::filesystem::remove(output);
+      {"hostEpochSeconds", epoch}, {"fixedEndpoint", anchored}, {"outputPath", output.string()}}).dump(2) << '\n';
+    if (temporary_output && ok) std::filesystem::remove(output);
     return ok ? 0 : 1;
   }
 }

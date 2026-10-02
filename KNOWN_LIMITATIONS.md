@@ -2,6 +2,16 @@
 
 This file records observed limits, not excuses for successful no-op behavior.
 
+Latest endpoint continuation: `reports/native/audio-20261002-endpoint.md`.
+Original retained recordings' actual packet-tail deltas are -221.001/-243.667 ms;
+the earlier -211.666/-228.333 ms values came from container start+duration, not
+packet endpoints. New shared fixed-event endpoint path passes native hardware
+fixture/10 CTests and physical original-client replay/probe/player/full restart.
+Actual AAC endpoint coverage and 25%/50% isolated gains pass; live 150%, microphone,
+devices/lifecycle/feedback and sustained timing remain open.
+Very long entirely idle intervals may require excessive retained GOP preroll;
+they are reported, not claimed exact. No sustained timing/latency pass.
+
 Current continuation: `reports/native/audio-20261002-live-routing.md` supersedes
 the earlier locked-session gate, without erasing that failed/blocked evidence.
 Original UI physical F8 → replay/contentCreate/probe/thumbnail/player passes
@@ -12,8 +22,8 @@ format listeners and sustained routing remain open; taps currently require
 mono/stereo. Generic rebind listening was rejected; original Unset Hotkey worked.
 Test tones stopped after validation. No automatic unlock, TCC reset or uploads.
 
-The PCM graph buffers 200 ms for reorder. Actual running-hotkey exports have
-AAC endpoints 211.666–228.333 ms before video. Preserve the physical press
+The PCM graph buffers 200 ms for reorder. Old running-hotkey exports have
+AAC packet endpoints 221.001–243.667 ms before video. Preserve the physical press
 endpoint while waiting for required packets; merely delaying a latest snapshot
 would shift the requested moment. This observed missing tail is not a long-run
 drift pass. Preview maximumObservedDrift currently includes loops/seeks and must
@@ -26,7 +36,7 @@ not be presented as a steady-play timing measurement.
 
 ## Current implementation state
 
-- Native multi-track metadata now uses the absolute MP4 stream indexes required by Medal's edit path, and an independent FFmpeg fixture proves PC Audio and Microphone can be muted to digital silence. The original imported Audio popover → Save Edits/overwrite-or-copy → playback flow was not confirmed before pausing, so the user's reported mute failure remains unverified rather than resolved.
+- Native multi-track metadata uses absolute MP4 stream indexes. The October 2 actual native All PC/Specific Apps original Audio popover mute → Save → full restart/playback gate now passes, with source stems preserved and masters independently decoded to digital silence. The hidden-master failure caused by main-library JSON-text metadata is fixed, and failed evidence is retained. Long-run/physical latency and broader microphone/device variants remain open.
 - The previous Balatro “Thumbnail not found” result was traced to an empty packaged FFmpeg/ffprobe dylib closure, not to the MP4 or Medal category flow. The importer now fails closed when that closure is empty; a rebuilt app bundles 17 dylibs and the original client successfully regenerated both existing Balatro thumbnails. Fresh post-fix contentCreate/playback is still the next normal UI validation, while crash recovery and upload remain open.
 - Balatro automatic detection is now verified: the native process model discovered its Steam-launched `love` process and the imported authenticated client resolved the real Medal category `Balatro` through `/games/requests` and category search, without manual selection. The candidate filter is launch-origin based for visible-window processes in Steam/Epic/GOG/Riot/Battle.net roots; it is not a local game database. Other launcher origins and full target lifecycle monitoring remain separate gates. The live run also retained a microphone/TCC denial as separate evidence.
 - The manual macOS Game selector now filters at the native-to-Medal wire boundary: regular AppKit/Dock-style applications are shown, while Dock/AutoFill/WindowManager/accessibility/Electron helper processes are hidden. Java-launched Minecraft and A Dance of Fire and Ice are explicit exceptions when they own a real ScreenCaptureKit window. Automatic detection intentionally retains the complete typed native process model. This selector policy is live-checked in `reports/native/m3.9-process-selector-filter.md`; target lifecycle and game-audio isolation remain open.
@@ -66,8 +76,8 @@ not be presented as a steady-play timing measurement.
 - September 20 original audio-edit playback/restart claims are withdrawn: retained logs contain ENOENT and decoder-open errors. Fresh source-preserving edits pass 40 FFmpeg fixture checks and 11 AVFoundation MP4/M4A decodes. New September 25 synthetic original-UI overwrite/unmute/Save Copy/restart passes on exact persisted files. See `reports/native/audio-20260925-status.md` for narrow scope and remaining tests.
 - Xcode-beta is no longer installed; fresh builds use installed Xcode 27.1 (27A9269) in `build-macos-20260925`. Old generated artifact targets were removed outside this work; broken managed links are preserved, with new managed roots for these builds.
 
-- The aggregate Specific Apps master has been replaced with a shared clock-aligned PCM mixer (2026-10-02). Native synthetic hardware/mux/decode tests verify independent gains and combined microphone/master. Permissioned live SCK/HAL routing remains unverified; see `reports/native/audio-20261002-status.md`.
+- The aggregate Specific Apps master is replaced by a shared clock-aligned PCM mixer. Synthetic hardware tests and actual normal original-UI SCK/HAL All PC/Specific Apps tone isolation and 25%/50% gains pass; actual microphone/150%/device/lifecycle/sustained routing remains open. See `reports/native/audio-20261002-endpoint.md` and the retained earlier evidence.
 - The native Medal Clip Sound source is intentionally reported unavailable until a project-owned feedback PCM bus is implemented. It is never mapped to the Electron host PID or silently replaced by whole-system audio.
-- HAL process enumeration and bounded process-tap timing/format diagnostics are implemented and build-tested, but a permissioned per-app tone-isolation run on this Mac remains unverified.
+- HAL process enumeration and bounded tap timing/format diagnostics are implemented; permissioned per-app 440/660 Hz isolation with unselected 880 Hz excluded now passes on this Mac. Full helper-family/two-instance/device/target lifecycle and long-duration routing are not thereby verified.
 - The imported original-client sidecar audition controller and secure range-serving protocol pass short original-UI mute-both/save/restart/unmute/copy/restart tests, plus an actual browser audio-graph meter. Individual-source/restart and cancel/seek/rate/lifecycle coverage, physical sub-100-ms audible response and ten-minute sync remain open. Persistence failure/rollback is injected in unit tests, not the real user's library.
 - The AVFoundation probe now has an explicit audio-only mode; 11 synthetic MP4/M4A decodes pass. Old audio-only failures are preserved. Edited current-row media passes independent ffprobe/AVFoundation and actual imported-client decoded playback. No clip upload or publish test is run.

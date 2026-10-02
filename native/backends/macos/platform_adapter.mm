@@ -16,6 +16,8 @@
 #include <algorithm>
 #include <chrono>
 #include <cctype>
+#include <cmath>
+#include <limits>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -302,6 +304,13 @@ class MacPlatformAdapter final : public PlatformAdapter {
         hevc_hardware_decode_(VTIsHardwareDecodeSupported(kCMVideoCodecType_HEVC) != false),
         av1_hardware_decode_(VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1) != false) {}
   ~MacPlatformAdapter() override { clear_hotkeys(); }
+
+  std::int64_t capture_clock_nanoseconds() const override {
+    const auto now = CMClockGetTime(CMClockGetHostTimeClock());
+    if (!CMTIME_IS_NUMERIC(now) || now.value < 0)
+      throw std::runtime_error("CoreMedia host capture clock is unavailable");
+    return CMTimeConvertScale(now, 1'000'000'000, kCMTimeRoundingMethod_RoundHalfAwayFromZero).value;
+  }
 
   nlohmann::json active_displays(bool capture_screenshots) override {
     std::array<CGDirectDisplayID, 32> displays{};
@@ -1079,7 +1088,13 @@ class MacPlatformAdapter final : public PlatformAdapter {
       ++owner->hotkey_trigger_count_;
     }
     try {
-      callback(binding);
+      // SDK CarbonEventsCore.h: EventTime is seconds since system startup.
+      // API probe verifies Carbon/CoreMedia/CoreAudio share the host epoch.
+      const auto event_time = GetEventTime(event);
+      if (!std::isfinite(event_time) || event_time < 0 || event_time >
+          static_cast<double>(std::numeric_limits<std::int64_t>::max()) / 1'000'000'000.0)
+        return eventNotHandledErr;
+      callback(binding, static_cast<std::int64_t>(std::llround(event_time * 1'000'000'000.0)));
       return noErr;
     } catch (...) {
       return eventNotHandledErr;

@@ -24,10 +24,15 @@ struct ClipSavedFeedback final {
 
 class PlatformAdapter {
  public:
-  using ClipHotkeyCallback = std::function<void(const ClipHotkeyBinding&)>;
+  // Event timestamp, converted into capture PTS units before dispatch. A busy
+  // main loop must not turn event delivery time into the replay endpoint.
+  using ClipHotkeyCallback = std::function<void(const ClipHotkeyBinding&, std::int64_t)>;
 
   virtual ~PlatformAdapter() = default;
 
+  // Must use the same epoch/rate as capture PTS and audio process timestamps.
+  // std::chrono::steady_clock is not an interchangeable media-clock contract.
+  [[nodiscard]] virtual std::int64_t capture_clock_nanoseconds() const = 0;
   [[nodiscard]] virtual nlohmann::json active_displays(bool capture_screenshots) = 0;
   [[nodiscard]] virtual std::vector<ProcessIdentity> process_targets() = 0;
   [[nodiscard]] virtual nlohmann::json active_processes() = 0;

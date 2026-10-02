@@ -9,6 +9,8 @@
 #import <VideoToolbox/VideoToolbox.h>
 
 #include <iostream>
+#include <cmath>
+#include <cstdint>
 
 namespace {
 
@@ -31,6 +33,18 @@ int main() {
     const auto create_encoder = &VTCompressionSessionCreate;
     const auto create_audio_converter = &AudioConverterNew;
     const auto register_hot_key = &RegisterEventHotKey;
+    const auto before = AudioConvertHostTimeToNanos(AudioGetCurrentHostTime());
+    const auto capture_now = CMTimeConvertScale(CMClockGetTime(CMClockGetHostTimeClock()),
+        1'000'000'000, kCMTimeRoundingMethod_RoundHalfAwayFromZero).value;
+    const auto after = AudioConvertHostTimeToNanos(AudioGetCurrentHostTime());
+    const bool shared_host_epoch = capture_now >= 0 && static_cast<std::uint64_t>(capture_now) >= before &&
+        static_cast<std::uint64_t>(capture_now) <= after;
+    if (!shared_host_epoch) return 1;
+    const auto carbon_before = AudioConvertHostTimeToNanos(AudioGetCurrentHostTime());
+    const auto carbon_now = static_cast<std::uint64_t>(std::llround(GetCurrentEventTime() * 1'000'000'000.0));
+    const auto carbon_after = AudioConvertHostTimeToNanos(AudioGetCurrentHostTime());
+    const bool carbon_host_epoch = carbon_now + 2 >= carbon_before && carbon_now <= carbon_after + 2;
+    if (!carbon_host_epoch) return 1;
 
     SCStreamConfiguration* stream_configuration = [[SCStreamConfiguration alloc] init];
     stream_configuration.capturesAudio = YES;
@@ -72,6 +86,8 @@ int main() {
     print_flag("AudioToolbox.AudioConverterNew", create_audio_converter != nullptr, first);
     print_flag("Metal.defaultDevice", metal_device != nil, first);
     print_flag("Carbon.RegisterEventHotKey", register_hot_key != nullptr, first);
+    print_flag("CoreMedia.CoreAudio.sharedHostEpoch", shared_host_epoch, first);
+    print_flag("Carbon.CoreAudio.sharedHostEpoch", carbon_host_epoch, first);
     std::cout << "}\n";
   }
   return 0;

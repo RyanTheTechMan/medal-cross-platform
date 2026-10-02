@@ -6,12 +6,14 @@ const assert = require('node:assert/strict'), crypto = require('node:crypto')
 const {runTool} = require('../client_patch/native-audio-media.cjs')
 
 async function main() {
-  const [database, uuid, expectation, destination] = process.argv.slice(2)
+  const [database, uuid, expectation, destination, endpointGate] = process.argv.slice(2)
   assert(database && /^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(uuid) && destination)
+  assert(endpointGate === undefined || endpointGate === '--require-endpoint-coverage')
   const expected = JSON.parse(expectation)
   assert(Array.isArray(expected) && expected.length > 0)
   await fs.mkdir(destination) // Refuse reuse: failed attempts remain evidence.
   const report = {uuid, expected, status: 'failed', commands: [],
+    invocation: {tool: process.execPath, args: process.argv.slice(1)},
     environment: {node: process.version, platform: process.platform, architecture: process.arch}}
   const run = async (tool, args, options) => {report.commands.push({tool, args}); return runTool(tool, args, options)}
   try {
@@ -34,8 +36,27 @@ async function main() {
     assert.deepEqual(audio.map(s => s.disposition.default), audio.map((_, i) => i === 0 ? 1 : 0))
     const video = report.ffprobe.streams.find(s => s.codec_type === 'video')
     assert.equal(video.codec_name, 'h264')
-    report.audioTailRelativeToVideoSeconds = audio.map(s => ({index: s.index,
+    report.containerAudioTailRelativeToVideoSeconds = audio.map(s => ({index: s.index,
       delta: Number(s.start_time) + Number(s.duration) - Number(video.start_time) - Number(video.duration)}))
+    const packets = JSON.parse(await run('/opt/homebrew/bin/ffprobe', ['-v', 'error', '-show_packets',
+      '-show_entries', 'packet=stream_index,pts_time,dts_time,duration_time,flags', '-of', 'json', row.video_path])).packets
+    report.packetTimelines = report.ffprobe.streams.map(s => {
+      const selected = packets.filter(p => p.stream_index === s.index)
+      assert(selected.length > 0)
+      for (let i = 0; i < selected.length; ++i) {
+        assert.equal(selected[i].pts_time, selected[i].dts_time, 'PTS/DTS must preserve no-B-frame capture')
+        if (i) assert(Number(selected[i].pts_time) >= Number(selected[i - 1].pts_time))
+      }
+      return {index: s.index, count: selected.length, first: selected[0], last: selected.at(-1),
+        end: Math.max(...selected.map(p => Number(p.pts_time) + Number(p.duration_time)))}
+    })
+    const videoTimeline = report.packetTimelines.find(t => t.index === video.index)
+    assert(videoTimeline.first.flags.includes('K'), 'Replay must start independently decodable')
+    report.audioTailRelativeToVideoSeconds = audio.map(s => ({index: s.index,
+      delta: report.packetTimelines.find(t => t.index === s.index).end - videoTimeline.end}))
+    if (endpointGate) assert(report.audioTailRelativeToVideoSeconds.every(t =>
+      t.delta >= -0.00001 && t.delta <= 1024 / 48000 + 0.00001),
+      'Every required AAC track must cover the fixed video endpoint within one AAC packet')
     report.signals = []
     for (let ordinal = 0; ordinal < audio.length; ++ordinal) {
       const stream = audio[ordinal], required = expected[ordinal]

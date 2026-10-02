@@ -155,6 +155,8 @@ if(BUILD_TESTING)
   target_link_libraries(native_port_macos_audio_mix_graph_probe PRIVATE native_port_macos_adapter native_port_core)
   target_compile_options(native_port_macos_audio_mix_graph_probe PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
   add_test(NAME native_port_macos_audio_mix_graph_probe COMMAND native_port_macos_audio_mix_graph_probe)
+  add_test(NAME native_port_macos_audio_replay_endpoint_probe COMMAND native_port_macos_audio_mix_graph_probe
+    --temporary-output multiple endpoint)
   add_test(NAME native_port_macos_api_probe COMMAND native_port_macos_api_probe)
   add_test(NAME native_port_macos_encoder_probe COMMAND native_port_macos_encoder_probe)
   add_test(NAME native_port_macos_audio_encoder_probe COMMAND native_port_macos_audio_encoder_probe)

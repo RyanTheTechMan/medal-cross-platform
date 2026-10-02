@@ -91,6 +91,51 @@ std::optional<ReplaySnapshot> ReplayStore::snapshot(std::chrono::nanoseconds req
   const auto newest_generation = packets_.back()->configuration_generation;
   const auto observed_end = std::max(newest_observed_monotonic_nanoseconds_,
                                      packets_.back()->monotonic_nanoseconds);
+  return snapshot_locked(requested_duration, observed_end, newest_generation, false);
+}
+
+std::optional<ReplayEndpoint> ReplayStore::pin_endpoint(std::int64_t monotonic_nanoseconds) const {
+  if (monotonic_nanoseconds < 0) throw std::invalid_argument("replay endpoint must be non-negative");
+  std::scoped_lock lock(mutex_);
+  const auto video = std::find_if(packets_.rbegin(), packets_.rend(), [=](const auto& packet) {
+    return is_video(packet) && packet->monotonic_nanoseconds < monotonic_nanoseconds;
+  });
+  if (video == packets_.rend()) return std::nullopt;
+  ReplayEndpoint endpoint{monotonic_nanoseconds, (*video)->configuration_generation, {}};
+  for (const auto& packet : packets_) {
+    if (is_video(packet) || packet->configuration_generation != endpoint.configuration_generation ||
+        packet->monotonic_nanoseconds >= monotonic_nanoseconds) continue;
+    const ReplayAudioTrack track{packet->track, packet->track_id, packet->logical_source_id};
+    if (std::find(endpoint.required_audio_tracks.begin(), endpoint.required_audio_tracks.end(), track) ==
+        endpoint.required_audio_tracks.end()) endpoint.required_audio_tracks.push_back(track);
+  }
+  return endpoint;
+}
+
+std::optional<ReplaySnapshot> ReplayStore::snapshot_at(
+    std::chrono::nanoseconds requested_duration, const ReplayEndpoint& endpoint) const {
+  if (requested_duration <= std::chrono::nanoseconds::zero() || endpoint.monotonic_nanoseconds < 0)
+    throw std::invalid_argument("positive replay duration and non-negative endpoint required");
+  std::scoped_lock lock(mutex_);
+  if (!has_timestamp_ || newest_observed_monotonic_nanoseconds_ < endpoint.monotonic_nanoseconds)
+    return std::nullopt;
+  for (const auto& required : endpoint.required_audio_tracks) {
+    const bool covered = std::any_of(packets_.rbegin(), packets_.rend(), [&](const auto& packet) {
+      return packet->configuration_generation == endpoint.configuration_generation &&
+             packet->track == required.kind && packet->track_id == required.id &&
+             packet->logical_source_id == required.logical_id &&
+             packet->monotonic_nanoseconds < endpoint.monotonic_nanoseconds &&
+             packet_end_nanoseconds(*packet) >= endpoint.monotonic_nanoseconds;
+    });
+    if (!covered) return std::nullopt;
+  }
+  return snapshot_locked(requested_duration, endpoint.monotonic_nanoseconds,
+                         endpoint.configuration_generation, true);
+}
+
+std::optional<ReplaySnapshot> ReplayStore::snapshot_locked(
+    std::chrono::nanoseconds requested_duration, std::int64_t observed_end,
+    std::uint64_t newest_generation, bool pinned) const {
   const auto requested_count = requested_duration.count();
   const auto target = requested_count > observed_end ? 0 : observed_end - requested_count;
 
@@ -99,7 +144,8 @@ std::optional<ReplaySnapshot> ReplayStore::snapshot(std::chrono::nanoseconds req
   std::optional<std::size_t> following_keyframe_index;
   for (std::size_t index = 0; index < packets_.size(); ++index) {
     const auto& packet = packets_[index];
-    if (packet->configuration_generation != newest_generation) {
+    if (packet->configuration_generation != newest_generation ||
+        (pinned && packet->monotonic_nanoseconds >= observed_end)) {
       continue;
     }
     if (!first_generation_index) {
@@ -129,19 +175,21 @@ std::optional<ReplaySnapshot> ReplayStore::snapshot(std::chrono::nanoseconds req
   std::int64_t last_media_end = result.start_monotonic_nanoseconds;
   for (std::size_t index = *start_index; index < packets_.size(); ++index) {
     const auto& packet = packets_[index];
-    if (packet->configuration_generation == newest_generation) {
+    if (packet->configuration_generation == newest_generation &&
+        (!pinned || packet->monotonic_nanoseconds < observed_end)) {
       last_media_end = std::max(last_media_end, packet_end_nanoseconds(*packet));
     }
   }
   const bool requested_interval_is_entirely_idle = last_media_end < target;
-  result.end_monotonic_nanoseconds = requested_interval_is_entirely_idle
+  result.end_monotonic_nanoseconds = requested_interval_is_entirely_idle && !pinned
                                          ? last_media_end + requested_count
                                          : observed_end;
   result.actual_duration = std::chrono::nanoseconds(
       result.end_monotonic_nanoseconds - result.start_monotonic_nanoseconds);
   if (requested_interval_is_entirely_idle) {
-    result.limitation =
-        "requested interval is entirely idle; export extends the last encoded video sample and includes keyframe preroll";
+    result.limitation = pinned
+        ? "requested interval is entirely idle; fixed endpoint retains the last decodable GOP with idle preroll"
+        : "requested interval is entirely idle; export extends the last encoded video sample and includes keyframe preroll";
   } else if (!preceding_keyframe_index) {
     result.limitation = "requested interval predates the first retained keyframe in the active codec generation";
   } else if (result.start_monotonic_nanoseconds < target) {
@@ -150,7 +198,8 @@ std::optional<ReplaySnapshot> ReplayStore::snapshot(std::chrono::nanoseconds req
 
   for (std::size_t index = *start_index; index < packets_.size(); ++index) {
     const auto& packet = packets_[index];
-    if (packet->configuration_generation != newest_generation) {
+    if (packet->configuration_generation != newest_generation ||
+        (pinned && packet->monotonic_nanoseconds >= observed_end)) {
       continue;
     }
     result.occupied_bytes += packet->occupied_bytes();

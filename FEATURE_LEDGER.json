@@ -2273,7 +2273,7 @@
           "reports/native/native-audio-edit-manifest-final-test-r2.log"
         ],
         "limitations": [
-          "Native fixtures and October 2 normal All PC/Specific Apps physical-F8 replay/contentCreate/probe/thumbnail/player/mute/Save/restart pass; exact evidence is reports/native/audio-20261002-live-routing.md. Original main JSON-text metadata is parsed and hidden preview masters rejected. Explicit device/microphone/listener/sustained timing gates remain open; actual replay AAC tails are 211.666–228.333 ms short."
+          "Normal All PC/Specific Apps physical-F8 replay/probe/thumbnail/player/mute/Save/restart pass (live-routing report). Fixed OS-event endpoint and live 25%/50% gains pass in reports/native/audio-20261002-endpoint.md; old short tails and hidden-master failure evidence preserved. Explicit devices/microphone/listeners/150%/sustained timing remain open."
         ]
       },
       "linux": {
@@ -2350,7 +2350,7 @@
           "reports/native/native-audio-edit-manifest-final-test-r2.log"
         ],
         "limitations": [
-          "Original H4 explicit-empty device selection is authoritative over legacy Auto. Original normal All PC and Specific Apps native process-tap isolation/physical-F8 replay/probe/player/Save/restart pass in reports/native/audio-20261002-live-routing.md. Explicit UID/stream devices, full family lifecycle, microphone and sustained timing are not yet live-verified. Replay AAC tails are short; no audio-complete claim."
+          "Original H4 explicit-empty devices override stale Auto. Normal All PC/Specific Apps native isolation/hotkey/probe/player/Save/restart pass (live-routing report); live 25%/50% isolation and fixed-event endpoint cover all AAC tracks (endpoint report). Explicit UID/stream devices, full family lifecycle, microphone, 150% and sustained timing remain open; not audio-complete."
         ]
       },
       "linux": {
@@ -4592,7 +4592,7 @@
         ],
         "test_ids": ["M05", "M07", "M10"],
         "report_paths": ["reports/native/m3.9-permissions-onboarding.md", "reports/native/m3.9-aac-mic-error-loop-fix.md", "reports/native/audio-20261002-status.md", "reports/native/audio-20261002-capture-mixer-ctest-r4.log", "reports/native/audio-20261002-live-routing.md"],
-        "limitations": ["Native synthetic gains/delayed-mic probes and original normal All PC physical-F8 replay/probe/player/mute/Save/restart pass. Actual microphone and explicit device/listener gates remain open. Replay audio tail is 211.666–228.333 ms short; sustained A/V drift not passed."]
+        "limitations": ["Native synthetic delayed-mic probes and normal original All PC replay/probe/player/mute/Save/restart pass. Fixed-event audio endpoint and Specific Apps 25%/50% gains pass in reports/native/audio-20261002-endpoint.md. Actual microphone/devices/listeners/feedback and sustained A/V drift remain open."]
       },
       "linux": {
         "status": "not_started",
@@ -4617,7 +4617,7 @@
         "implementation_files": ["native/core/src/audio_routing.cpp", "native/core/src/pcm_mixer.cpp", "native/backends/macos/audio_process_registry.mm", "native/backends/macos/process_audio_tap.mm", "native/backends/macos/screen_capture_session.mm"],
         "test_ids": ["M06"],
         "report_paths": ["reports/native/audio-20261002-status.md", "reports/native/audio-20261002-live-routing.md", "reports/audio-live-specific-20261002-r1/results.json"],
-        "limitations": ["Actual selected game 440 Hz and app 660 Hz process taps have independent stems; unselected 880 Hz app absent from master/stems. Normal original hotkey/probe/player/Save/restart passes. Family/two-instance ownership is model-tested; full target relaunch/device listeners and live 25/50/150% gains remain open. No whole-PC fallback."]
+        "limitations": ["Actual selected game 440 Hz and app 660 Hz have independent native stems; unselected 880 Hz absent. Normal original hotkey/probe/player/Save/restart passes. Live 25% game/50% app gains and endpoint coverage pass in reports/native/audio-20261002-endpoint.md. Full family/relaunch/device listeners and live 150% remain open. No whole-PC fallback."]
       },
       "linux": {
         "status": "not_started",
@@ -4641,7 +4641,7 @@
         "implementation_files": ["native/backends/macos/platform_adapter.mm", "native/helper/main.cpp", "native/core/src/clip_action.cpp"],
         "test_ids": ["M08"],
         "report_paths": ["reports/native/m3.5-operational-replay-result.md", "reports/native/audio-20261002-routing-status.md", "reports/native/audio-20261002-live-routing.md"],
-        "limitations": ["Two physical F8 normal original clip actions each dispatched once and completed native replay/contentCreate/library/player. Automated F8 did not dispatch. Generic rebind listening is rejected/unsupported, not a successful no-op; original Unset Bookmark removes conflict. Full PTT/layout/suspend/sleep-wake matrix remains open."]
+        "limitations": ["Three physical F8 original clip actions each dispatched once and completed native replay/contentCreate/library/player. Third event pins OS time and waits 208 ms for all AAC endpoints (endpoint report). Automated F8 did not dispatch. Generic listen rejected/unsupported; full PTT/layout/suspend/sleep-wake matrix remains open."]
       },
       "linux": {
         "status": "not_started",
@@ -4813,11 +4813,13 @@
           "reports/native/m3.5-hotkey-avfoundation-validation.json",
           "reports/native/m3.5-hotkey-ffprobe-validation.json",
           "reports/native/m3.5-hotkey-restart-media-selftest.json",
-          "reports/native/m3.5-operational-replay-result.md"
+          "reports/native/m3.5-operational-replay-result.md",
+          "reports/native/audio-20261002-endpoint.md",
+          "reports/audio-live-endpoint-20261002-r1/results.json"
         ],
         "limitations": [
           "Bounded generation-aware timestamp retention and keyframe-aligned slicing are unit-tested; a physical clip;length=5 action survived 40 ScreenCaptureKit idle frames and retained configured H.264/AAC packets.",
-          "One real H.264/AAC MP4 passes AVFoundation decode, independent ffprobe, original contentCreate probe/thumbnail/library insertion and imported-Electron restart playback without transcoding. Crash/disk-pressure recovery, longer durations, microphone and HEVC end-to-end compatibility remain open."
+          "Actual October 2 OS-event-pinned 30-second replay waits for every acquired AAC track, preserves keyframe/configuration/generation and target identity, then passes independent AVFoundation/ffprobe and original probe/thumbnail/player/full restart. Old short audio tails retained. Entirely idle long-preroll optimization, deadline/source-switch failure matrix, crash/disk-pressure recovery, longer durations, actual microphone and HEVC full compatibility remain open."
         ]
       },
       "linux": {
@@ -4935,7 +4937,7 @@
           "reports/audio-live-specific-20261002-muted-r1/results.json"
         ],
         "limitations": [
-          "October 2 real native All PC and Specific Apps original mute/Save/full restart/persistent playback pass on authoritative files. Muted masters decode to digital zero and preserved stems unmute independently; 45 real-media regressions pass. Hidden-master failure evidence retained. Physical response latency, ten-minute preview sync, live gain/device/mic/listener/feedback matrix and replay tail timing remain open; not audio-complete."
+          "Real native All PC/Specific Apps original mute/Save/full restart/persistent playback passes; master digital zero, source stems preserved and independently unmute; 45 real-media regressions pass. OS-event replay tail/25%/50% live gains now pass (endpoint report). Hidden-master failures retained. Physical latency/ten-minute sync/150%/devices/mic/listeners/feedback remain open; not audio-complete."
         ]
       },
       "linux": {

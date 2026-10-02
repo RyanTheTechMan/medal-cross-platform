@@ -1,5 +1,23 @@
 # Implementation decisions
 
+## Decision D019 — Pin native replay to OS event time (2026-10-02)
+
+The platform shortcut abstraction passes capture-clock nanoseconds alongside
+the binding. Carbon GetEventTime is startup-relative by SDK contract; native
+tests verify its epoch against CoreMedia/Core Audio and preserve a synthetic
+250 ms-old event instead of substituting dispatch time. Linux must make its
+shortcut timestamps coherent with the native media clock explicitly.
+
+Pin ReplayEndpoint generation/audio identities/category at the event. Retry
+snapshot_at under a bounded deadline until each required encoded AAC track covers
+it. Exclude post-event packets; preserve GOP/configuration and packet ownership.
+Never substitute newest/shorter snapshots or retag with a later target. Failures
+are journaled and use the original recorderError fallback, not false success.
+Measure finalized packet PTS/duration, not container start+duration across edit
+lists. Actual original-client 208 ms wait, complete tail, isolated gains and
+restart evidence: `reports/native/audio-20261002-endpoint.md`. Entirely idle
+long-preroll optimization and sustained drift/failure coverage remain open.
+
 ## Decision D018 — Authoritative audio metadata and uncategorized capture status (2026-10-02)
 
 Original main library `wi` returns metadata as JSON text; preload `y` parses it

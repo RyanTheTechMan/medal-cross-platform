@@ -4,6 +4,7 @@
 #include "native_port/platform_adapter.hpp"
 
 #include <chrono>
+#include <cmath>
 #include <iostream>
 
 namespace {
@@ -17,19 +18,22 @@ int main() {
     [NSApplication sharedApplication];
     auto adapter = native_port::make_platform_adapter();
     bool triggered = false;
+    const auto event_time = GetCurrentEventTime() - .25;
+    const auto expected_endpoint = static_cast<std::int64_t>(std::llround(event_time * 1'000'000'000.0));
     const native_port::ClipHotkeyBinding binding{
         .action = "clip;length=5",
         .inputs = "Command+Shift+8",
         .duration = std::chrono::seconds(5),
     };
-    adapter->configure_clip_hotkeys({binding}, [&](const auto& received) {
-      triggered = received.action == binding.action && received.inputs == binding.inputs;
+    adapter->configure_clip_hotkeys({binding}, [&](const auto& received, std::int64_t endpoint) {
+      triggered = received.action == binding.action && received.inputs == binding.inputs &&
+          endpoint == expected_endpoint && adapter->capture_clock_nanoseconds() - endpoint >= 250'000'000;
     });
 
     EventRef event = nullptr;
     const auto create_status =
         CreateEvent(nullptr, kEventClassKeyboard, kEventHotKeyPressed,
-                    GetCurrentEventTime(), kEventAttributeNone, &event);
+                    event_time, kEventAttributeNone, &event);
     if (create_status != noErr || event == nullptr) {
       std::cerr << "failed to create synthetic Carbon hotkey event: " << create_status << '\n';
       return 1;

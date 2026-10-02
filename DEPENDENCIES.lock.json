@@ -12,7 +12,7 @@
     {
       "name": "required-stable-xcode-27",
       "status": "available",
-      "reason": "Xcode 27.1 (27A9269) is installed; fresh audio-routing build and 9 CTests pass on 2026-10-02"
+      "reason": "Xcode 27.1 (27A9269) is installed; fresh audio endpoint build and 10 CTests pass on 2026-10-02"
     },
     {
       "name": "development-xcode",
@@ -33,6 +33,17 @@
     "recorderBundleIdentifier": "com.squirrel.medal.medal.recorder",
     "clientIdentifierSource": "Recovered imported Windows APP_ID / AppUserModelID",
     "evidence": "reports/native/m3.2-development-app-build.json"
+  },
+  "nativeSharedInterface": {
+    "revision": "20261002-replay-endpoint-1",
+    "linkage": "internal_static_C++20_not_a_released_binary_ABI",
+    "replay": "ReplayEndpoint pins capture nanoseconds, configuration generation and acquired audio track identities; snapshot_at preserves the fixed event endpoint",
+    "shortcutCallback": "ClipHotkeyCallback(const ClipHotkeyBinding&, int64_t capture_clock_nanoseconds)",
+    "protocolVersion": 1,
+    "captureActivityExtension": "nativePort.captureActivity schemaVersion 1; control/state only",
+    "installedDevelopmentBuild": "2637.461.1-development-m3.5-e78f3ce58a85e573",
+    "preparedClientBuild": "2637.461.1-native-port-m3.5-0396a759169f",
+    "evidence": "reports/native/audio-20261002-endpoint.md"
   },
   "upstreamInputs": {
     "clientVersion": "2637.461.1",

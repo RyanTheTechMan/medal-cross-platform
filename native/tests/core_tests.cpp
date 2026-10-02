@@ -465,6 +465,64 @@ void test_replay_store() {
          "idle replay duration extension must be reported explicitly");
 }
 
+void test_replay_endpoint() {
+  const auto config = bytes(4, 0x67);
+  native_port::ReplayStore replay({.maximum_duration = 30s, .maximum_bytes = 10'000});
+  const auto audio = [](std::int64_t pts, std::uint32_t id, std::uint64_t gen = 1) {
+    auto value = std::make_shared<native_port::EncodedPacket>(*packet(
+        pts, false, gen, native_port::TrackKind::mixed_audio));
+    value->track_id = id;
+    value->logical_source_id = id == 1 ? "all-audio" : "pc-audio";
+    value->duration = {1024, {1, 48000}};
+    return value;
+  };
+  replay.push(packet(1'000'000'000, true, 1, native_port::TrackKind::video, 10, config));
+  replay.push(audio(1'790'000'000, 1));
+  replay.push(audio(1'790'000'000, 2));
+  replay.push(packet(1'990'000'000, false));
+  const auto pinned = replay.pin_endpoint(2'005'000'000);
+  expect(pinned && pinned->required_audio_tracks.size() == 2, "shortcut pins all active audio identities");
+  replay.advance_clock(2'030'000'000);
+  expect(!replay.snapshot_at(900ms, *pinned), "capture clock ahead of delayed AAC must not finalize short audio");
+  replay.push(audio(1'990'000'000, 1));
+  expect(!replay.snapshot_at(900ms, *pinned), "master readiness alone must not omit a delayed stem");
+  // A different generation/identity must never satisfy the pinned watermark.
+  replay.push(audio(1'990'000'000, 2, 2));
+  expect(!replay.snapshot_at(900ms, *pinned), "new audio generation must not complete the old clip");
+  replay.push(audio(1'990'000'000, 2));
+  replay.push(packet(2'040'000'000, true, 2, native_port::TrackKind::video, 10, config));
+  const auto ready = replay.snapshot_at(900ms, *pinned);
+  expect(ready && ready->end_monotonic_nanoseconds == pinned->monotonic_nanoseconds &&
+             ready->observed_end_monotonic_nanoseconds == 2'005'000'000 &&
+             ready->configuration_generation == 1,
+         "arrival delay and a new generation cannot shift the hotkey endpoint or category generation");
+  expect(ready->packets.front()->keyframe && !ready->packets.front()->depends_on_others &&
+             ready->packets.front()->codec_configuration == config,
+         "pinned export begins independently decodable with preserved configuration");
+  for (const auto& value : ready->packets) {
+    expect(value->monotonic_nanoseconds < 2'005'000'000 && value->configuration_generation == 1,
+           "export excludes every post-press packet and unrelated generation");
+    expect(value->pts.value == value->dts.value, "packet PTS/DTS preserved without reencoding");
+  }
+  const auto payload = ready->packets.back()->data;
+  expect(replay.snapshot_at(900ms, *pinned)->packets.back()->data == payload, "pinned snapshots share packet ownership");
+  replay.clear();
+  expect(!replay.snapshot_at(900ms, *pinned), "evicted generation cannot silently become a newer clip");
+  expect(!replay.pin_endpoint(5), "empty ring cannot fabricate a clip endpoint");
+  expect_throws<std::invalid_argument>([&] { (void)replay.pin_endpoint(-1); }, "negative endpoint rejected");
+  expect_throws<std::invalid_argument>([&] { (void)replay.snapshot_at(0ns, *pinned); }, "zero duration rejected");
+
+  replay.push(packet(1'000'000'000, true, 3, native_port::TrackKind::video, 10, config));
+  replay.push(packet(2'000'000'000, false, 3));
+  replay.advance_clock(33'000'000'000);
+  const auto idle = replay.pin_endpoint(32'050'000'000);
+  const auto idle_snapshot = replay.snapshot_at(30s, *idle);
+  expect(idle_snapshot && idle_snapshot->actual_duration == 31'050ms &&
+             idle_snapshot->end_monotonic_nanoseconds == 32'050'000'000,
+         "idle export uses a fixed timestamp endpoint, not frame counts or delay time compression");
+  expect(idle_snapshot->limitation.find("idle") != std::string::npos, "idle preroll is explicitly reported");
+}
+
 }  // namespace
 
 int main() {
@@ -481,6 +539,7 @@ int main() {
       {"audio_routing_plan", test_audio_routing_plan},
       {"capture_geometry", test_capture_geometry},
       {"replay_store", test_replay_store},
+      {"replay_endpoint", test_replay_endpoint},
   };
 
   std::size_t passed = 0;

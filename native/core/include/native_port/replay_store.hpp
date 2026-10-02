@@ -32,6 +32,21 @@ struct ReplaySnapshot final {
   std::string limitation;
 };
 
+struct ReplayAudioTrack final {
+  TrackKind kind;
+  std::uint32_t id;
+  std::string logical_id;
+  bool operator==(const ReplayAudioTrack&) const = default;
+};
+
+// Pinned on the shortcut event, not when delayed audio becomes available.
+// Only identities/timestamps are copied; packet bytes stay in native storage.
+struct ReplayEndpoint final {
+  std::int64_t monotonic_nanoseconds;
+  std::uint64_t configuration_generation;
+  std::vector<ReplayAudioTrack> required_audio_tracks;
+};
+
 class ReplayStore final {
  public:
   explicit ReplayStore(ReplayLimits limits);
@@ -41,6 +56,12 @@ class ReplayStore final {
   // without producing a new encoded video packet.
   void advance_clock(std::int64_t monotonic_nanoseconds);
   [[nodiscard]] std::optional<ReplaySnapshot> snapshot(std::chrono::nanoseconds requested_duration) const;
+  [[nodiscard]] std::optional<ReplayEndpoint> pin_endpoint(std::int64_t monotonic_nanoseconds) const;
+  // nullopt means required encoded media has not reached the fixed endpoint,
+  // or its independently decodable generation was evicted. Caller must use
+  // a bounded deadline, never silently substitute a newer/shorter snapshot.
+  [[nodiscard]] std::optional<ReplaySnapshot> snapshot_at(
+      std::chrono::nanoseconds requested_duration, const ReplayEndpoint& endpoint) const;
   void clear();
 
   [[nodiscard]] std::size_t occupied_bytes() const;
@@ -48,6 +69,9 @@ class ReplayStore final {
   [[nodiscard]] std::chrono::nanoseconds retained_duration() const;
 
  private:
+  [[nodiscard]] std::optional<ReplaySnapshot> snapshot_locked(
+      std::chrono::nanoseconds requested_duration, std::int64_t end_nanoseconds,
+      std::uint64_t generation, bool pinned) const;
   void enforce_limits_locked();
   void align_front_to_decodable_video_locked();
   [[nodiscard]] std::chrono::nanoseconds retained_duration_locked() const;

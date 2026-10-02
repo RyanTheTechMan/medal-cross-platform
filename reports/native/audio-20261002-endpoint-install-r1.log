@@ -1,0 +1,42 @@
+--prepared:/Applications/Medal.app.staged-audio-endpoint-20261002/Contents/Frameworks/Electron Helper (Renderer).app
+--prepared:/Applications/Medal.app.staged-audio-endpoint-20261002/Contents/Frameworks/Electron Helper (Plugin).app
+--validated:/Applications/Medal.app.staged-audio-endpoint-20261002/Contents/Frameworks/Electron Helper (Renderer).app
+--validated:/Applications/Medal.app.staged-audio-endpoint-20261002/Contents/Frameworks/Electron Helper (Plugin).app
+--prepared:/Applications/Medal.app.staged-audio-endpoint-20261002/Contents/Frameworks/Electron Helper (GPU).app
+--validated:/Applications/Medal.app.staged-audio-endpoint-20261002/Contents/Frameworks/Electron Helper (GPU).app
+--prepared:/Applications/Medal.app.staged-audio-endpoint-20261002/Contents/Frameworks/Electron Helper.app
+--validated:/Applications/Medal.app.staged-audio-endpoint-20261002/Contents/Frameworks/Electron Helper.app
+--prepared:/Applications/Medal.app.staged-audio-endpoint-20261002/Contents/Frameworks/Mantle.framework/Versions/Current/.--prepared:/Applications/Medal.app.staged-audio-endpoint-20261002/Contents/Frameworks/ReactiveObjC.framework/Versions/Current/.
+
+--prepared:/Applications/Medal.app.staged-audio-endpoint-20261002/Contents/Frameworks/Squirrel.framework/Versions/Current/.
+--validated:/Applications/Medal.app.staged-audio-endpoint-20261002/Contents/Frameworks/ReactiveObjC.framework/Versions/Current/.
+--validated:/Applications/Medal.app.staged-audio-endpoint-20261002/Contents/Frameworks/Mantle.framework/Versions/Current/.
+--validated:/Applications/Medal.app.staged-audio-endpoint-20261002/Contents/Frameworks/Squirrel.framework/Versions/Current/.
+--prepared:/Applications/Medal.app.staged-audio-endpoint-20261002/Contents/Frameworks/Electron Framework.framework/Versions/Current/.
+--prepared:/Applications/Medal.app.staged-audio-endpoint-20261002/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/chrome_crashpad_handler
+--validated:/Applications/Medal.app.staged-audio-endpoint-20261002/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/chrome_crashpad_handler
+--validated:/Applications/Medal.app.staged-audio-endpoint-20261002/Contents/Frameworks/Electron Framework.framework/Versions/Current/.
+/Applications/Medal.app.staged-audio-endpoint-20261002: valid on disk
+/Applications/Medal.app.staged-audio-endpoint-20261002: satisfies its Designated Requirement
+--prepared:/Applications/Medal.app/Contents/Frameworks/Electron Helper (Plugin).app
+--validated:/Applications/Medal.app/Contents/Frameworks/Electron Helper (Plugin).app
+--prepared:/Applications/Medal.app/Contents/Frameworks/Electron Helper (Renderer).app
+--validated:/Applications/Medal.app/Contents/Frameworks/Electron Helper (Renderer).app
+--prepared:/Applications/Medal.app/Contents/Frameworks/Electron Helper.app
+--validated:/Applications/Medal.app/Contents/Frameworks/Electron Helper.app
+--prepared:/Applications/Medal.app/Contents/Frameworks/Electron Helper (GPU).app
+--validated:/Applications/Medal.app/Contents/Frameworks/Electron Helper (GPU).app
+--prepared:/Applications/Medal.app/Contents/Frameworks/ReactiveObjC.framework/Versions/Current/.
+--prepared:/Applications/Medal.app/Contents/Frameworks/Mantle.framework/Versions/Current/.
+--validated:/Applications/Medal.app/Contents/Frameworks/Mantle.framework/Versions/Current/.
+--prepared:/Applications/Medal.app/Contents/Frameworks/Squirrel.framework/Versions/Current/.
+--validated:/Applications/Medal.app/Contents/Frameworks/ReactiveObjC.framework/Versions/Current/.
+--validated:/Applications/Medal.app/Contents/Frameworks/Squirrel.framework/Versions/Current/.
+--prepared:/Applications/Medal.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/.
+--prepared:/Applications/Medal.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/chrome_crashpad_handler
+--validated:/Applications/Medal.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/chrome_crashpad_handler
+--validated:/Applications/Medal.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/.
+/Applications/Medal.app: valid on disk
+/Applications/Medal.app: satisfies its Designated Requirement
+Installed /Applications/Medal.app
+Preserved previous known-good app /Applications/Medal.app.previous-audio-roundtrip-20261002
