@@ -5,8 +5,9 @@ This is a development handoff, not a release-completion claim.
 
 ## Current development baseline — 2026-10-02
 
-Start exploratory Linux work from `0405d68` or the subsequent Dock-lifecycle
-checkpoint, not a historical September audio build. Core native H.264/AAC window
+Start Linux work from current `main`, including `1a950aa` and the subsequent
+user-confirmed tray/handoff checkpoint, not a historical September audio build.
+Core native H.264/AAC window
 capture, original hotkey replay/contentCreate/thumbnail/library/player/full
 restart and original All PC/Specific Apps mute/Save/restart now have actual Mac
 evidence. Ten native CTests pass. See `reports/native/audio-20261002-endpoint.md`
@@ -34,8 +35,14 @@ No Linux build, capture, GPU or desktop test is claimed by this Mac handoff.
 Latest installed build is `2637.461.1-development-m3.5-bb19f77a1f0a4d20`, prepared
 `2637.461.1-native-port-m3.5-274e0bc38555`: Darwin left-click now opens Medal,
 right-click retains the dynamic original tray menu. Other platforms unchanged.
-12 JS/7 importer tests pass; physical status-icon confirmation pending.
+12 JS/7 importer tests pass; user confirms corrected native status-icon behavior.
 See `reports/native/tray-20261002.md`. Previous Dock gate below remains valid.
+
+Transfer the Git history/source and required research/input files separately:
+`inputs/` archives and extracted proprietary research are ignored and may not be
+present in a fresh clone. Keep archives read-only, verify hashes from the locks,
+and do not commit or transfer the Mac authenticated profile, signing keys or
+recordings. Linux creates its own isolated profile; no inherited login is assumed.
 
 Latest lifecycle change: main-window hide removes the macOS Dock identity;
 original menu-bar Show/activate/second-instance reopening restores it. The new

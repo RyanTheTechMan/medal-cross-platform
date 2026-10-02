@@ -5186,7 +5186,7 @@
         "report_paths": ["reports/native/dock-20261002.md", "reports/native/tray-20261002.md"],
         "limitations": [
           "Dock close/reopen is a narrow development gate, not full M10 packaging acceptance.",
-          "Darwin left/right status-icon changes installed; physical click confirmation pending.",
+          "Darwin left/right status-icon behavior user-confirmed; broader shell gates remain open.",
           "Clean-user install/permissions, notarization, release updates, URI and autostart lifecycle remain separate gates."
         ]
       },

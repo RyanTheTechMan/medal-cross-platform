@@ -4,7 +4,7 @@ This file records observed limits, not excuses for successful no-op behavior.
 
 October 2 menu-bar click correction: Darwin left-click now opens original Medal;
 right-click retains its original menu. Unit/importer/build/install checks pass,
-physical status-icon clicks pending user confirmation. See
+and user confirms corrected native behavior. See
 `reports/native/tray-20261002.md`; this supersedes unchanged-tray notes below.
 
 October 2 Dock lifecycle: original main-window close now hides the Dock identity
