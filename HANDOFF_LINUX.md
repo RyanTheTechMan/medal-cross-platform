@@ -31,6 +31,12 @@ Electron/addon packaging and portal/PipeWire/hardware encoder adapters. Native
 Wayland selection requires consent; process discovery is not capture permission.
 No Linux build, capture, GPU or desktop test is claimed by this Mac handoff.
 
+Latest installed build is `2637.461.1-development-m3.5-bb19f77a1f0a4d20`, prepared
+`2637.461.1-native-port-m3.5-274e0bc38555`: Darwin left-click now opens Medal,
+right-click retains the dynamic original tray menu. Other platforms unchanged.
+12 JS/7 importer tests pass; physical status-icon confirmation pending.
+See `reports/native/tray-20261002.md`. Previous Dock gate below remains valid.
+
 Latest lifecycle change: main-window hide removes the macOS Dock identity;
 original menu-bar Show/activate/second-instance reopening restores it. The new
 adapter is Darwin-only, not a Linux app-lifecycle implementation. Its final

@@ -1,0 +1,11 @@
+{
+  "status": "prepared",
+  "idempotent": false,
+  "sourceExtraction": null,
+  "versionDirectory": "/Users/ryan/Developer/medal-cross-platform/artifacts/native-client-audio-20261002/versions/2637.461.1-native-port-m3.5-274e0bc38555",
+  "manifest": "/Users/ryan/Developer/medal-cross-platform/artifacts/native-client-audio-20261002/versions/2637.461.1-native-port-m3.5-274e0bc38555/native-port/patch-manifest.json",
+  "activation": {
+    "current": "versions/2637.461.1-native-port-m3.5-274e0bc38555",
+    "previous": "versions/2637.461.1-native-port-m3.5-3ab9354a0e3e"
+  }
+}

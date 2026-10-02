@@ -5182,10 +5182,11 @@
           "tools/build_macos_development_app.py",
           "native/backends/macos/dock_status_probe.mm"
         ],
-        "test_ids": ["native-dock-lifecycle.test.cjs", "test_importer.py"],
-        "report_paths": ["reports/native/dock-20261002.md"],
+        "test_ids": ["native-dock-lifecycle.test.cjs", "native-tray.test.cjs", "test_importer.py"],
+        "report_paths": ["reports/native/dock-20261002.md", "reports/native/tray-20261002.md"],
         "limitations": [
           "Dock close/reopen is a narrow development gate, not full M10 packaging acceptance.",
+          "Darwin left/right status-icon changes installed; physical click confirmation pending.",
           "Clean-user install/permissions, notarization, release updates, URI and autostart lifecycle remain separate gates."
         ]
       },

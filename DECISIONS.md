@@ -1,5 +1,14 @@
 # Implementation decisions
 
+## Decision D021 — Separate macOS tray activation from menu (2026-10-02)
+
+Do not attach a context menu on Darwin: native status items consume primary
+clicks to show it. Original primary handler calls `_show`; right-click builds
+and pops the original menu at event time. Original `_updateTrayMenu` keeps the
+attached menu null so state updates cannot undo this behavior. Other platforms
+remain unchanged. No alternative menu/recorder protocol or global platform spoof.
+Exact original-method regression evidence: `reports/native/tray-20261002.md`.
+
 ## Decision D020 — Close to menu bar with reversible Dock identity (2026-10-02)
 
 Original `_onClose` prevents destruction and hides the main window, but never

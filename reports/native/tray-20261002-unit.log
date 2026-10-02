@@ -1,0 +1,20 @@
+✔ pinned original X handler hides, not quits; adapter hides Dock and reopen restores (17.307167ms)
+✔ rapid close/reopen/close waits for Electron hide cooldown (0.125666ms)
+✔ reopen cancels stale delayed hide (0.090416ms)
+✔ close during asynchronous Dock show reconciles the eventual result (0.111333ms)
+✔ close before pending show and quit before pending show do not resurrect Dock (0.105041ms)
+✔ minimize retains Dock; unrelated windows cannot change it (0.506958ms)
+✔ repeated binding is idempotent, replacement removes old listeners (0.103ms)
+✔ quit cancels delayed work and never prevents original shutdown (0.112334ms)
+✔ Windows/Linux unchanged and errors reported, not successful state (0.140291ms)
+✔ macOS left-click reopens; only right-click builds the current original menu (3.662416ms)
+✔ tray recreation destroys old icon and restores single bindings (2.124ms)
+✔ Windows/Linux original click and attached menu behavior is preserved (3.860542ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 63.800208

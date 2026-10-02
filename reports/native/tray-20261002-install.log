@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from pathlib import Path; import subprocess,ctypes; source=(Path("artifacts/macos-development-app-audio-20261002/current")/"Medal.app").resolve(strict=True); installed=Path("/Applications/Medal.app"); stage=Path("/Applications/Medal.app.staging-tray-20261002"); backup=Path("/Applications/Medal.app.previous-tray-20261002"); assert installed.is_dir() and not stage.exists() and not backup.exists(); subprocess.run(["codesign","--verify","--deep","--strict",str(source)],check=True); subprocess.run(["ditto",str(source),str(stage)],check=True); subprocess.run(["codesign","--verify","--deep","--strict",str(stage)],check=True); lib=ctypes.CDLL("/usr/lib/libSystem.B.dylib",use_errno=True); assert lib.renamex_np(bytes(stage),bytes(installed),2)==0,ctypes.get_errno(); stage.rename(backup); subprocess.run(["codesign","--verify","--deep","--strict",str(installed)],check=True); print(source); print("backup:",backup)
+                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py", line 670, in resolve
+    return self.with_segments(os.path.realpath(self, strict=strict))
+                              ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen posixpath>", line 439, in realpath
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/ryan/Developer/medal-cross-platform/artifacts/macos-development-app-audio-20261002/versions/2637.461.1-development-m3.5-bb19f77a1f0a4d20/Medal.app/Medal.app'

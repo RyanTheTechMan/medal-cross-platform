@@ -579,6 +579,22 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
     ))
     operations.append(exact_replace(
         main_path,
+        'const n=()=>{process.platform==="win32"&&this._show()};this.tray.on("click",n),this.tray.on("double-click",n),this.tray.setContextMenu(this._buildTrayMenu())',
+        'const n=()=>{(process.platform==="win32"||process.platform==="darwin")&&this._show()};this.tray.on("click",n),this.tray.on("double-click",n),process.platform==="darwin"?(this.tray.setContextMenu(null),this.tray.on("right-click",()=>this.tray.popUpContextMenu(this._buildTrayMenu()))):this.tray.setContextMenu(this._buildTrayMenu())',
+        1,
+        'macos-menu-bar-left-click-reopens-right-click-menu',
+        'main.min.js',
+    ))
+    operations.append(exact_replace(
+        main_path,
+        'this.tray&&!this.tray.isDestroyed()?this.tray.setContextMenu(this._buildTrayMenu()):this._setTrayMenuContext()',
+        'this.tray&&!this.tray.isDestroyed()?this.tray.setContextMenu(process.platform==="darwin"?null:this._buildTrayMenu()):this._setTrayMenuContext()',
+        1,
+        'macos-menu-bar-updates-do-not-reattach-left-click-menu',
+        'main.min.js',
+    ))
+    operations.append(exact_replace(
+        main_path,
         'this.#h(),this.#e=null,this.#t=null,this.#n=null,this.onUserAuthChange(oe.authObject)',
         'this.#h(),this.sendRequest("nativePort.permissionStatus").then(e=>{const t=e?.microphone?.status,r=!e?.screenRecording?.granted,o=t==="denied"||t==="restricted";((r||o)&&this.sendNotification("recorderError",{type:"microphone-permission-required",fallback:"Medal needs Microphone and Screen Recording access. Open System Settings > Privacy & Security, enable the signed Medal entries, then restart Medal."})),(t==="not_determined"||r)&&this.sendRequest("nativePort.requestPermissions").catch(()=>{}),o&&this.sendRequest("nativePort.openPermissionSettings").catch(()=>{});try{require("electron").systemPreferences?.askForMediaAccess?.("microphone")?.catch?.(()=>{})}catch{}}).catch(()=>{}),this.#e=null,this.#t=null,this.#n=null,this.onUserAuthChange(oe.authObject)',
         1,
