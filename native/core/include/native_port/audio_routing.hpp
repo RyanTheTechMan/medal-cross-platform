@@ -13,14 +13,14 @@ namespace native_port {
 struct AudioRoutingSource final {
   std::string id;
   bool enabled{false};
-  std::uint32_t volume_percent{100};
+  double volume_percent{100};
   double gain_linear{1.0};
 };
 
 struct AudioRoutingPlan final {
   std::string mode{"splitByProcess"};
   bool pc_audio_enabled{true};
-  std::uint32_t pc_audio_volume_percent{100};
+  double pc_audio_volume_percent{100};
   double pc_audio_gain_linear{1.0};
   bool microphone_enabled{true};
   double microphone_gain_linear{0.5};
@@ -32,9 +32,8 @@ struct AudioRoutingPlan final {
 };
 
 // Medal's MicSoundGain is normalized by the imported renderer before it is
-// sent to the recorder (0.0..1.5).  The integer 50 form is accepted only as
-// a compatibility/default form from old persisted profiles and normalized
-// exactly once here. AudioModeConfig source volumes are independent percent
+// sent to the recorder (0.0..1.5). Do not guess raw percent units from a value
+// outside that range. AudioModeConfig source volumes are independent percent
 // values (0..150) and are converted separately.
 [[nodiscard]] double normalize_microphone_gain(const nlohmann::json& value);
 [[nodiscard]] double percent_to_linear_gain(const nlohmann::json& value,

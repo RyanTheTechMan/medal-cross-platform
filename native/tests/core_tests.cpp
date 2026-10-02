@@ -268,10 +268,19 @@ void test_audio_routing_plan() {
          "50 percent wire microphone gain must remain 0.5");
   expect(native_port::normalize_microphone_gain(1.5) == 1.5,
          "150 percent microphone gain must remain 1.5");
-  expect(native_port::normalize_microphone_gain(50) == 0.5,
-         "legacy integer microphone default must normalize exactly once");
+  expect(native_port::normalize_microphone_gain(1.0) == 1.0,
+         "100 percent microphone wire gain must remain one");
+  expect_throws<std::invalid_argument>([] { (void)native_port::normalize_microphone_gain(50); },
+                                       "untraced legacy percent values must not be accepted as wire gain");
+  expect_throws<std::invalid_argument>([] { (void)native_port::normalize_microphone_gain(1.5001); },
+                                       "values immediately outside normalized range must fail");
+  expect_throws<std::invalid_argument>([] {
+    (void)native_port::normalize_microphone_gain(nlohmann::json(std::numeric_limits<double>::infinity()));
+  }, "nonfinite microphone gain must fail");
   expect(native_port::percent_to_linear_gain(25, "source") == 0.25,
          "fractional app volume must convert from percentage once");
+  expect(native_port::percent_to_linear_gain(25.25, "source") == 0.2525,
+         "fractional percentage must not be rounded");
   expect_throws<std::invalid_argument>([] { (void)native_port::normalize_microphone_gain(-0.1); },
                                        "negative microphone gain must fail");
   expect_throws<std::invalid_argument>([] { (void)native_port::normalize_microphone_gain(151.0); },
@@ -312,6 +321,16 @@ void test_audio_routing_plan() {
   expect(global.sources.size() == 3 && global.sources[0].gain_linear == 0.25 &&
              global.sources[1].gain_linear == 0.5 && !global.sources[2].enabled,
          "each source must keep its own percentage gain and enabled state");
+  native_port::SettingsStore fractional;
+  fractional.apply({{.key = "AudioModeConfig",
+    .value = {{"type", "allPcAudio"}, {"volume", 37.75},
+      {"sources", nlohmann::json::array({{{"id", "fixture"}, {"enabled", true}, {"volume", 12.5}}})}},
+    .category_id = std::nullopt}});
+  const auto fractional_plan = native_port::audio_routing_plan_from_settings(fractional);
+  expect(fractional_plan.pc_audio_gain_linear == 0.3775 && fractional_plan.sources[0].gain_linear == 0.125,
+         "actual plan normalization must retain fractional PC and app gains");
+  expect(native_port::audio_routing_plan_from_settings(native_port::SettingsStore{}).microphone_gain_linear == 0.5,
+         "absent wire microphone gain uses the traced normalized default");
   const auto game = native_port::audio_routing_plan_from_settings(settings, "game-1");
   expect(game.mode == "allPcAudio" && !game.microphone_enabled && game.pc_audio_enabled,
          "per-game mode and explicit microphone disable must override global settings");

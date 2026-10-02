@@ -211,6 +211,9 @@ struct FeedState final {
     if (first.logical_source_id == "microphone") {
       return "Microphone";
     }
+    if (first.logical_source_id == "pc-audio") {
+      return "PC Audio";
+    }
     return first.logical_source_id;
   }
   switch (track) {
@@ -437,6 +440,19 @@ Mp4WriteResult write_mp4(const std::filesystem::path& output_path, const ReplayS
       tracks.reserve(keys.size());
       for (const auto& key : keys) {
         tracks.push_back(make_track(writer, snapshot, key.track, key.track_id));
+      }
+      NSMutableArray<AVAssetWriterInput*>* audio_inputs = [NSMutableArray array];
+      AVAssetWriterInput* default_audio = nil;
+      for (const auto& track : tracks) {
+        if (track.track == TrackKind::video) continue;
+        [audio_inputs addObject:track.input];
+        if (default_audio == nil || track.logical_id == "all-audio") default_audio = track.input;
+      }
+      if (audio_inputs.count > 1) {
+        AVAssetWriterInputGroup* group = [AVAssetWriterInputGroup assetWriterInputGroupWithInputs:audio_inputs
+                                                                                  defaultInput:default_audio];
+        if (![writer canAddInputGroup:group]) throw std::runtime_error("MP4 writer cannot set exclusive default audio selection");
+        [writer addInputGroup:group];
       }
       for (const auto& packet : snapshot.packets) {
         auto* track = track_for(tracks, *packet);

@@ -15,8 +15,10 @@ find_library(COREVIDEO_FRAMEWORK CoreVideo REQUIRED)
 
 add_library(native_port_macos_adapter STATIC
   audio_encoder.mm
+  audio_mix_graph.mm
   mp4_writer.mm
   platform_adapter.mm
+  pcm_sample.mm
   process_audio_tap.mm
   screen_capture_session.mm
 )
@@ -130,6 +132,20 @@ target_compile_options(native_port_macos_avfoundation_file_probe PRIVATE
 )
 
 if(BUILD_TESTING)
+  foreach(tone 440 660 880)
+    add_executable(native_port_audio_fixture_${tone} MACOSX_BUNDLE audio_tone_fixture.mm)
+    target_compile_definitions(native_port_audio_fixture_${tone} PRIVATE NATIVE_FIXTURE_TONE=${tone})
+    target_compile_options(native_port_audio_fixture_${tone} PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+    target_link_libraries(native_port_audio_fixture_${tone} PRIVATE ${APPKIT_FRAMEWORK} ${AVFOUNDATION_FRAMEWORK})
+    set_target_properties(native_port_audio_fixture_${tone} PROPERTIES
+      MACOSX_BUNDLE_GUI_IDENTIFIER "com.squirrel.medal.medal.audiofixture${tone}"
+      MACOSX_BUNDLE_BUNDLE_NAME "Medal Audio Fixture ${tone}"
+      MACOSX_BUNDLE_BUNDLE_VERSION "1" MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0")
+  endforeach()
+  add_executable(native_port_macos_audio_mix_graph_probe audio_mix_graph_probe.mm)
+  target_link_libraries(native_port_macos_audio_mix_graph_probe PRIVATE native_port_macos_adapter native_port_core)
+  target_compile_options(native_port_macos_audio_mix_graph_probe PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+  add_test(NAME native_port_macos_audio_mix_graph_probe COMMAND native_port_macos_audio_mix_graph_probe)
   add_test(NAME native_port_macos_api_probe COMMAND native_port_macos_api_probe)
   add_test(NAME native_port_macos_encoder_probe COMMAND native_port_macos_encoder_probe)
   add_test(NAME native_port_macos_audio_encoder_probe COMMAND native_port_macos_audio_encoder_probe)

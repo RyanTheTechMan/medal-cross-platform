@@ -8,7 +8,7 @@
 namespace native_port {
 namespace {
 
-[[nodiscard]] std::uint32_t checked_percent(const nlohmann::json& value,
+[[nodiscard]] double checked_percent(const nlohmann::json& value,
                                             std::string_view field_name) {
   if (!value.is_number()) {
     throw std::invalid_argument(std::string(field_name) + " must be numeric");
@@ -17,7 +17,7 @@ namespace {
   if (!std::isfinite(percent) || percent < 0.0 || percent > 150.0) {
     throw std::invalid_argument(std::string(field_name) + " must be finite and between 0 and 150");
   }
-  return static_cast<std::uint32_t>(std::llround(percent));
+  return percent;
 }
 
 [[nodiscard]] bool bool_or(const std::optional<nlohmann::json>& value, bool fallback,
@@ -38,16 +38,10 @@ double normalize_microphone_gain(const nlohmann::json& value) {
     throw std::invalid_argument("MicSoundGain must be numeric");
   }
   const auto raw = value.get<double>();
-  if (!std::isfinite(raw) || raw < 0.0 || raw > 150.0) {
+  if (!std::isfinite(raw) || raw < 0.0 || raw > 1.5) {
     throw std::invalid_argument("MicSoundGain must be finite and between 0 and 1.5");
   }
-  // The current renderer sends a normalized scalar. Keep this branch direct;
-  // the integer-percent branch is only for legacy/default profiles that were
-  // persisted before the renderer normalizer ran.
-  if (raw <= 1.5) {
-    return raw;
-  }
-  return raw / 100.0;
+  return raw;
 }
 
 double percent_to_linear_gain(const nlohmann::json& value, std::string_view field_name) {

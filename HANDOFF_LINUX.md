@@ -2,6 +2,16 @@
 
 Status: **not ready for transfer**. This file is live and must not be interpreted as a completed handoff.
 
+2026-10-02: shared `PcmMixer` adds canonical 48 kHz float stereo, absolute host
+frame positions, fifteen-source/two-second ring bounds, a 200 ms reorder window,
+independent capture gains, master limiting and optional stems. macOS adapters
+resample and encode with Apple frameworks. Native build/8 CTests, actual
+single/multiple MP4 decode/spectral/default-track tests pass; live routing is
+still in progress. PC/app percentage fields are now doubles; microphone wire gain
+is strictly 0..1.5, with traced default .5. Linux must preserve these semantics,
+map PipeWire clocks/formats into this core and retain native client media patches.
+See `reports/native/audio-20261002-status.md` for exact evidence and next commands.
+
 2026-09-25 correction: current base is `b1fa75a`, not the stale pre-amendment
 `590e471` below. The September 20 audio-edit playback/restart claims are withdrawn
 because the retained launch log contains missing-file/decoder failures. Shared

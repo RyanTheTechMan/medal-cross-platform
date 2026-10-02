@@ -4575,13 +4575,15 @@
         "implementation_files": [
           "native/backends/macos/screen_capture_session.mm",
           "native/backends/macos/platform_adapter.mm",
+          "native/backends/macos/audio_mix_graph.mm",
+          "native/core/src/pcm_mixer.cpp",
           "native/helper/main.cpp",
           "packaging/macos/electron-development.entitlements.plist",
           "tools/native_port_importer.py"
         ],
         "test_ids": ["M05", "M07", "M10"],
-        "report_paths": ["reports/native/m3.9-permissions-onboarding.md", "reports/native/m3.9-aac-mic-error-loop-fix.md"],
-        "limitations": ["Permission attribution is verified and the repeated 96 kHz AAC converter failure is fixed; actual microphone packets remain unverified until Medal's microphone setting is enabled for a fresh normal clip."]
+        "report_paths": ["reports/native/m3.9-permissions-onboarding.md", "reports/native/m3.9-aac-mic-error-loop-fix.md", "reports/native/audio-20261002-status.md", "reports/native/audio-20261002-capture-mixer-ctest-r4.log"],
+        "limitations": ["Actual native combined master/stems pass synthetic hardware encode/mux, AVFoundation, ffprobe and spectral gains/delayed-mic tests. Native live microphone/routing/settings and sustained drift remain unverified; see October 2 report."]
       },
       "linux": {
         "status": "not_started",
@@ -4602,11 +4604,11 @@
       "source": "CODEX_MASTER_PROMPT.md",
       "contract_status": "proposed_product_requirement",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": ["native/core/src/audio_routing.cpp", "native/core/src/pcm_mixer.cpp", "native/backends/macos/process_audio_tap.mm", "native/backends/macos/screen_capture_session.mm"],
+        "test_ids": ["M06"],
+        "report_paths": ["reports/native/audio-20261002-status.md"],
+        "limitations": ["Selected native process taps feed independent PCM buses and the real master; no whole-system fallback. Permissioned tone isolation, helper process families and target relaunch/device listeners remain open."]
       },
       "linux": {
         "status": "not_started",

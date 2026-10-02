@@ -1,5 +1,15 @@
 # Implementation decisions
 
+## Decision D016 — One native PCM clock and actual combined master (2026-10-02)
+
+PC, application and microphone sources enter the shared 48 kHz timeline before
+AAC. Source gains apply once at acquisition; editable stems retain capture gain.
+The master uses a defined stereo limiter and is the sole default playback track.
+Valid HAL capture timestamps remain absolute, matching SCK video. Audio topology
+changes retain video and start a fresh compatible media generation at a forced
+keyframe. No source is silently replaced with whole-system capture. Fixture
+encode/mux/spectral passes remain separate from permissioned routing/GUI evidence.
+
 ## Decision D015 — Source-preserving native audio edits and audition ownership (2026-09-25)
 
 - Native editing resolves a local UUID through Medal's actual library API, probes

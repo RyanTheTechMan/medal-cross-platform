@@ -4,6 +4,7 @@ add_library(native_port_core STATIC
   src/capture_settings.cpp
   src/clip_action.cpp
   src/json_rpc.cpp
+  src/pcm_mixer.cpp
   src/replay_store.cpp
   src/settings_store.cpp
 )

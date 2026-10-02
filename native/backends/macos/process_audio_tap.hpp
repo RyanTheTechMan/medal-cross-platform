@@ -10,10 +10,11 @@
 namespace native_port {
 
 // A process-private Core Audio tap backed by a HAL aggregate device.  The tap
-// feeds already-encoded AAC packets directly into the replay store; no PCM
-// crosses the Electron/WebSocket boundary.
+// copies negotiated PCM into a bounded worker queue and feeds the native mix
+// graph (or legacy AAC callback). No PCM crosses the client protocol boundary.
 class ProcessAudioTap final {
  public:
+  using PcmCallback = std::function<bool(CMSampleBufferRef, std::uint64_t, std::string&)>;
   ProcessAudioTap();
   ~ProcessAudioTap();
 
@@ -24,7 +25,8 @@ class ProcessAudioTap final {
                             std::uint32_t track_id,
                             double gain, std::uint64_t configuration_generation,
                             std::int64_t session_epoch_nanoseconds,
-                            AacEncoder::PacketCallback packet_callback, std::string& error);
+                            AacEncoder::PacketCallback packet_callback, std::string& error,
+                            PcmCallback pcm_callback = {});
   void stop();
   [[nodiscard]] bool running() const noexcept;
   void set_gain(double gain);

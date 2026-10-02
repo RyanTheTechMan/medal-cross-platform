@@ -8,3 +8,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang|Clang|GNU")
 endif()
 
 add_test(NAME native_port_core_tests COMMAND native_port_core_tests)
+
+add_executable(native_port_pcm_mixer_tests pcm_mixer_tests.cpp)
+target_link_libraries(native_port_pcm_mixer_tests PRIVATE native_port_core)
+add_test(NAME native_port_pcm_mixer_tests COMMAND native_port_pcm_mixer_tests)

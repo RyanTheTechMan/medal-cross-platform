@@ -5,6 +5,7 @@
 #import <mach/mach_time.h>
 
 #include "process_audio_tap.hpp"
+#include "pcm_sample.hpp"
 
 #include <algorithm>
 #include <array>
@@ -44,8 +45,12 @@ struct ProcessAudioTap::Impl final {
   bool start(const std::vector<std::int64_t>& requested_pids, TrackKind track,
              std::uint32_t track_id, double gain,
              std::uint64_t generation, std::int64_t session_epoch_nanoseconds,
-             AacEncoder::PacketCallback callback, std::string& error) {
+             AacEncoder::PacketCallback callback, std::string& error, PcmCallback pcm) {
     stop();
+    (void)session_epoch_nanoseconds; // SCK video already uses the absolute host clock.
+    queue_read.store(0); queue_write.store(0);
+    callback_error.store(0); dropped_buffers.store(0); rejected_layouts.store(0);
+    { std::scoped_lock lock(error_mutex); last_error.clear(); }
     if (requested_pids.empty() ||
         std::any_of(requested_pids.begin(), requested_pids.end(),
                     [](const auto value) { return value <= 0; })) {
@@ -152,17 +157,27 @@ struct ProcessAudioTap::Impl final {
         return false;
       }
 
-      encoder = std::make_shared<AacEncoder>(
-          track, track_id, 96'000, gain, std::move(callback));
+      const bool planar = (format.mFormatFlags & kAudioFormatFlagIsNonInterleaved) != 0;
+      if (format.mChannelsPerFrame < 1 || format.mChannelsPerFrame > 2 ||
+          format.mBytesPerFrame > 8 || format.mSampleRate < 8000 || format.mSampleRate > 192000) {
+        error = "Core Audio tap negotiated an unsupported PCM layout"; stop(); return false;
+      }
+      pcm_callback = std::move(pcm);
+      if (!pcm_callback) encoder = std::make_shared<AacEncoder>(track, track_id, 96'000, gain, std::move(callback));
       configuration_generation = generation;
-      this->session_epoch_nanoseconds = session_epoch_nanoseconds;
-      sample_cursor = 0;
+      buffer_count = planar ? format.mChannelsPerFrame : 1;
+      channels_per_buffer = planar ? 1 : format.mChannelsPerFrame;
       dispatch_queue = dispatch_queue_create("com.squirrel.medal.medal.process-audio-tap",
                                               DISPATCH_QUEUE_SERIAL);
       worker_queue = dispatch_queue_create("com.squirrel.medal.medal.process-audio-tap-worker",
                                            DISPATCH_QUEUE_SERIAL);
+      worker_signal = dispatch_source_create(DISPATCH_SOURCE_TYPE_DATA_ADD, 0, 0, worker_queue);
+      worker_cancelled = dispatch_semaphore_create(0);
+      dispatch_source_set_event_handler(worker_signal, ^{ drain_owned_queue(); });
+      dispatch_source_set_cancel_handler(worker_signal, ^{ dispatch_semaphore_signal(worker_cancelled); });
+      dispatch_resume(worker_signal);
       for (auto& slot : owned_slots) {
-        slot.bytes.resize(kMaxFramesPerCallback * format.mBytesPerFrame);
+        slot.bytes.resize(kMaxFramesPerCallback * format.mBytesPerFrame * buffer_count);
       }
       const auto io_status = AudioDeviceCreateIOProcIDWithBlock(
           &io_proc, aggregate_id, dispatch_queue,
@@ -195,12 +210,19 @@ struct ProcessAudioTap::Impl final {
       AudioDeviceDestroyIOProcID(aggregate_id, io_proc);
     }
     io_proc = nullptr;
+    if (worker_signal != nullptr) {
+      dispatch_source_cancel(worker_signal);
+      dispatch_semaphore_wait(worker_cancelled, DISPATCH_TIME_FOREVER);
+      worker_signal = nullptr;
+      worker_cancelled = nullptr;
+    }
     if (worker_queue != nullptr) {
       dispatch_sync(worker_queue, ^{ drain_owned_queue(); });
     }
     dispatch_queue = nullptr;
     worker_queue = nullptr;
     encoder.reset();
+    pcm_callback = {};
     if (aggregate_id != kAudioObjectUnknown) {
       AudioHardwareDestroyAggregateDevice(aggregate_id);
       aggregate_id = kAudioObjectUnknown;
@@ -215,45 +237,46 @@ struct ProcessAudioTap::Impl final {
                 const AudioTimeStamp* input_time) {
     if (!running_flag.load(std::memory_order_acquire) || input == nullptr ||
         input->mNumberBuffers == 0 || input->mBuffers[0].mData == nullptr ||
-        input->mBuffers[0].mDataByteSize == 0 || !encoder) {
+        input->mBuffers[0].mDataByteSize == 0) {
       return;
     }
-    // A stereo mixdown tap is normally one interleaved buffer. If HAL exposes
-    // a non-interleaved layout, do not reinterpret it as interleaved PCM.
-    if (input->mNumberBuffers != 1) {
+    (void)now;
+    if (input->mNumberBuffers != buffer_count) {
       rejected_layouts.fetch_add(1, std::memory_order_relaxed);
-      set_error("Core Audio process tap delivered a non-interleaved layout; source was stopped");
+      callback_error.store(1, std::memory_order_relaxed);
       running_flag.store(false, std::memory_order_release);
       return;
     }
     const auto frames = input->mBuffers[0].mDataByteSize / format.mBytesPerFrame;
-    if (frames == 0 || frames > kMaxFramesPerCallback) {
+    if (frames == 0 || frames > kMaxFramesPerCallback || input->mBuffers[0].mDataByteSize % format.mBytesPerFrame) {
       dropped_buffers.fetch_add(1, std::memory_order_relaxed);
-      set_error("Core Audio process tap callback exceeded the bounded PCM queue capacity");
+      callback_error.store(2, std::memory_order_relaxed);
       return;
     }
-    const auto* timestamp = input_time != nullptr && input_time->mHostTime != 0 ? input_time : now;
-    if (timestamp == nullptr || timestamp->mHostTime == 0) {
+    std::int64_t host_nanoseconds = 0;
+    if (!audio_capture_host_nanoseconds(input_time, host_nanoseconds)) {
       dropped_buffers.fetch_add(1, std::memory_order_relaxed);
-      set_error("Core Audio process tap callback had no host timestamp");
+      callback_error.store(3, std::memory_order_relaxed);
       return;
     }
-    const auto host_nanoseconds =
-        static_cast<std::int64_t>(AudioConvertHostTimeToNanos(timestamp->mHostTime));
-    const auto relative_nanoseconds = std::max<std::int64_t>(
-        0, host_nanoseconds - session_epoch_nanoseconds);
     const auto write = queue_write.load(std::memory_order_relaxed);
     const auto read = queue_read.load(std::memory_order_acquire);
     if (write - read >= kPcmQueueCapacity) {
       dropped_buffers.fetch_add(1, std::memory_order_relaxed);
-      set_error("Core Audio process tap PCM queue overflowed; samples were dropped");
+      callback_error.store(4, std::memory_order_relaxed);
       return;
     }
     auto& slot = owned_slots[write % kPcmQueueCapacity];
-    std::memcpy(slot.bytes.data(), input->mBuffers[0].mData, input->mBuffers[0].mDataByteSize);
+    for (UInt32 index = 0; index < buffer_count; ++index) {
+      const auto& buffer = input->mBuffers[index];
+      if (!buffer.mData || buffer.mNumberChannels != channels_per_buffer || buffer.mDataByteSize != frames * format.mBytesPerFrame) {
+        rejected_layouts.fetch_add(1, std::memory_order_relaxed); callback_error.store(1, std::memory_order_relaxed); return;
+      }
+      std::memcpy(slot.bytes.data() + index * frames * format.mBytesPerFrame, buffer.mData, buffer.mDataByteSize);
+    }
     slot.byte_count = input->mBuffers[0].mDataByteSize;
     slot.frames = frames;
-    slot.relative_nanoseconds = relative_nanoseconds;
+    slot.host_nanoseconds = host_nanoseconds;
     queue_write.store(write + 1, std::memory_order_release);
     schedule_worker();
   }
@@ -262,7 +285,7 @@ struct ProcessAudioTap::Impl final {
     std::vector<std::uint8_t> bytes;
     std::size_t byte_count{0};
     std::size_t frames{0};
-    std::int64_t relative_nanoseconds{0};
+    std::int64_t host_nanoseconds{0};
   };
 
   void set_error(std::string value) {
@@ -273,16 +296,7 @@ struct ProcessAudioTap::Impl final {
   }
 
   void schedule_worker() {
-    bool expected = false;
-    if (worker_scheduled.compare_exchange_strong(expected, true, std::memory_order_acq_rel)) {
-      dispatch_async(worker_queue, ^{
-        drain_owned_queue();
-        worker_scheduled.store(false, std::memory_order_release);
-        if (queue_read.load(std::memory_order_acquire) < queue_write.load(std::memory_order_acquire)) {
-          schedule_worker();
-        }
-      });
-    }
+    dispatch_source_merge_data(worker_signal, 1); // Precreated signal; no per-buffer block allocation.
   }
 
   void drain_owned_queue() {
@@ -293,39 +307,24 @@ struct ProcessAudioTap::Impl final {
         return;
       }
       auto& slot = owned_slots[read % kPcmQueueCapacity];
-      auto current_encoder = encoder;
-      if (current_encoder != nullptr && slot.byte_count > 0) {
-        CMBlockBufferRef block = nullptr;
-        const auto block_status = CMBlockBufferCreateWithMemoryBlock(
-            kCFAllocatorDefault, nullptr, slot.byte_count, kCFAllocatorDefault, nullptr, 0,
-            slot.byte_count, 0, &block);
-        if (block_status == kCMBlockBufferNoErr && block != nullptr &&
-            CMBlockBufferReplaceDataBytes(slot.bytes.data(), block, 0, slot.byte_count) == noErr) {
-          CMAudioFormatDescriptionRef format_description = nullptr;
-          if (CMAudioFormatDescriptionCreate(kCFAllocatorDefault, &format, 0, nullptr, 0,
-                                              nullptr, nullptr, &format_description) == noErr &&
-              format_description != nullptr) {
-            const auto sample_time = CMTimeMake(slot.relative_nanoseconds, 1'000'000'000);
-            const auto duration =
-                CMTimeMake(1, static_cast<int32_t>(std::llround(format.mSampleRate)));
-            CMSampleTimingInfo timing{duration, sample_time, sample_time};
-            const size_t sample_size = format.mBytesPerFrame;
-            CMSampleBufferRef sample = nullptr;
-            if (CMSampleBufferCreateReady(kCFAllocatorDefault, block, format_description,
-                                          slot.frames, 1, &timing, 1, &sample_size,
-                                          &sample) == noErr && sample != nullptr) {
-              std::string error;
-              if (!current_encoder->encode(sample, configuration_generation, error) && !error.empty()) {
-                set_error(std::move(error));
-              }
-              CFRelease(sample);
-            }
-            CFRelease(format_description);
-          }
-          CFRelease(block);
-        } else if (block != nullptr) {
-          CFRelease(block);
-        }
+      struct StereoBufferList { UInt32 count; AudioBuffer buffers[2]; } storage{};
+      storage.count = buffer_count;
+      for (UInt32 index = 0; index < buffer_count; ++index) {
+        storage.buffers[index] = {channels_per_buffer, static_cast<UInt32>(slot.byte_count),
+          slot.bytes.data() + index * slot.byte_count};
+      }
+      std::string error;
+      auto sample = make_pcm_sample(format, reinterpret_cast<AudioBufferList*>(&storage), slot.frames,
+                                    CMTimeMake(slot.host_nanoseconds, 1'000'000'000), error);
+      bool accepted = sample != nullptr;
+      if (accepted) {
+        accepted = pcm_callback ? pcm_callback(sample, configuration_generation, error)
+                                : (encoder && encoder->encode(sample, configuration_generation, error));
+        CFRelease(sample);
+      }
+      if (!accepted) {
+        set_error(error.empty() ? "Core Audio tap PCM worker rejected a sample" : std::move(error));
+        running_flag.store(false, std::memory_order_release);
       }
       queue_read.store(read + 1, std::memory_order_release);
     }
@@ -338,18 +337,20 @@ struct ProcessAudioTap::Impl final {
   dispatch_queue_t dispatch_queue{nullptr};
   AudioStreamBasicDescription format{};
   std::shared_ptr<AacEncoder> encoder;
+  PcmCallback pcm_callback;
+  UInt32 buffer_count{1}, channels_per_buffer{2};
   std::uint64_t configuration_generation{0};
-  std::int64_t session_epoch_nanoseconds{0};
-  std::uint64_t sample_cursor{0};
   std::atomic<bool> running_flag{false};
   std::atomic<std::uint64_t> rejected_layouts{0};
   std::atomic<std::uint64_t> dropped_buffers{0};
+  std::atomic<unsigned> callback_error{0};
   static constexpr std::size_t kPcmQueueCapacity = 32;
   static constexpr std::size_t kMaxFramesPerCallback = 4096;
   std::array<OwnedPcmSlot, kPcmQueueCapacity> owned_slots;
   std::atomic<std::uint64_t> queue_write{0};
   std::atomic<std::uint64_t> queue_read{0};
-  std::atomic<bool> worker_scheduled{false};
+  dispatch_source_t worker_signal{nullptr};
+  dispatch_semaphore_t worker_cancelled{nullptr};
   dispatch_queue_t worker_queue{nullptr};
   mutable std::mutex error_mutex;
   std::string last_error;
@@ -362,9 +363,9 @@ bool ProcessAudioTap::start(const std::vector<std::int64_t>& pids, TrackKind tra
                             std::uint32_t track_id,
                             double gain, std::uint64_t generation,
                             std::int64_t session_epoch_nanoseconds,
-                            AacEncoder::PacketCallback callback, std::string& error) {
+                            AacEncoder::PacketCallback callback, std::string& error, PcmCallback pcm) {
   return impl_->start(pids, track, track_id, gain, generation, session_epoch_nanoseconds,
-                      std::move(callback), error);
+                      std::move(callback), error, std::move(pcm));
 }
 void ProcessAudioTap::stop() { impl_->stop(); }
 void ProcessAudioTap::set_gain(double gain) {
@@ -388,6 +389,15 @@ std::uint64_t ProcessAudioTap::rejected_layout_count() const noexcept {
 }
 std::string ProcessAudioTap::error() const {
   std::scoped_lock lock(impl_->error_mutex);
+  if (impl_->last_error.empty()) {
+    switch (impl_->callback_error.load(std::memory_order_relaxed)) {
+      case 1: return "Core Audio tap delivered a malformed PCM layout";
+      case 2: return "Core Audio tap callback exceeded bounded PCM slot capacity";
+      case 3: return "Core Audio tap capture timestamp has no valid host-time flag";
+      case 4: return "Core Audio tap PCM queue overflowed; samples were dropped";
+      default: break;
+    }
+  }
   return impl_->last_error;
 }
 std::string ProcessAudioTap::status() const {

@@ -1,5 +1,20 @@
 # Implementation progress
 
+## Current native audio mixer — 2026-10-02
+
+Editor checkpoint `0fd3698` is preserved. The capture backend now feeds PC,
+microphone and individual application PCM into a shared clock-aligned 48 kHz
+master with optional stems. Fractional gains, HAL absolute timestamps/layouts,
+audio-only settings rebuilds and actual MP4 default selection are repaired.
+Fresh native build/8 CTests and 7 importer tests pass. Native hardware-generated
+single/multiple fixtures pass independent ffprobe, AVFoundation and spectral
+gain/isolation checks. Permissioned native routing and original capture UI gates
+are in progress; see `reports/native/audio-20261002-status.md`.
+
+Next runnable task: controlled tone applications through original recording,
+hotkey, contentCreate/library/player/restart; device/helper-family/feedback and
+sustained timing remain open. Linux handoff is not ready.
+
 ## Current audio repair — 2026-09-25
 
 **Evidence correction:** the September 20 audio overwrite/playback/restart claims

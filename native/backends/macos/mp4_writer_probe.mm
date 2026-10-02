@@ -160,7 +160,7 @@ void video_callback(void* refcon, void*, OSStatus status, VTEncodeInfoFlags flag
   return pixel;
 }
 
-[[nodiscard]] bool encode_video(VideoOutput& output, std::string& error) {
+[[nodiscard]] bool encode_video(VideoOutput& output, std::string& error, std::int64_t epoch_seconds = 0) {
   const void* keys[] = {kVTVideoEncoderSpecification_RequireHardwareAcceleratedVideoEncoder};
   const void* values[] = {kCFBooleanTrue};
   CFDictionaryRef specification = CFDictionaryCreate(kCFAllocatorDefault, keys, values, 1,
@@ -188,7 +188,7 @@ void video_callback(void* refcon, void*, OSStatus status, VTEncodeInfoFlags flag
   status = VTCompressionSessionPrepareToEncodeFrames(session);
   CVPixelBufferRef pixel = make_pixel_buffer();
   for (std::int32_t index = 0; status == noErr && index < kVideoFrames && pixel != nullptr; ++index) {
-    status = VTCompressionSessionEncodeFrame(session, pixel, CMTimeMake(index, kFramesPerSecond),
+    status = VTCompressionSessionEncodeFrame(session, pixel, CMTimeMake(epoch_seconds * kFramesPerSecond + index, kFramesPerSecond),
                                               CMTimeMake(1, kFramesPerSecond), nullptr, nullptr, nullptr);
   }
   if (pixel != nullptr) {
@@ -305,6 +305,7 @@ void video_callback(void* refcon, void*, OSStatus status, VTEncodeInfoFlags flag
 
 }  // namespace
 
+#ifndef NATIVE_PORT_MP4_FIXTURE_ONLY
 int main() {
   @autoreleasepool {
     VideoOutput video;
@@ -376,3 +377,4 @@ int main() {
     return passed ? 0 : 1;
   }
 }
+#endif

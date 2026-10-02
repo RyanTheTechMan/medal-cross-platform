@@ -32,13 +32,13 @@ struct CaptureConfiguration final {
   // the completed-file metadata and setting updates.
   std::string audio_mode{"splitByProcess"};
   bool pc_audio_enabled{true};
-  std::uint32_t system_audio_volume_percent{100};
+  double system_audio_volume_percent{100};
   double microphone_gain_linear{0.5};
   std::vector<std::string> selected_audio_devices;
   struct AudioSource final {
     std::string id;
     bool enabled{false};
-    std::uint32_t volume_percent{100};
+    double volume_percent{100};
     double gain_linear{1.0};
   };
   std::vector<AudioSource> audio_sources;
