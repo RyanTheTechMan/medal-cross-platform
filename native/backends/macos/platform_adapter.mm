@@ -10,6 +10,7 @@
 #import <VideoToolbox/VideoToolbox.h>
 
 #include "native_port/platform_adapter.hpp"
+#include "audio_process_registry.hpp"
 
 #include <array>
 #include <algorithm>
@@ -163,68 +164,6 @@ std::vector<AudioObjectID> audio_devices() {
   std::vector<AudioObjectID> devices(size / sizeof(AudioObjectID));
   if (AudioObjectGetPropertyData(kAudioObjectSystemObject, &address, 0, nullptr, &size, devices.data()) != noErr) {
     throw std::runtime_error("CoreAudio device enumeration failed");
-  }
-  return devices;
-}
-
-std::vector<AudioObjectID> audio_process_objects() {
-  AudioObjectPropertyAddress address{
-      kAudioHardwarePropertyProcessObjectList,
-      kAudioObjectPropertyScopeGlobal,
-      kAudioObjectPropertyElementMain,
-  };
-  UInt32 size = 0;
-  if (AudioObjectGetPropertyDataSize(kAudioObjectSystemObject, &address, 0, nullptr, &size) != noErr ||
-      size == 0) {
-    return {};
-  }
-  std::vector<AudioObjectID> objects(size / sizeof(AudioObjectID));
-  if (AudioObjectGetPropertyData(kAudioObjectSystemObject, &address, 0, nullptr, &size,
-                                 objects.data()) != noErr) {
-    return {};
-  }
-  return objects;
-}
-
-template <typename T>
-std::optional<T> audio_process_scalar(AudioObjectID object, AudioObjectPropertySelector selector) {
-  AudioObjectPropertyAddress address{selector, kAudioObjectPropertyScopeGlobal,
-                                     kAudioObjectPropertyElementMain};
-  T value{};
-  UInt32 size = sizeof(value);
-  if (AudioObjectGetPropertyData(object, &address, 0, nullptr, &size, &value) != noErr ||
-      size != sizeof(value)) {
-    return std::nullopt;
-  }
-  return value;
-}
-
-std::string audio_process_bundle_id(AudioObjectID object) {
-  AudioObjectPropertyAddress address{kAudioProcessPropertyBundleID,
-                                     kAudioObjectPropertyScopeGlobal,
-                                     kAudioObjectPropertyElementMain};
-  CFStringRef bundle = nullptr;
-  UInt32 size = sizeof(bundle);
-  if (AudioObjectGetPropertyData(object, &address, 0, nullptr, &size, &bundle) != noErr ||
-      bundle == nullptr) {
-    return {};
-  }
-  const auto result = cf_string_to_utf8(bundle);
-  CFRelease(bundle);
-  return result;
-}
-
-std::vector<AudioObjectID> audio_process_devices(AudioObjectID object) {
-  AudioObjectPropertyAddress address{kAudioProcessPropertyDevices,
-                                     kAudioObjectPropertyScopeOutput,
-                                     kAudioObjectPropertyElementMain};
-  UInt32 size = 0;
-  if (AudioObjectGetPropertyDataSize(object, &address, 0, nullptr, &size) != noErr || size == 0) {
-    return {};
-  }
-  std::vector<AudioObjectID> devices(size / sizeof(AudioObjectID));
-  if (AudioObjectGetPropertyData(object, &address, 0, nullptr, &size, devices.data()) != noErr) {
-    return {};
   }
   return devices;
 }
@@ -688,40 +627,24 @@ class MacPlatformAdapter final : public PlatformAdapter {
   nlohmann::json audio_processes() override {
     @autoreleasepool {
       nlohmann::json result = nlohmann::json::array();
-      for (const auto process_object : audio_process_objects()) {
-        const auto pid = audio_process_scalar<pid_t>(process_object, kAudioProcessPropertyPID);
-        const auto output_active = audio_process_scalar<UInt32>(
-            process_object, kAudioProcessPropertyIsRunningOutput);
-        if (!pid || *pid <= 0 || !output_active || *output_active == 0) {
+      std::map<std::int64_t, nlohmann::json> families;
+      for (const auto& process : mac_audio_process_snapshot()) {
+        if (!process.output_active || process.display_name.empty()) {
           continue;
         }
-        NSRunningApplication* application =
-            [NSRunningApplication runningApplicationWithProcessIdentifier:*pid];
-        const std::string bundle_id = audio_process_bundle_id(process_object);
-        const std::string localized_name = application.localizedName.UTF8String != nullptr
-                                                ? std::string(application.localizedName.UTF8String)
-                                                : std::string{};
-        const std::string executable_name =
-            application.executableURL.lastPathComponent.UTF8String != nullptr
-                ? std::string(application.executableURL.lastPathComponent.UTF8String)
-                : std::string{};
-        const std::string process_name = !localized_name.empty()
-                                             ? localized_name
-                                             : (!executable_name.empty() ? executable_name : bundle_id);
-        if (process_name.empty() && bundle_id.empty()) {
-          continue;
+        auto [entry, inserted] = families.try_emplace(process.owner_pid, nlohmann::json{
+          {"pid", process.owner_pid}, {"bundleIdentifier", process.owner_bundle_identifier},
+          {"processName", process.display_name}, {"displayName", process.display_name},
+          {"outputActive", true}, {"devices", nlohmann::json::array()}});
+        (void)inserted;
+        auto& devices = entry->second["devices"];
+        for (const auto device : process.output_devices) {
+          if (std::none_of(devices.begin(), devices.end(), [device](const auto& item) {
+                return item.at("id") == device;
+              })) devices.push_back({{"id", device}, {"name", audio_object_name(device)}});
         }
-        nlohmann::json devices = nlohmann::json::array();
-        for (const auto device : audio_process_devices(process_object)) {
-          devices.push_back({{"id", device}, {"name", audio_object_name(device)}});
-        }
-        result.push_back({{"pid", *pid},
-                          {"bundleIdentifier", bundle_id},
-                          {"processName", process_name},
-                          {"displayName", process_name},
-                          {"outputActive", true},
-                          {"devices", std::move(devices)}});
       }
+      for (auto& [pid, family] : families) { (void)pid; result.push_back(std::move(family)); }
       std::sort(result.begin(), result.end(), [](const auto& left, const auto& right) {
         return left.value("displayName", std::string{}) < right.value("displayName", std::string{});
       });

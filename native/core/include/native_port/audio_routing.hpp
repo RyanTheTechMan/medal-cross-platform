@@ -25,7 +25,7 @@ struct AudioRoutingPlan final {
   bool microphone_enabled{true};
   double microphone_gain_linear{0.5};
   std::optional<std::string> microphone_device_name;
-  std::vector<std::string> selected_audio_devices;
+  std::vector<std::string> selected_audio_devices{"Auto"};
   std::vector<AudioRoutingSource> sources;
   bool multiple_audio_tracks{true};
   std::uint64_t generation{0};

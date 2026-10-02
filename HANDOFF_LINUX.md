@@ -2,6 +2,16 @@
 
 Status: **not ready for transfer**. This file is live and must not be interpreted as a completed handoff.
 
+2026-10-02 continuation: native HAL helper-family ownership and UID/stream taps
+are build/model-tested; 9 CTests and native single/multiple media validations pass.
+Shared `EncodedPacket.logical_source_name`/`PcmSource.display_name` separate source
+identity from manifest labels. Explicit empty AudioModeConfig.devices means no
+outputs, only absent selection defaults to Auto; Linux must retain this policy.
+GUI/isolation/restart gates blocked when Mac locked. Current installed development
+build: `2637.461.1-development-m3.5-84f35d9a5ac0c845`, not launched while locked.
+Exact commands/rollback/open gates: `reports/native/audio-20261002-routing-status.md`.
+No Linux capture/release claim.
+
 2026-10-02: shared `PcmMixer` adds canonical 48 kHz float stereo, absolute host
 frame positions, fifteen-source/two-second ring bounds, a 200 ms reorder window,
 independent capture gains, master limiting and optional stems. macOS adapters

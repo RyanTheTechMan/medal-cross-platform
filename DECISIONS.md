@@ -1,5 +1,22 @@
 # Implementation decisions
 
+## Decision D017 — Native audio families and explicit outputs (2026-10-02)
+
+Use HAL audio objects as authority, with native executable/bundle/ancestor
+evidence to group helpers under the selected app. Generate Medal process DTOs
+only at the boundary. Never identify an app family by a loose bundle-ID prefix
+or substitute the entire system mix. Keep source gain/identity independent.
+Resolve explicit output selections to real UID/stream taps; missing/ambiguous
+devices fail closed. Retain Auto-only SCK and deduplicate Auto/default UID.
+Original H4's explicit-empty devices are authoritative over stale legacy Auto.
+Separate packet source names from IDs for correct finalized labels.
+
+Nine CTests and fresh native media validation pass. Permissioned family/device
+isolation remains unverified; GUI gate blocked when Mac locked. Bundle-only
+automatic restoration disabled until verified listeners exist. Same development
+signing/TCC identities; no uploads/security reset. See
+`reports/native/audio-20261002-routing-status.md`.
+
 ## Decision D016 — One native PCM clock and actual combined master (2026-10-02)
 
 PC, application and microphone sources enter the shared 48 kHz timeline before

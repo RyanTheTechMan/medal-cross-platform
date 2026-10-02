@@ -11,6 +11,8 @@
 
 #include "audio_encoder.hpp"
 #include "audio_mix_graph.hpp"
+#include "audio_device_registry.hpp"
+#include "audio_process_registry.hpp"
 #include "process_audio_tap.hpp"
 #include "native_port/capture_geometry.hpp"
 
@@ -26,6 +28,7 @@
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <set>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -619,6 +622,7 @@ class MacCaptureSession final : public CaptureSession {
     bool requires_audio_rebuild = false;
     SCContentFilter* active_filter = nil;
     std::shared_ptr<AudioMixGraph> graph;
+    std::vector<MacAudioOutputRoute> output_routes;
     {
       std::scoped_lock lock(mutex_);
       requires_audio_rebuild = configuration_.audio_mode != plan.mode ||
@@ -658,9 +662,11 @@ class MacCaptureSession final : public CaptureSession {
     {
       std::scoped_lock lock(audio_encoder_mutex_);
       graph = audio_mix_graph_;
+      output_routes = output_device_routes_;
     }
     if (graph) {
       graph->set_gain("pc-audio", plan.pc_audio_gain_linear);
+      for (const auto& route : output_routes) graph->set_gain(route.logical_id(), plan.pc_audio_gain_linear);
       graph->set_gain("microphone", plan.microphone_gain_linear);
       for (const auto& source : plan.sources) graph->set_gain(source.id, source.gain_linear);
     }
@@ -891,66 +897,33 @@ class MacCaptureSession final : public CaptureSession {
           configuration_generation_.load(std::memory_order_relaxed), error)) fail("audio_mix_failed", std::move(error));
   }
 
-  [[nodiscard]] std::optional<std::int64_t> pid_for_audio_source(
-      const std::string& source_id, const CaptureConfiguration& configuration) const {
-    if (source_id == "game-audio") {
-      return configuration.target_process_id;
-    }
-    // MedalEncoder.exe is the original client's virtual "Medal Clip Sound"
-    // label, not the Electron process.  Mapping it to the host PID captured
-    // unrelated renderer/browser audio and made Specific Apps appear to work
-    // while silently recording the wrong source.  Until the project-owned
-    // feedback bus is present, report this source as unavailable.
-    if (source_id == "MedalEncoder.exe" || source_id == "medal-clip-sound") {
-      return std::nullopt;
-    }
-    std::string requested = source_id;
-    if (requested.ends_with(".exe")) {
-      requested.resize(requested.size() - 4);
-    }
-    const auto lower = [](std::string value) {
-      std::transform(value.begin(), value.end(), value.begin(),
-                     [](unsigned char character) { return static_cast<char>(std::tolower(character)); });
-      return value;
-    };
-    requested = lower(requested);
-    for (NSRunningApplication* application in NSWorkspace.sharedWorkspace.runningApplications) {
-      if (application.processIdentifier <= 0) {
-        continue;
-      }
-      const auto executable = lower(application.executableURL.lastPathComponent.UTF8String
-                                        ? application.executableURL.lastPathComponent.UTF8String
-                                        : "");
-      const auto localized = lower(application.localizedName.UTF8String
-                                       ? application.localizedName.UTF8String
-                                       : "");
-      const auto bundle = lower(application.bundleIdentifier.UTF8String
-                                    ? application.bundleIdentifier.UTF8String
-                                    : "");
-      if (requested == executable || requested == localized || requested == bundle ||
-          (source_id == "MedalEncoder.exe" && bundle == "com.squirrel.medal.medal")) {
-        return static_cast<std::int64_t>(application.processIdentifier);
-      }
-    }
-    return std::nullopt;
-  }
-
   void start_process_audio_taps(const CaptureConfiguration& configuration) {
     destroy_process_audio_taps();
-    if (configuration.audio_mode != "gameOnly" && configuration.audio_mode != "splitByProcess") {
+    if (configuration.audio_mode != "gameOnly" && configuration.audio_mode != "splitByProcess" &&
+        configuration.audio_mode != "allPcAudio") {
       return;
     }
     struct ResolvedSource final {
       std::string id;
-      std::int64_t pid{0};
+      std::vector<std::int64_t> pids;
       TrackKind track{TrackKind::mixed_audio};
       double gain{1.0};
+      std::optional<AudioTapDeviceRoute> device;
     };
     std::vector<ResolvedSource> resolved;
-    if (configuration.audio_mode == "gameOnly") {
-      if (configuration.target_process_id) {
-        resolved.push_back({"game-audio", *configuration.target_process_id,
-                            TrackKind::game_audio, 1.0});
+    const auto audio_processes = mac_audio_process_snapshot();
+    std::set<std::int64_t> claimed_pids;
+    if (configuration.audio_mode == "allPcAudio") {
+      std::scoped_lock lock(audio_encoder_mutex_);
+      for (const auto& route : output_device_routes_)
+        resolved.push_back({route.logical_id(), {}, TrackKind::mixed_audio,
+          configuration.audio_plan.pc_audio_gain_linear,
+          AudioTapDeviceRoute{route.device_uid, route.stream_index, true}});
+    } else if (configuration.audio_mode == "gameOnly") {
+      const auto pids = resolve_audio_family(audio_processes, "game-audio", configuration.target_process_id);
+      if (!pids.empty()) {
+        resolved.push_back({"game-audio", pids,
+                            TrackKind::game_audio, 1.0, std::nullopt});
       } else {
         std::scoped_lock lock(mutex_);
         audio_tap_error_ = "Game Audio Only is enabled, but the target process has no Core Audio tap";
@@ -960,16 +933,22 @@ class MacCaptureSession final : public CaptureSession {
         if (!source.enabled) {
           continue;
         }
-        const auto pid = pid_for_audio_source(source.id, configuration);
-        if (!pid) {
+        auto pids = resolve_audio_family(audio_processes, source.id, configuration.target_process_id);
+        if (pids.empty()) {
           std::scoped_lock lock(mutex_);
           audio_tap_error_ = "selected audio source is unavailable: " + source.id;
           continue;
         }
-        resolved.push_back({source.id, *pid,
+        if (std::any_of(pids.begin(), pids.end(), [&](const auto pid) { return claimed_pids.contains(pid); })) {
+          std::scoped_lock lock(mutex_);
+          audio_tap_error_ = "selected audio source overlaps another selected application family: " + source.id;
+          continue; // Never mix the same physical process twice under aliases.
+        }
+        claimed_pids.insert(pids.begin(), pids.end());
+        resolved.push_back({source.id, std::move(pids),
                             source.id == "game-audio" ? TrackKind::game_audio
                                                        : TrackKind::mixed_audio,
-                            source.gain_linear});
+                            source.gain_linear, std::nullopt});
       }
     }
     if (resolved.empty()) {
@@ -986,11 +965,11 @@ class MacCaptureSession final : public CaptureSession {
     for (const auto& source : resolved) {
       auto tap = std::make_unique<ProcessAudioTap>();
       std::string error;
-      if (!tap->start({source.pid}, source.track, next_track_id++, 1.0, generation,
+      if (!tap->start(source.pids, source.track, next_track_id++, 1.0, generation,
                       audio_session_epoch_nanoseconds_, callback, error,
                       [graph, id = source.id](CMSampleBufferRef sample, std::uint64_t gen, std::string& message) {
                         return graph && graph->consume(id, sample, gen, message);
-                      })) {
+                      }, source.device)) {
         std::scoped_lock lock(mutex_);
         audio_tap_error_ = std::move(error);
         continue;
@@ -1003,8 +982,7 @@ class MacCaptureSession final : public CaptureSession {
   // `capture_system_audio` means that the selected audio configuration has at
   // least one system-side source. It does not mean that the primary
   // ScreenCaptureKit stream should always receive audio: in Specific Apps
-  // mode named applications are Core Audio process taps, while only the
-  // optional Game Audio source belongs to the target SCStream. Keeping this
+  // mode named applications and Game Audio are Core Audio family taps. Keeping this
   // distinction here prevents a Discord/Medal-only selection from being
   // silently replaced with the entire system mix.
   [[nodiscard]] bool game_audio_selected(const CaptureConfiguration& configuration) const {
@@ -1012,7 +990,8 @@ class MacCaptureSession final : public CaptureSession {
       return false;
     }
     if (configuration.audio_mode == "allPcAudio") {
-      return configuration.pc_audio_enabled;
+      return configuration.pc_audio_enabled &&
+          configuration.selected_audio_devices == std::vector<std::string>{"Auto"};
     }
     if (configuration.audio_mode == "gameOnly") {
       // Strict game-only routing is provided by the PID-aware process tap;
@@ -1244,7 +1223,10 @@ class MacCaptureSession final : public CaptureSession {
     }
   }
 
-  void start_system_audio_stream_for_display(const CaptureConfiguration&) {
+  void start_system_audio_stream_for_display(const CaptureConfiguration& configuration) {
+    // Keep the proven Auto-only SCK route. Explicit UID/stream routes are HAL
+    // taps; never overlay a whole-PC stream or substitute it on tap failure.
+    if (!game_audio_selected(configuration)) return;
     const auto generation = audio_source_generation_.load();
     std::optional<std::uint32_t> display_id;
     {
@@ -1285,8 +1267,8 @@ class MacCaptureSession final : public CaptureSession {
       audio_configuration.queueDepth = 2;
       audio_configuration.capturesAudio = YES;
       audio_configuration.captureMicrophone = NO;
-      // The host Electron process owns Medal's clip sound. Do not exclude the
-      // helper's process here; the display mix is the user's selected PC mix.
+      // This is the user's physical PC mix, including ordinary notification
+      // playback. Specific Apps' virtual Clip Sound must not be injected here.
       audio_configuration.excludesCurrentProcessAudio = NO;
       audio_configuration.sampleRate = 48'000;
       audio_configuration.channelCount = 2;
@@ -1546,15 +1528,37 @@ class MacCaptureSession final : public CaptureSession {
     master_audio_encoder_.reset();
     system_audio_encoder_.reset();
     microphone_encoder_.reset();
+    {
+      std::scoped_lock state_lock(mutex_);
+      if (last_error_ == audio_tap_error_) last_error_.clear();
+      audio_tap_error_.clear();
+    }
     std::vector<PcmSource> sources;
+    output_device_routes_.clear();
     std::uint32_t next_id = 2;
     if (game_audio_selected(configuration)) sources.push_back({"pc-audio", TrackKind::mixed_audio, next_id++, configuration.audio_plan.pc_audio_gain_linear});
+    else if (configuration.audio_mode == "allPcAudio" && configuration.pc_audio_enabled) {
+      try {
+        output_device_routes_ = resolve_audio_output_routes(mac_audio_output_snapshot(), configuration.selected_audio_devices);
+        for (const auto& route : output_device_routes_)
+          sources.push_back({route.logical_id(), TrackKind::mixed_audio, next_id++, configuration.audio_plan.pc_audio_gain_linear,
+            "PC Audio — " + route.device_name + " (stream " + std::to_string(route.stream_index + 1) + ")"});
+      } catch (const std::exception& error) {
+        output_device_routes_.clear();
+        std::scoped_lock state_lock(mutex_);
+        audio_tap_error_ = error.what(); last_error_ = error.what();
+      }
+    }
     else if (configuration.audio_mode == "gameOnly" && configuration.target_process_id) {
       auto gain = 1.0;
       for (const auto& source : configuration.audio_sources) if (source.id == "game-audio") gain = source.gain_linear;
       sources.push_back({"game-audio", TrackKind::game_audio, next_id++, gain});
     } else if (configuration.audio_mode == "splitByProcess") {
-      for (const auto& source : configuration.audio_sources) if (source.enabled && pid_for_audio_source(source.id, configuration))
+      // An enabled but currently silent/closed source retains its descriptor,
+      // never a fabricated healthy stem. Its acquisition may be restored only
+      // by a new verified family lookup; the graph won't emit a stem until PCM.
+      for (const auto& source : configuration.audio_sources) if (source.enabled &&
+          source.id != "MedalEncoder.exe" && source.id != "medal-clip-sound")
         sources.push_back({source.id, source.id == "game-audio" ? TrackKind::game_audio : TrackKind::mixed_audio, next_id++, source.gain_linear});
     }
     if (configuration.capture_microphone) sources.push_back({"microphone", TrackKind::microphone_audio, next_id++, configuration.microphone_gain_linear});
@@ -1831,12 +1835,18 @@ class MacCaptureSession final : public CaptureSession {
         {"audio",
          {{"mode", configuration_.audio_mode},
           {"pcAudioEnabled", configuration_.pc_audio_enabled},
-          {"master", audio_status(master_audio, configuration_.multiple_audio_tracks)},
+          {"master", audio_status(master_audio, master_audio != nullptr)},
           {"system", audio_status(system_audio, configuration_.capture_system_audio)},
           {"microphone", audio_status(microphone, configuration_.capture_microphone)},
           {"selectedOutputDevices", configuration_.selected_audio_devices},
           {"multipleTracks", configuration_.multiple_audio_tracks},
           {"processTaps", [&] { std::scoped_lock lock(process_taps_mutex_); return process_audio_taps_.size(); }()},
+          {"processTapDiagnostics", [&] {
+            nlohmann::json diagnostics = nlohmann::json::array();
+            std::scoped_lock lock(process_taps_mutex_);
+            for (const auto& tap : process_audio_taps_) diagnostics.push_back(tap->diagnostics());
+            return diagnostics;
+          }()},
           {"processTapRejectedLayouts", [&] {
              std::uint64_t rejected = 0;
              std::scoped_lock lock(process_taps_mutex_);
@@ -1933,6 +1943,7 @@ class MacCaptureSession final : public CaptureSession {
   std::shared_ptr<AacEncoder> master_audio_encoder_;
   std::shared_ptr<AacEncoder> microphone_encoder_;
   std::shared_ptr<AudioMixGraph> audio_mix_graph_;
+  std::vector<MacAudioOutputRoute> output_device_routes_;
   std::vector<std::unique_ptr<ProcessAudioTap>> process_audio_taps_;
   mutable std::mutex process_taps_mutex_;
   dispatch_queue_t audio_worker_queue_{dispatch_queue_create("com.squirrel.medal.medal.audio-samples", DISPATCH_QUEUE_SERIAL)};

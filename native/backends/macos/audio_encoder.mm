@@ -412,6 +412,7 @@ struct AacEncoder::Impl final {
     packet->track = track;
     packet->track_id = track_id;
     packet->logical_source_id = logical_source_id;
+    packet->logical_source_name = logical_source_name;
     packet->configuration_generation = generation;
     packet->pts = media_time(next_output_pts, static_cast<std::int32_t>(std::llround(output.mSampleRate)), 0);
     packet->dts = packet->pts;
@@ -449,6 +450,7 @@ struct AacEncoder::Impl final {
   std::uint32_t target_bitrate;
   double gain;
   std::string logical_source_id;
+  std::string logical_source_name;
   PacketCallback packet_callback;
   std::mutex mutex;
   AudioConverterRef converter{nullptr};
@@ -500,6 +502,11 @@ void AacEncoder::set_gain(double gain) {
 void AacEncoder::set_logical_source_id(std::string logical_source_id) {
   std::scoped_lock lock(impl_->mutex);
   impl_->logical_source_id = std::move(logical_source_id);
+}
+
+void AacEncoder::set_logical_source_name(std::string name) {
+  std::scoped_lock lock(impl_->mutex);
+  impl_->logical_source_name = std::move(name);
 }
 
 void AacEncoder::reset() {

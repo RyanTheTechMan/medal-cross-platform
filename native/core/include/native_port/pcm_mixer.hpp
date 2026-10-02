@@ -13,6 +13,7 @@ struct PcmSource final {
   TrackKind role{TrackKind::mixed_audio};
   std::uint32_t track_id{2};
   double gain{1.0};
+  std::string display_name{};
 };
 
 // Serialized worker-owned graph. All positions are ABSOLUTE host time expressed

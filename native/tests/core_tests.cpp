@@ -331,6 +331,13 @@ void test_audio_routing_plan() {
          "actual plan normalization must retain fractional PC and app gains");
   expect(native_port::audio_routing_plan_from_settings(native_port::SettingsStore{}).microphone_gain_linear == 0.5,
          "absent wire microphone gain uses the traced normalized default");
+  native_port::SettingsStore no_outputs;
+  no_outputs.apply({{.key = "AudioModeConfig", .value = {{"type", "allPcAudio"}, {"devices", nlohmann::json::array()}}, .category_id = std::nullopt},
+    {.key = "SelectedAudioDevices", .value = nlohmann::json::array({"Auto"}), .category_id = std::nullopt}});
+  expect(native_port::audio_routing_plan_from_settings(no_outputs).selected_audio_devices.empty(),
+    "original H4 explicit empty selected devices must not fall back to stale legacy Auto");
+  expect(native_port::audio_routing_plan_from_settings(native_port::SettingsStore{}).selected_audio_devices == std::vector<std::string>{"Auto"},
+    "only absent device settings use the traced Auto default");
   const auto game = native_port::audio_routing_plan_from_settings(settings, "game-1");
   expect(game.mode == "allPcAudio" && !game.microphone_enabled && game.pc_audio_enabled,
          "per-game mode and explicit microphone disable must override global settings");
@@ -351,6 +358,25 @@ void test_audio_routing_plan() {
              !game_only.multiple_audio_tracks && game_only.sources.size() == 2 &&
              game_only.sources[0].enabled && !game_only.sources[1].enabled,
          "GameAudioOnly must retain source identity while disabling unrelated process buses");
+  const auto reject_mode = [](const nlohmann::json& value) {
+    native_port::SettingsStore invalid;
+    invalid.apply({{.key = "AudioModeConfig", .value = value, .category_id = std::nullopt}});
+    (void)native_port::audio_routing_plan_from_settings(invalid);
+  };
+  for (const auto& id : {"", "all-audio", "microphone", "pc-audio"}) {
+    expect_throws<std::invalid_argument>([&] { reject_mode({{"type", "splitByProcess"},
+      {"sources", nlohmann::json::array({{{"id", id}, {"enabled", true}}})}}); },
+      "empty/reserved source ID must fail before async graph creation");
+  }
+  expect_throws<std::invalid_argument>([&] { reject_mode({{"type", "splitByProcess"},
+    {"sources", nlohmann::json::array({{{"id", "Chat"}, {"enabled", true}}, {{"id", "Chat"}, {"enabled", false}}})}}); },
+    "duplicate source IDs must fail even if one entry is disabled");
+  expect_throws<std::invalid_argument>([&] { reject_mode({{"type", "unknown"}}); },
+    "unknown wire mode must not silently capture no audio as successful routing");
+  auto many = nlohmann::json::array();
+  for (int i = 0; i < 15; ++i) many.push_back({{"id", "App" + std::to_string(i)}, {"enabled", true}});
+  expect_throws<std::invalid_argument>([&] { reject_mode({{"type", "splitByProcess"}, {"sources", many}}); },
+    "source plus microphone limit must also apply to live normalized plans");
 }
 
 void test_capture_geometry() {

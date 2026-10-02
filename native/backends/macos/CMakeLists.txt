@@ -15,7 +15,9 @@ find_library(COREVIDEO_FRAMEWORK CoreVideo REQUIRED)
 
 add_library(native_port_macos_adapter STATIC
   audio_encoder.mm
+  audio_device_registry.mm
   audio_mix_graph.mm
+  audio_process_registry.mm
   mp4_writer.mm
   platform_adapter.mm
   pcm_sample.mm
@@ -132,6 +134,10 @@ target_compile_options(native_port_macos_avfoundation_file_probe PRIVATE
 )
 
 if(BUILD_TESTING)
+  add_executable(native_port_macos_audio_process_registry_tests audio_process_registry_tests.mm)
+  target_link_libraries(native_port_macos_audio_process_registry_tests PRIVATE native_port_macos_adapter native_port_core)
+  target_compile_options(native_port_macos_audio_process_registry_tests PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -UNDEBUG)
+  add_test(NAME native_port_macos_audio_process_registry_tests COMMAND native_port_macos_audio_process_registry_tests)
   foreach(tone 440 660 880)
     add_executable(native_port_audio_fixture_${tone} MACOSX_BUNDLE audio_tone_fixture.mm)
     target_compile_definitions(native_port_audio_fixture_${tone} PRIVATE NATIVE_FIXTURE_TONE=${tone})

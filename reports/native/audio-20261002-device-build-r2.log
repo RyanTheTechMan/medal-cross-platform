@@ -1,0 +1,28 @@
+[1/10] Building OBJCXX object native/backends/macos/CMakeFiles/native_port_macos_audio_process_registry_tests.dir/audio_process_registry_tests.mm.o
+[2/10] Building OBJCXX object native/backends/macos/CMakeFiles/native_port_macos_adapter.dir/audio_process_registry.mm.o
+[3/10] Building OBJCXX object native/backends/macos/CMakeFiles/native_port_macos_audio_mix_graph_probe.dir/audio_mix_graph_probe.mm.o
+In file included from /Users/ryan/Developer/medal-cross-platform/native/backends/macos/audio_mix_graph_probe.mm:2:
+/Users/ryan/Developer/medal-cross-platform/native/backends/macos/mp4_writer_probe.mm:238:20: warning: unused function 'encode_audio' [-Wunused-function]
+  238 | [[nodiscard]] bool encode_audio(
+      |                    ^~~~~~~~~~~~
+/Users/ryan/Developer/medal-cross-platform/native/backends/macos/mp4_writer_probe.mm:273:27: warning: unused function 'readable_sample_count' [-Wunused-function]
+  273 | [[nodiscard]] std::size_t readable_sample_count(NSURL* url, AVMediaType type) {
+      |                           ^~~~~~~~~~~~~~~~~~~~~
+2 warnings generated.
+[4/10] Building OBJCXX object native/backends/macos/CMakeFiles/native_port_macos_adapter.dir/screen_capture_session.mm.o
+/Users/ryan/Developer/medal-cross-platform/native/backends/macos/screen_capture_session.mm:73:52: warning: 'devicesWithMediaType:' is deprecated: first deprecated in macOS 10.15 - Use AVCaptureDeviceDiscoverySession instead. [-Wdeprecated-declarations]
+   73 |   for (AVCaptureDevice* device in [AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio]) {
+      |                                                    ^
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/AVFoundation.framework/Headers/AVCaptureDevice.h:168:1: note: 'devicesWithMediaType:' has been explicitly marked deprecated here
+  168 | + (NSArray<AVCaptureDevice *> *)devicesWithMediaType:(AVMediaType)mediaType API_DEPRECATED("Use AVCaptureDeviceDiscoverySession instead.", ios(4.0, 10.0), macos(10.7, 10.15)) API_UNAVAILABLE(visionos) API_UNAVAILABLE(tvos);
+      | ^
+1 warning generated.
+[5/10] Linking OBJCXX static library native/backends/macos/libnative_port_macos_adapter.a
+[6/10] Linking CXX executable native/backends/macos/native_port_macos_mp4_writer_probe
+[7/10] Linking CXX executable native/backends/macos/native_port_macos_audio_process_registry_tests
+[8/10] Linking CXX executable native/backends/macos/native_port_macos_hotkey_event_pump_probe
+[9/10] Linking CXX executable native/backends/macos/native_port_macos_audio_mix_graph_probe
+[10/10] Linking CXX executable native/helper/native_medal_recorder.app/Contents/MacOS/native_medal_recorder; Signing the stable Native Medal Recorder development identity
+/Users/ryan/Developer/medal-cross-platform/build-macos-20260925/native/helper/native_medal_recorder.app: replacing existing signature
+/Users/ryan/Developer/medal-cross-platform/build-macos-20260925/native/helper/native_medal_recorder.app: valid on disk
+/Users/ryan/Developer/medal-cross-platform/build-macos-20260925/native/helper/native_medal_recorder.app: satisfies its Designated Requirement

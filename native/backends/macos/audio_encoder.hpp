@@ -26,6 +26,7 @@ class AacEncoder final {
                             std::string& error);
   void set_gain(double gain);
   void set_logical_source_id(std::string logical_source_id);
+  void set_logical_source_name(std::string name);
   void reset();
 
   [[nodiscard]] std::uint64_t input_sample_count() const noexcept;

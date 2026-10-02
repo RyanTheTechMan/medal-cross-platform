@@ -2,6 +2,20 @@
 
 This file records observed limits, not excuses for successful no-op behavior.
 
+Current continuation: `reports/native/audio-20261002-routing-status.md`.
+Original-UI synthetic acquisition and active audio-app enumeration ran; physical
+F8 was not received, then the Mac locked. Native replay/contentCreate/player/
+restart and live isolation are blocked until manual unlock. Family/device code
+has 9 passing CTests but is not live-verified. Device taps currently require
+mono/stereo; multichannel and process/default-device/format listeners remain open.
+Generic rebind listening was rejected; original Unset Hotkey worked. Test apps/
+capture stopped. No automatic unlock, TCC reset or uploads.
+
+The PCM graph buffers 200 ms for reorder; observed packet endpoint backlog was
+about 241 ms. Offline probes drain before muxing, so running hotkey replay tail
+coverage is not thereby proven. Inspect the actual press-anchored export and
+separate buffering/tail coverage from audible A/V offset before passing timing.
+
 ## Environment
 
 - Current fresh build uses installed Xcode 27.1 (27A9269), SDK 27.0; the former Xcode-beta installation is gone. Existing historical beta reports remain evidence for their exact builds only. No release/notarization claim.
@@ -21,7 +35,7 @@ This file records observed limits, not excuses for successful no-op behavior.
 - The current development client still tries one Windows registry-based external-clip discovery command on macOS; A04 remains open until that path has an explicit platform adapter.
 - The prepared FFmpeg/ffprobe diagnostic tools originate from a Homebrew GPL-enabled development build, and the SQLite CLI is a development copy of the system tool. They are not a self-contained or release-cleared A07 package. The native recorder and MP4 mux path do not link those Homebrew libraries; the signed helper uses Apple frameworks and system libraries only.
 - The native helper currently covers the handshake/readiness, settings, device-query and shutdown subset. Heartbeat/reconnect, malformed/oversized frames, slow handlers, duplicate in-flight IDs and most capture/control RPCs remain incomplete.
-- `getActiveProcesses` now builds a typed PID/bundle/executable/ScreenCaptureKit/window model and translates it to the original DTO only at the wire boundary. The authenticated original UI automatically classified and targeted A Dance of Fire and Ice through Medal's recovered category flow; Java is presented as `Minecraft` only when its real visible title contains Minecraft. `getTargetedProcesses` tracks the typed target, while `audioProcesses` remains empty. Minecraft fallback, launch/termination/window-recreation monitoring, exclusions and complete application-capture lifecycle remain open.
+- `getActiveProcesses` uses the typed native process/window model and translates only at the wire boundary. Earlier ADOFAI/Minecraft category evidence remains scoped to its reports. `audioProcesses` now enumerates active HAL clients; the original UI listed all three tone apps. New helper-family aggregation is build/model-tested, not permissioned isolation evidence. Target and audio-family lifecycle monitoring remain open.
 - The original client's renderer IPC wrapper resolves an explicit recorder wire error as `null` after logging it. Wire error `-32601` is verified, but renderer capability controls must prevent unsupported calls rather than depend on Promise rejection.
 - Display enumeration now returns the recovered outward shape plus real in-memory ScreenCaptureKit thumbnails and friendly labels verified in the original UI. Persistent stable-ID mapping across topology changes, duplicate-name selection and hotplug behavior are not implemented.
 - The prepared tree and Apple-Development-signed app are ignored under `artifacts/`; they are not Developer-ID signed, notarized, redistributable, or release candidates.

@@ -1,0 +1,1 @@
+PASS multiple: native master tones/gains, delayed mic, isolated stems, default selection, ffprobe and AVFoundation

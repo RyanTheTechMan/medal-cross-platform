@@ -45,18 +45,22 @@ struct ProcessAudioTap::Impl final {
   bool start(const std::vector<std::int64_t>& requested_pids, TrackKind track,
              std::uint32_t track_id, double gain,
              std::uint64_t generation, std::int64_t session_epoch_nanoseconds,
-             AacEncoder::PacketCallback callback, std::string& error, PcmCallback pcm) {
+             AacEncoder::PacketCallback callback, std::string& error, PcmCallback pcm,
+             const std::optional<AudioTapDeviceRoute>& device) {
     stop();
     (void)session_epoch_nanoseconds; // SCK video already uses the absolute host clock.
     queue_read.store(0); queue_write.store(0);
     callback_error.store(0); dropped_buffers.store(0); rejected_layouts.store(0);
+    input_frames.store(0); first_host_ns.store(-1); last_host_ns.store(-1);
+    process_count = requested_pids.size();
     { std::scoped_lock lock(error_mutex); last_error.clear(); }
-    if (requested_pids.empty() ||
+    if ((requested_pids.empty() && (!device || !device->all_processes_on_device)) ||
         std::any_of(requested_pids.begin(), requested_pids.end(),
                     [](const auto value) { return value <= 0; })) {
       error = "Core Audio process tap requires positive PIDs";
       return false;
     }
+    if (device && device->uid.empty()) { error = "Core Audio device tap requires a stable output UID"; return false; }
 
     AudioObjectPropertyAddress process_address{kAudioHardwarePropertyTranslatePIDToProcessObject,
                                                kAudioObjectPropertyScopeGlobal,
@@ -76,8 +80,13 @@ struct ProcessAudioTap::Impl final {
     }
 
     @autoreleasepool {
-      CATapDescription* description =
-          [[CATapDescription alloc] initStereoMixdownOfProcesses:process_objects];
+      CATapDescription* description = nil;
+      if (device) {
+        NSString* uid = [NSString stringWithUTF8String:device->uid.c_str()];
+        description = device->all_processes_on_device
+          ? [[CATapDescription alloc] initExcludingProcesses:process_objects andDeviceUID:uid withStream:device->stream_index]
+          : [[CATapDescription alloc] initWithProcesses:process_objects andDeviceUID:uid withStream:device->stream_index];
+      } else description = [[CATapDescription alloc] initStereoMixdownOfProcesses:process_objects];
       if (description == nil) {
         error = "Core Audio CATapDescription creation returned nil";
         return false;
@@ -85,7 +94,9 @@ struct ProcessAudioTap::Impl final {
       description.name = [NSString stringWithFormat:@"Medal process tap (%lu processes)",
                                                         static_cast<unsigned long>(requested_pids.size())];
       description.privateTap = YES;
-      description.processRestoreEnabled = YES;
+      // Restoring by bundle ID without a fresh verified family snapshot could
+      // acquire a different game instance. The session owns explicit rebuilds.
+      description.processRestoreEnabled = NO;
       description.muteBehavior = CATapUnmuted;
       const auto tap_status = AudioHardwareCreateProcessTap(description, &tap_id);
       if (tap_status != noErr || tap_id == kAudioObjectUnknown) {
@@ -277,6 +288,10 @@ struct ProcessAudioTap::Impl final {
     slot.byte_count = input->mBuffers[0].mDataByteSize;
     slot.frames = frames;
     slot.host_nanoseconds = host_nanoseconds;
+    auto unset = std::int64_t{-1};
+    (void)first_host_ns.compare_exchange_strong(unset, host_nanoseconds, std::memory_order_relaxed);
+    last_host_ns.store(host_nanoseconds + static_cast<std::int64_t>(frames * 1e9 / format.mSampleRate), std::memory_order_relaxed);
+    input_frames.fetch_add(frames, std::memory_order_relaxed);
     queue_write.store(write + 1, std::memory_order_release);
     schedule_worker();
   }
@@ -354,6 +369,10 @@ struct ProcessAudioTap::Impl final {
   dispatch_queue_t worker_queue{nullptr};
   mutable std::mutex error_mutex;
   std::string last_error;
+  std::string source_id;
+  std::size_t process_count{0};
+  std::atomic<std::uint64_t> input_frames{0};
+  std::atomic<std::int64_t> first_host_ns{-1}, last_host_ns{-1};
 };
 
 ProcessAudioTap::ProcessAudioTap() : impl_(std::make_unique<Impl>()) {}
@@ -363,9 +382,10 @@ bool ProcessAudioTap::start(const std::vector<std::int64_t>& pids, TrackKind tra
                             std::uint32_t track_id,
                             double gain, std::uint64_t generation,
                             std::int64_t session_epoch_nanoseconds,
-                            AacEncoder::PacketCallback callback, std::string& error, PcmCallback pcm) {
+                            AacEncoder::PacketCallback callback, std::string& error, PcmCallback pcm,
+                            std::optional<AudioTapDeviceRoute> device) {
   return impl_->start(pids, track, track_id, gain, generation, session_epoch_nanoseconds,
-                      std::move(callback), error, std::move(pcm));
+                      std::move(callback), error, std::move(pcm), device);
 }
 void ProcessAudioTap::stop() { impl_->stop(); }
 void ProcessAudioTap::set_gain(double gain) {
@@ -374,6 +394,7 @@ void ProcessAudioTap::set_gain(double gain) {
   }
 }
 void ProcessAudioTap::set_logical_source_id(std::string logical_source_id) {
+  { std::scoped_lock lock(impl_->error_mutex); impl_->source_id = logical_source_id; }
   if (impl_->encoder) {
     impl_->encoder->set_logical_source_id(std::move(logical_source_id));
   }
@@ -405,6 +426,17 @@ std::string ProcessAudioTap::status() const {
     return "error";
   }
   return running() ? "running" : "stopped";
+}
+
+nlohmann::json ProcessAudioTap::diagnostics() const {
+  std::string id;
+  { std::scoped_lock lock(impl_->error_mutex); id = impl_->source_id; }
+  return {{"logicalSourceId", id}, {"state", status()}, {"error", error()},
+    {"generation", impl_->configuration_generation}, {"processCount", impl_->process_count},
+    {"sampleRate", impl_->format.mSampleRate}, {"channels", impl_->format.mChannelsPerFrame},
+    {"bufferCount", impl_->buffer_count}, {"inputFrames", impl_->input_frames.load()},
+    {"firstHostNanoseconds", impl_->first_host_ns.load()}, {"lastHostEndNanoseconds", impl_->last_host_ns.load()},
+    {"droppedBuffers", impl_->dropped_buffers.load()}, {"rejectedLayouts", impl_->rejected_layouts.load()}};
 }
 
 }  // namespace native_port

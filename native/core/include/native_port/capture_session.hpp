@@ -34,7 +34,7 @@ struct CaptureConfiguration final {
   bool pc_audio_enabled{true};
   double system_audio_volume_percent{100};
   double microphone_gain_linear{0.5};
-  std::vector<std::string> selected_audio_devices;
+  std::vector<std::string> selected_audio_devices{"Auto"};
   struct AudioSource final {
     std::string id;
     bool enabled{false};

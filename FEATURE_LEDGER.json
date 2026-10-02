@@ -890,17 +890,20 @@
         "status": "implemented_unverified",
         "implementation_files": [
           "native/helper/main.cpp",
-          "native/backends/macos/platform_adapter.mm"
+          "native/backends/macos/platform_adapter.mm",
+          "native/backends/macos/audio_process_registry.mm"
         ],
         "test_ids": [
           "B08",
           "B09"
         ],
         "report_paths": [
-          "reports/native/ctest-m2.6-xcode-27.2-beta.log"
+          "reports/native/ctest-m2.6-xcode-27.2-beta.log",
+          "reports/native/audio-20261002-routing-status.md",
+          "reports/native/audio-20261002-device-ctest-r2.log"
         ],
         "limitations": [
-          "Target identity now exists, but Core Audio process-tap enumeration/isolation is not implemented; the RPC intentionally returns an empty array and never substitutes whole-system audio."
+          "HAL output-client enumeration is implemented and the original UI listed the three tone apps. Native helper-family aggregation is model/build-tested; live per-family isolation and lifecycle/device listeners remain open. No whole-system fallback."
         ]
       },
       "linux": {
@@ -2270,7 +2273,7 @@
           "reports/native/native-audio-edit-manifest-final-test-r2.log"
         ],
         "limitations": [
-          "Typed audio routing, HAL discovery and absolute track identities are implemented but native master mixing is incomplete. The September 20 UI audio restart claim is withdrawn due to missing-file errors. Source-preserving edits and audition ownership now pass fixture/unit tests; live UI, per-app isolation, microphone and long-run timing remain open. See reports/native/audio-20260925-status.md."
+          "Native PCM master/stems and strict normalization pass native fixtures. Original editor short UI/restart gates pass September 25 evidence. October 2 native acquisition ran, but hotkey/isolation/restart gates became blocked by a locked Mac. Live source/device routing and sustained timing remain unverified; see reports/native/audio-20261002-routing-status.md."
         ]
       },
       "linux": {
@@ -2347,7 +2350,7 @@
           "reports/native/native-audio-edit-manifest-final-test-r2.log"
         ],
         "limitations": [
-          "Typed audio routing, HAL discovery and absolute track identities are implemented but native master mixing is incomplete. The September 20 UI audio restart claim is withdrawn due to missing-file errors. Source-preserving edits and audition ownership now pass fixture/unit tests; live UI, per-app isolation, microphone and long-run timing remain open. See reports/native/audio-20260925-status.md."
+          "Native PCM master/stems and strict normalization pass native fixtures. Original H4 explicit-empty device selection is authoritative over legacy Auto. Native UID/stream taps and helper families are built/model-tested, not live-isolation evidence. GUI/replay/restart blocked by locked Mac; see reports/native/audio-20261002-routing-status.md."
         ]
       },
       "linux": {
@@ -3890,17 +3893,23 @@
         "implementation_files": [
           "native/core/include/native_port/settings_store.hpp",
           "native/core/src/settings_store.cpp",
-          "native/helper/main.cpp"
+          "native/helper/main.cpp",
+          "native/core/src/audio_routing.cpp",
+          "native/backends/macos/audio_device_registry.mm",
+          "native/backends/macos/process_audio_tap.mm",
+          "native/backends/macos/screen_capture_session.mm"
         ],
         "test_ids": [
           "B09"
         ],
         "report_paths": [
           "reports/native/ctest-m2.6-xcode-27.2-beta.log",
-          "reports/native/m2.6-protocol-selftest.json"
+          "reports/native/m2.6-protocol-selftest.json",
+          "reports/native/audio-20261002-routing-status.md",
+          "reports/native/audio-20261002-device-ctest-r2.log"
         ],
         "limitations": [
-          "Typed global/per-game storage and scoped deletion are implemented; operational live effect and UI unit conversion for this setting are not thereby verified."
+          "Device UID/stream-bound native taps and Auto/default deduplication are built/model-tested. Missing, ambiguous and non-mono/stereo streams do not silently use whole-PC capture. Explicit empty AudioModeConfig selection wins over stale legacy settings. Live selection/disconnect/default-change tests remain open."
         ]
       },
       "linux": {
@@ -4583,7 +4592,7 @@
         ],
         "test_ids": ["M05", "M07", "M10"],
         "report_paths": ["reports/native/m3.9-permissions-onboarding.md", "reports/native/m3.9-aac-mic-error-loop-fix.md", "reports/native/audio-20261002-status.md", "reports/native/audio-20261002-capture-mixer-ctest-r4.log"],
-        "limitations": ["Actual native combined master/stems pass synthetic hardware encode/mux, AVFoundation, ffprobe and spectral gains/delayed-mic tests. Native live microphone/routing/settings and sustained drift remain unverified; see October 2 report."]
+        "limitations": ["Native master/stems pass synthetic hardware encode/mux, AVFoundation, ffprobe and spectral gains/delayed-mic tests. Original UI synthetic window plus Auto-PC native acquisition ran. Physical hotkey/replay/isolation/player/restart blocked when Mac locked; live microphone and sustained drift remain unverified. See reports/native/audio-20261002-routing-status.md."]
       },
       "linux": {
         "status": "not_started",
@@ -4605,10 +4614,10 @@
       "contract_status": "proposed_product_requirement",
       "macos": {
         "status": "implemented_unverified",
-        "implementation_files": ["native/core/src/audio_routing.cpp", "native/core/src/pcm_mixer.cpp", "native/backends/macos/process_audio_tap.mm", "native/backends/macos/screen_capture_session.mm"],
+        "implementation_files": ["native/core/src/audio_routing.cpp", "native/core/src/pcm_mixer.cpp", "native/backends/macos/audio_process_registry.mm", "native/backends/macos/process_audio_tap.mm", "native/backends/macos/screen_capture_session.mm"],
         "test_ids": ["M06"],
         "report_paths": ["reports/native/audio-20261002-status.md"],
-        "limitations": ["Selected native process taps feed independent PCM buses and the real master; no whole-system fallback. Permissioned tone isolation, helper process families and target relaunch/device listeners remain open."]
+        "limitations": ["Selected family taps feed independent PCM buses and real master without whole-PC fallback. Helper/two-instance/PID-ancestry ownership is model-tested; permissioned tone isolation and relaunch/device listeners remain open. GUI blocked when Mac locked; see reports/native/audio-20261002-routing-status.md."]
       },
       "linux": {
         "status": "not_started",
@@ -4628,11 +4637,11 @@
       "source": "CODEX_MASTER_PROMPT.md",
       "contract_status": "proposed_product_requirement",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": ["native/backends/macos/platform_adapter.mm", "native/helper/main.cpp", "native/core/src/clip_action.cpp"],
+        "test_ids": ["M08"],
+        "report_paths": ["reports/native/m3.5-operational-replay-result.md", "reports/native/audio-20261002-routing-status.md"],
+        "limitations": ["Platform Carbon clip action exists and earlier physical shortcut evidence is scoped to its report. Current original generic rebind listening is rejected/unsupported, not a successful no-op. Original Unset Bookmark removes F8 conflict. Automated F8 did not dispatch; physical input and full PTT/layout/suspend/sleep-wake matrix remain open."]
       },
       "linux": {
         "status": "not_started",

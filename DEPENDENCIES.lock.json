@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedOn": "2026-09-25",
+  "generatedOn": "2026-10-02",
   "status": "development_inventory_not_release_lock",
   "target": {
     "os": "macOS 27.2 build 26B5091g",
@@ -12,7 +12,7 @@
     {
       "name": "required-stable-xcode-27",
       "status": "available",
-      "reason": "Xcode 27.1 (27A9269) is installed; fresh build and 6 CTests pass on 2026-09-25"
+      "reason": "Xcode 27.1 (27A9269) is installed; fresh audio-routing build and 9 CTests pass on 2026-10-02"
     },
     {
       "name": "development-xcode",

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <set>
 #include <stdexcept>
 
 namespace native_port {
@@ -56,13 +57,14 @@ AudioRoutingPlan audio_routing_plan_from_settings(const SettingsStore& settings,
   plan.generation = generation;
 
   const auto mode = settings.effective("AudioModeConfig", category_id);
+  bool mode_devices_present = false;
   if (mode) {
     if (!mode->is_object()) {
       throw std::invalid_argument("AudioModeConfig must be an object");
     }
     plan.mode = mode->value("type", plan.mode);
-    if (plan.mode.empty()) {
-      throw std::invalid_argument("AudioModeConfig.type must not be empty");
+    if (plan.mode != "allPcAudio" && plan.mode != "splitByProcess" && plan.mode != "gameOnly") {
+      throw std::invalid_argument("AudioModeConfig.type is not a supported recovered audio mode");
     }
     plan.pc_audio_enabled = bool_or(
         mode->contains("pcAudioEnabled") ? std::optional<nlohmann::json>(mode->at("pcAudioEnabled"))
@@ -77,6 +79,8 @@ AudioRoutingPlan audio_routing_plan_from_settings(const SettingsStore& settings,
                                         "AudioModeConfig.micEnabled");
     }
     if (mode->contains("devices")) {
+      mode_devices_present = true;
+      plan.selected_audio_devices.clear();
       if (!mode->at("devices").is_array()) {
         throw std::invalid_argument("AudioModeConfig.devices must be an array");
       }
@@ -93,12 +97,18 @@ AudioRoutingPlan audio_routing_plan_from_settings(const SettingsStore& settings,
       if (!mode->at("sources").is_array()) {
         throw std::invalid_argument("AudioModeConfig.sources must be an array");
       }
+      if (mode->at("sources").size() > 64) throw std::invalid_argument("AudioModeConfig has too many source entries");
+      std::set<std::string> source_ids;
       for (const auto& source : mode->at("sources")) {
         if (!source.is_object() || !source.contains("id") || !source.at("id").is_string()) {
           throw std::invalid_argument("AudioModeConfig source requires a string id");
         }
         AudioRoutingSource resolved;
         resolved.id = source.at("id").get<std::string>();
+        if (resolved.id.empty() || resolved.id.size() > 512 || !source_ids.insert(resolved.id).second ||
+            resolved.id == "all-audio" || resolved.id == "microphone" || resolved.id == "pc-audio") {
+          throw std::invalid_argument("AudioModeConfig source IDs must be bounded, unique and nonreserved");
+        }
         resolved.enabled = source.value("enabled", false);
         if (!resolved.enabled) {
           resolved.volume_percent = source.contains("volume")
@@ -122,7 +132,8 @@ AudioRoutingPlan audio_routing_plan_from_settings(const SettingsStore& settings,
     if (!devices->is_array()) {
       throw std::invalid_argument("SelectedAudioDevices must be an array");
     }
-    if (plan.selected_audio_devices.empty()) {
+    if (!mode_devices_present) {
+      plan.selected_audio_devices.clear();
       for (const auto& device : *devices) {
         if (!device.is_string()) {
           throw std::invalid_argument("SelectedAudioDevices entries must be strings");
@@ -168,6 +179,12 @@ AudioRoutingPlan audio_routing_plan_from_settings(const SettingsStore& settings,
       }
     }
   }
+  const auto enabled = std::count_if(plan.sources.begin(), plan.sources.end(), [](const auto& source) { return source.enabled; });
+  if (enabled + (plan.microphone_enabled ? 1 : 0) > 15)
+    throw std::invalid_argument("Native recording supports at most fifteen independently selected audio sources");
+  if (plan.selected_audio_devices.size() > 16 || std::any_of(plan.selected_audio_devices.begin(), plan.selected_audio_devices.end(),
+      [](const auto& name) { return name.empty() || name.size() > 512; }))
+    throw std::invalid_argument("Selected output device names must be bounded and nonempty");
   return plan;
 }
 

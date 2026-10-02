@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
     std::vector<std::shared_ptr<const native_port::EncodedPacket>> audio;
     std::string error;
     bool ok = encode_video(video, error, epoch);
-    native_port::AudioMixGraph graph({{"pc-audio", native_port::TrackKind::mixed_audio, 2, .25},
+    native_port::AudioMixGraph graph({{"pc-audio", native_port::TrackKind::mixed_audio, 2, .25, "PC Audio — Fixture"},
       {"microphone", native_port::TrackKind::microphone_audio, 3, .5}}, stems, 1,
       [&](auto packet) { audio.push_back(std::move(packet)); });
     for (int index = 0; index < 200 && ok; ++index) {
@@ -75,6 +75,7 @@ int main(int argc, char** argv) {
       ids.insert(packet->logical_source_id);
       ok = ok && packet->monotonic_nanoseconds >= epoch * 1'000'000'000LL &&
         packet->configuration_generation == 1 && packet->sample_rate == 48000 && packet->channel_count == 2;
+      if (packet->logical_source_id == "pc-audio") ok = ok && packet->logical_source_name == "PC Audio — Fixture";
     }
     ok = ok && ids.size() == (stems ? 3U : 1U) && ids.contains("all-audio");
     auto packets = video.packets; packets.insert(packets.end(), audio.begin(), audio.end());
@@ -91,6 +92,7 @@ int main(int argc, char** argv) {
       result = native_port::write_mp4(output, *snapshot);
       ok = result.audio_streams.size() == (stems ? 3U : 1U) && result.audio_streams[0].title == "All Audio" &&
            result.audio_streams[0].default_track;
+      if (stems) ok = ok && result.audio_streams[1].title == "PC Audio — Fixture";
     } catch (const std::exception& failure) { ok = false; error = failure.what(); }
     std::cout << nlohmann::json({{"status", ok ? "passed" : "failed"}, {"error", error}, {"stems", stems},
       {"audioPackets", audio.size()}, {"videoPackets", video.packets.size()}, {"audioStreams", result.audio_streams.size()},

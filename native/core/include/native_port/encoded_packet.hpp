@@ -32,6 +32,9 @@ struct EncodedPacket final {
   // Stable logical source identity within this media generation. This is not
   // a PID and remains valid when an application is relaunched.
   std::string logical_source_id;
+  // Human-readable source name kept separately from identity (e.g. output
+  // device UID/stream). Native writer's finalized manifest is authoritative.
+  std::string logical_source_name;
   std::uint64_t configuration_generation{0};
   MediaTime pts{};
   MediaTime dts{};

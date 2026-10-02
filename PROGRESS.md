@@ -1,5 +1,24 @@
 # Implementation progress
 
+## Current audio routing continuation — 2026-10-02
+
+On `3a0f3f7`: model-tested native helper-family ownership, UID/stream-bound output
+taps, strict live source/device normalization and final source labels are built.
+Fresh 9 CTests, 7 importer tests and native single/multiple media validations pass.
+Signed build `2637.461.1-development-m3.5-84f35d9a5ac0c845` is installed at
+`/Applications/Medal.app`; prior mixer/editor bundles remain recoverable.
+
+Original UI Never uploads, active tone-app enumeration, normal synthetic window
+targeting and SCK/PCM/AAC acquisition were exercised. Automated F8 did not trigger
+Carbon; physical input was requested. The Mac then locked: GUI/replay/isolation/
+restart gates are blocked, not passed. Test capture/apps stopped; no new launch
+while locked. Exact evidence: `reports/native/audio-20261002-routing-status.md`.
+
+Next runnable task: manual unlock, single installed-app launch, preflight,
+controlled tones and real clip hotkey through original UI; exact file/probe/
+player/restart, Specific Apps/device/microphone gates. Listeners and Clip Sound
+PCM remain open. No uploads; Linux handoff is not ready.
+
 ## Current native audio mixer — 2026-10-02
 
 Editor checkpoint `0fd3698` is preserved. The capture backend now feeds PC,
@@ -150,7 +169,7 @@ continue individual-mute/cancel/seek/rate and sustained preview/routing gates.
 
 ## Failed or blocked gates
 
-- Stable Xcode 27 is still absent. Xcode 27.2 beta build 27B5019j and SDK 27.2 compile/run the development evidence; beta-built output is not release evidence.
+- Historical beta evidence does not establish release eligibility. Current installed Xcode 27.1/27A9269, SDK 27.0 builds with 9/9 native CTests; signing/package/release gates remain separate.
 - A04 is not complete: the GUI works, but original external-clip discovery still attempts the Windows `REG` command and logs a command/PATH error on macOS.
 - A05 is not complete: the real worker passed migrations/JSONB/CRUD/close-reopen, but deliberate corruption and the packaged sqlite recovery CLI path have not run.
 - A06/A07 are not complete: the client updater and SQLite download path are controlled, but native recorder AssetManager replacement and self-contained FFmpeg/sqlite packaging remain outstanding. Current prepared tools are development copies.

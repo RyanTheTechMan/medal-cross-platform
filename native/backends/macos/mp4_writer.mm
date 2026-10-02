@@ -201,6 +201,7 @@ struct FeedState final {
 
 [[nodiscard]] std::string track_title(const EncodedPacket& first, TrackKind track,
                                       std::uint32_t track_id) {
+  if (!first.logical_source_name.empty()) return first.logical_source_name;
   if (!first.logical_source_id.empty()) {
     if (first.logical_source_id == "all-audio") {
       return "All Audio";

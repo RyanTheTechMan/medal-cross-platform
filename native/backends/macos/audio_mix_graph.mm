@@ -27,6 +27,7 @@ struct AudioMixGraph::Impl final {
       if (stems) {
         auto encoder = std::make_shared<AacEncoder>(source.role, source.track_id, 160'000, 1, callback);
         encoder->set_logical_source_id(source.logical_id);
+        encoder->set_logical_source_name(source.display_name);
         encoders[source.logical_id] = std::move(encoder);
       }
     }

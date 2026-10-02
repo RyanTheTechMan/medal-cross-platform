@@ -1,0 +1,23 @@
+Test project /Users/ryan/Developer/medal-cross-platform/build-macos-20260925
+    Start 1: native_port_macos_audio_process_registry_tests
+1/9 Test #1: native_port_macos_audio_process_registry_tests ...   Passed    0.09 sec
+    Start 2: native_port_macos_audio_mix_graph_probe
+2/9 Test #2: native_port_macos_audio_mix_graph_probe ..........   Passed    0.25 sec
+    Start 3: native_port_macos_api_probe
+3/9 Test #3: native_port_macos_api_probe ......................   Passed    0.04 sec
+    Start 4: native_port_macos_encoder_probe
+4/9 Test #4: native_port_macos_encoder_probe ..................   Passed    0.34 sec
+    Start 5: native_port_macos_audio_encoder_probe
+5/9 Test #5: native_port_macos_audio_encoder_probe ............   Passed    0.03 sec
+    Start 6: native_port_macos_mp4_writer_probe
+6/9 Test #6: native_port_macos_mp4_writer_probe ...............   Passed    0.21 sec
+    Start 7: native_port_macos_hotkey_event_pump_probe
+7/9 Test #7: native_port_macos_hotkey_event_pump_probe ........   Passed    0.12 sec
+    Start 8: native_port_core_tests
+8/9 Test #8: native_port_core_tests ...........................   Passed    0.00 sec
+    Start 9: native_port_pcm_mixer_tests
+9/9 Test #9: native_port_pcm_mixer_tests ......................   Passed    0.00 sec
+
+100% tests passed, 0 tests failed out of 9
+
+Total Test time (real) =   1.09 sec
