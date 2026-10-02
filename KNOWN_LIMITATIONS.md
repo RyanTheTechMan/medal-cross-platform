@@ -2,6 +2,15 @@
 
 This file records observed limits, not excuses for successful no-op behavior.
 
+October 2 Dock lifecycle: original main-window close now hides the Dock identity
+without quitting the host/helper. Original Finder reopening restores the same
+instance; native red-close/activation-policy evidence is in
+`reports/native/dock-20261002.md`. Menu-bar Show remains the original upstream
+handler; its native UI click, full-screen and login-item matrix are not
+promoted to passes. No signing identity, TCC or global security change. The
+common/native workflow is sufficient for Linux development, not macOS-complete
+M7/release acceptance; see the current top of `HANDOFF_LINUX.md`.
+
 Latest endpoint continuation: `reports/native/audio-20261002-endpoint.md`.
 Original retained recordings' actual packet-tail deltas are -221.001/-243.667 ms;
 the earlier -211.666/-228.333 ms values came from container start+duration, not

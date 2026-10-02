@@ -1,5 +1,21 @@
 # Implementation decisions
 
+## Decision D020 — Close to menu bar with reversible Dock identity (2026-10-02)
+
+Original `_onClose` prevents destruction and hides the main window, but never
+changes Dock visibility. Preserve that recorder/background lifetime. Bind a
+Darwin-only adapter at the exact original main-window close-registration anchor;
+observe hide/show/restore rather than replacing close/activate/tray handlers.
+Minimized windows keep Dock. Asynchronous show completion and repeated hides
+are reconciled against the latest main-window state; Quit cancels pending work.
+Use Electron's documented Dock API without changing bundle/signing identity or
+TCC. Native AppKit diagnostic reads only installed Medal's activation policy.
+Regression and installed-app evidence: `reports/native/dock-20261002.md`.
+
+Linux may now begin development from the tested common baseline, without
+asserting macOS M4–M6 complete or freezing unfinished interfaces. Keep remaining
+gates explicit and rerun Mac regressions after additive shared-core changes.
+
 ## Decision D019 — Pin native replay to OS event time (2026-10-02)
 
 The platform shortcut abstraction passes capture-clock nanoseconds alongside

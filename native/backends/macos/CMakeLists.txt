@@ -44,6 +44,11 @@ target_compile_options(native_port_macos_adapter PRIVATE -fobjc-arc -Wall -Wextr
 
 add_executable(native_port_macos_api_probe api_surface_probe.mm)
 
+add_executable(native_port_macos_dock_status_probe dock_status_probe.mm)
+target_link_libraries(native_port_macos_dock_status_probe PRIVATE nlohmann_json::nlohmann_json ${APPKIT_FRAMEWORK})
+target_compile_features(native_port_macos_dock_status_probe PRIVATE cxx_std_20)
+target_compile_options(native_port_macos_dock_status_probe PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+
 target_link_libraries(native_port_macos_api_probe PRIVATE
   native_port_core
   ${APPKIT_FRAMEWORK}

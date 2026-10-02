@@ -41,8 +41,9 @@
     "shortcutCallback": "ClipHotkeyCallback(const ClipHotkeyBinding&, int64_t capture_clock_nanoseconds)",
     "protocolVersion": 1,
     "captureActivityExtension": "nativePort.captureActivity schemaVersion 1; control/state only",
-    "installedDevelopmentBuild": "2637.461.1-development-m3.5-e78f3ce58a85e573",
-    "preparedClientBuild": "2637.461.1-native-port-m3.5-0396a759169f",
+    "installedDevelopmentBuild": "2637.461.1-development-m3.5-948e030ef3a56181",
+    "preparedClientBuild": "2637.461.1-native-port-m3.5-3ab9354a0e3e",
+    "shellLifecycleEvidence": "reports/native/dock-20261002.md",
     "evidence": "reports/native/audio-20261002-endpoint.md"
   },
   "upstreamInputs": {

@@ -1,5 +1,26 @@
 # Implementation progress
 
+## macOS Dock lifecycle / Linux development readiness — 2026-10-02
+
+Continuing `0405d68`. Linux development can reuse the tested native control,
+settings, press-anchored replay, PCM/source manifests and original audio editing
+contracts now; macOS feature/release completion is not assumed. The actual Linux
+starting commands and remaining Mac gates are in `HANDOFF_LINUX.md`.
+
+Implemented a Darwin-only main-window Dock adapter preserving original close,
+tray, activation, second-instance and shutdown handlers. Minimize retains Dock;
+rapid hide/show is coalesced and honors Electron's hide-call cooldown. Only the
+original main window binds, not HUD/test/helper windows. Restore native framed
+hiddenInset controls on Darwin; other platform frame settings remain unchanged.
+Nine focused regressions, native build/10 CTests and 7 importer tests pass.
+Final signed build `2637.461.1-development-m3.5-948e030ef3a56181` is installed at
+`/Applications/Medal.app`. Actual native red-X/Close Window hides Dock, Finder
+reopen restores the same host/helper, and minimize keeps Dock; native AppKit
+policy/window-count evidence passes. No capture/upload/TCC changes. Original
+endpoint app and intermediate versions are retained. See `reports/native/dock-20261002.md`.
+Next runnable Mac task: audio microphone/device/lifecycle/feedback gates; Linux
+may separately begin the shared regression/native packaging route in the handoff.
+
 ## Current press-anchored replay continuation — 2026-10-02
 
 Known-good original audio checkpoint `7e319cd` retained. The new native endpoint

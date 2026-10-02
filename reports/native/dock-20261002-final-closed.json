@@ -1,0 +1,10 @@
+{
+  "hosts": [
+    {
+      "activationPolicy": "regular",
+      "pid": 39332,
+      "terminated": false
+    }
+  ],
+  "schemaVersion": 1
+}

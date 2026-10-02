@@ -1,0 +1,2 @@
+PASS starter-pack consistency: 19 required files; 34 RPCs; 40 handlers; 60 settings; 30 workflows; 67 acceptance IDs; 31 sources.
+Reference evidence: 12/12 inherited isolated checks. This validator does NOT test native client/capture/GPU functionality.

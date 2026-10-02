@@ -1,0 +1,1 @@
+41269 /Applications/Medal.app/Contents/Resources/app/native-port/bin/NativeMedalRecorder.app/Contents/MacOS/native_medal_recorder --electronPort 10603 --environment production --wsComms --parentPid 41257

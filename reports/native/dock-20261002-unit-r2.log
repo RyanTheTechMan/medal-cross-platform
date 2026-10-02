@@ -1,0 +1,17 @@
+✔ pinned original X handler hides, not quits; adapter hides Dock and reopen restores (13.7885ms)
+✔ rapid close/reopen/close waits for Electron hide cooldown (0.124708ms)
+✔ reopen cancels stale delayed hide (0.08975ms)
+✔ close during asynchronous Dock show reconciles the eventual result (0.107375ms)
+✔ close before pending show and quit before pending show do not resurrect Dock (0.097166ms)
+✔ minimize retains Dock; unrelated windows cannot change it (0.047167ms)
+✔ repeated binding is idempotent, replacement removes old listeners (0.836791ms)
+✔ quit cancels delayed work and never prevents original shutdown (0.297959ms)
+✔ Windows/Linux unchanged and errors reported, not successful state (0.217125ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 51.061583

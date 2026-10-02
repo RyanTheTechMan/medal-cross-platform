@@ -37,6 +37,7 @@ NATIVE_AUDIO_PREVIEW_CONTROLLER_PATH = ROOT / 'client_patch' / 'native-audio-pre
 NATIVE_AUDIO_MEDIA_PATH = ROOT / 'client_patch' / 'native-audio-media.cjs'
 NATIVE_AUDIO_EDITOR_PATH = ROOT / 'client_patch' / 'native-audio-editor.js'
 NATIVE_CAPTURE_STATUS_PATH = ROOT / 'client_patch' / 'native-capture-status.js'
+NATIVE_DOCK_LIFECYCLE_PATH = ROOT / 'client_patch' / 'native-dock-lifecycle.cjs'
 UPDATE_ADAPTER_PATH = ROOT / 'client_patch' / 'velopack-manual-adapter.js'
 MAX_COPY_BYTES = 2 * 1024**3
 NATIVE_HELPER_BUNDLE_ID = 'com.squirrel.medal.medal.recorder'
@@ -554,6 +555,30 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
     ))
     operations.append(exact_replace(
         main_path,
+        'show:!1,frame:!1,paintWhenInitiallyHidden:!0',
+        'show:!1,frame:process.platform==="darwin",paintWhenInitiallyHidden:!0',
+        1,
+        'retain-native-macos-titlebar-close-minimize-zoom-buttons',
+        'main.min.js',
+    ))
+    operations.append(exact_replace(
+        main_path,
+        'this.window.on("close",this._onClose),process.platform==="win32"',
+        'global.nativePortDock?.bind(this.window),this.window.on("close",this._onClose),process.platform==="win32"',
+        1,
+        'macos-main-window-close-to-menu-bar-dock-lifecycle',
+        'main.min.js',
+    ))
+    operations.append(exact_replace(
+        main_path,
+        '{label:"View",submenu:[{label:"Reload",accelerator:"CmdOrCtrl+R"',
+        '{label:"View",submenu:[...(process.platform==="darwin"?[{role:"close"}]:[]),{label:"Reload",accelerator:"CmdOrCtrl+R"',
+        1,
+        'macos-native-close-window-menu-shortcut',
+        'main.min.js',
+    ))
+    operations.append(exact_replace(
+        main_path,
         'this.#h(),this.#e=null,this.#t=null,this.#n=null,this.onUserAuthChange(oe.authObject)',
         'this.#h(),this.sendRequest("nativePort.permissionStatus").then(e=>{const t=e?.microphone?.status,r=!e?.screenRecording?.granted,o=t==="denied"||t==="restricted";((r||o)&&this.sendNotification("recorderError",{type:"microphone-permission-required",fallback:"Medal needs Microphone and Screen Recording access. Open System Settings > Privacy & Security, enable the signed Medal entries, then restart Medal."})),(t==="not_determined"||r)&&this.sendRequest("nativePort.requestPermissions").catch(()=>{}),o&&this.sendRequest("nativePort.openPermissionSettings").catch(()=>{});try{require("electron").systemPreferences?.askForMediaAccess?.("microphone")?.catch?.(()=>{})}catch{}}).catch(()=>{}),this.#e=null,this.#t=null,this.#n=null,this.onUserAuthChange(oe.authObject)',
         1,
@@ -740,6 +765,7 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
     shutil.copy2(NATIVE_AUDIO_MEDIA_PATH, stage_app / 'native-port' / 'native-audio-media.cjs')
     shutil.copy2(NATIVE_AUDIO_EDITOR_PATH, stage_app / 'native-port' / 'native-audio-editor.js')
     shutil.copy2(NATIVE_CAPTURE_STATUS_PATH, stage_app / 'native-port' / 'native-capture-status.js')
+    shutil.copy2(NATIVE_DOCK_LIFECYCLE_PATH, stage_app / 'native-port' / 'native-dock-lifecycle.cjs')
     default_clip_sound = install_default_clip_sound(
         recorder_archive,
         stage_app / 'native-port' / 'assets' / 'ClipEffect.wav',
@@ -796,6 +822,7 @@ def apply_client_patch(stage_app: Path, addon: Path, native_helper: Path, sqlite
         'nativeHelper': helper,
         'defaultClipSound': default_clip_sound,
         'clientPatchFiles': {
+            'native-port/native-dock-lifecycle.cjs': sha256(stage_app / 'native-port' / 'native-dock-lifecycle.cjs'),
             'native-port/bootstrap.cjs': sha256(bootstrap_destination),
             'native-port/db-selftest-preload.cjs': sha256(stage_app / 'native-port' / 'db-selftest-preload.cjs'),
             'native-port/protocol-selftest-preload.cjs': sha256(

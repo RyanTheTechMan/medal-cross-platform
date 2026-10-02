@@ -9,6 +9,7 @@ const { createReadStream } = require('node:fs')
 const { pathToFileURL } = require('node:url')
 const { Readable } = require('node:stream')
 const { createAudioMedia, mergeClientProbeAudio, byteRange } = require('./native-audio-media.cjs')
+const { createDockLifecycle } = require('./native-dock-lifecycle.cjs')
 
 protocol.registerSchemesAsPrivileged([{
   scheme: 'native-audio-preview',
@@ -146,6 +147,8 @@ process.env.NATIVE_PORT_SESSION_SECRET = crypto.randomBytes(32).toString('base64
 
 if (process.env.NATIVE_PORT_DISABLE_RECORDER === 'true') process.env.NO_RECORDER = '1'
 global.nativePort = Object.freeze({ profile, tools, recorder, updater: 'manual' })
+global.nativePortDock = createDockLifecycle({ app,
+  onState: state => console.log('[native-port] Dock lifecycle', JSON.stringify(state)) })
 console.log(`[native-port] Electron ${process.versions.electron}, ABI ${process.versions.modules}, ${process.arch}`)
 
 const selfTestMode = process.env.NATIVE_PORT_CLIENT_DB_SELFTEST

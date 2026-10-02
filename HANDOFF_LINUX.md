@@ -1,6 +1,45 @@
 # Actual macOS → Linux handoff
 
-Status: **not ready for transfer**. This file is live and must not be interpreted as a completed handoff.
+Status: **usable as a Linux development baseline; macOS completion/M7 remains open**.
+This is a development handoff, not a release-completion claim.
+
+## Current development baseline — 2026-10-02
+
+Start exploratory Linux work from `0405d68` or the subsequent Dock-lifecycle
+checkpoint, not a historical September audio build. Core native H.264/AAC window
+capture, original hotkey replay/contentCreate/thumbnail/library/player/full
+restart and original All PC/Specific Apps mute/Save/restart now have actual Mac
+evidence. Ten native CTests pass. See `reports/native/audio-20261002-endpoint.md`
+and `reports/native/audio-20261002-live-routing.md` for exact scope and failures.
+
+This is enough evidence to reuse the control/settings/replay/audio-edit contracts
+while implementing Linux adapters. It does NOT satisfy all macOS M4–M6 gates.
+Microphone/device lifecycle, PTT, feedback PCM, sessions/recovery/storage failure,
+camera/HDR, authorized upload, clean-user release packaging and sustained
+timing/performance remain open. Keep the Mac regression route and ledger intact.
+
+Current actual toolchain: macOS 27.2 (26B5091g), Apple M5 Max arm64, installed
+Xcode 27.1 (27A9269), macOS SDK 27.0; Electron 43.2.0, ABI 148. Do not use the
+removed Xcode-beta paths in historical commands below.
+
+First Linux task, on a real Linux machine: read `LINUX_CONTINUATION_PROMPT.md`,
+run `python3 validate_pack.py`, configure/build/test the shared core using
+`cmake -S . -B build-linux -G Ninja -DBUILD_TESTING=ON`,
+`cmake --build build-linux`, `ctest --test-dir build-linux --output-on-failure`.
+Record missing dependencies/actual Linux compile failures, then implement native
+Electron/addon packaging and portal/PipeWire/hardware encoder adapters. Native
+Wayland selection requires consent; process discovery is not capture permission.
+No Linux build, capture, GPU or desktop test is claimed by this Mac handoff.
+
+Latest lifecycle change: main-window hide removes the macOS Dock identity;
+original menu-bar Show/activate/second-instance reopening restores it. The new
+adapter is Darwin-only, not a Linux app-lifecycle implementation. Its final
+installed build is `2637.461.1-development-m3.5-948e030ef3a56181`, prepared client
+`2637.461.1-native-port-m3.5-3ab9354a0e3e`. Native red-X, same-instance Finder
+reopen and minimize pass; the menu-bar Show handler is unchanged but not separately
+clicked in this run. Tests are recorded in `reports/native/dock-20261002.md`.
+
+### Historical continuation notes (superseded where stated above)
 
 New endpoint continuation from known-good original audio checkpoint `7e319cd`:
 shared ReplayEndpoint/snapshot_at pins OS event time, codec generation and audio
@@ -96,7 +135,9 @@ M1 recovery/external-source cleanup, the remainder of M2 resilience/inventory, t
 
 ## Linux starting point
 
-Do not start Linux implementation from this state. The exact first Linux task will be recorded after the shared capture/media interfaces and macOS completion gates are implemented and frozen.
+The current development starting point is above. A formal macOS-complete M7
+handoff still requires the remaining gates; historical commits below are not the
+recommended Linux base.
 
 ## Regression route
 

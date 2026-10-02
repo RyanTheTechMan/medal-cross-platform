@@ -1,0 +1,2 @@
+[1/2] Building OBJCXX object native/backends/macos/CMakeFiles/native_port_macos_dock_status_probe.dir/dock_status_probe.mm.o
+[2/2] Linking OBJCXX executable native/backends/macos/native_port_macos_dock_status_probe

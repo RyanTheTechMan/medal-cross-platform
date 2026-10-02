@@ -5174,11 +5174,20 @@
       "source": "CODEX_MASTER_PROMPT.md",
       "contract_status": "proposed_product_requirement",
       "macos": {
-        "status": "not_started",
-        "implementation_files": [],
-        "test_ids": [],
-        "report_paths": [],
-        "limitations": []
+        "status": "implemented_unverified",
+        "implementation_files": [
+          "client_patch/native-dock-lifecycle.cjs",
+          "client_patch/native-port-bootstrap.cjs",
+          "tools/native_port_importer.py",
+          "tools/build_macos_development_app.py",
+          "native/backends/macos/dock_status_probe.mm"
+        ],
+        "test_ids": ["native-dock-lifecycle.test.cjs", "test_importer.py"],
+        "report_paths": ["reports/native/dock-20261002.md"],
+        "limitations": [
+          "Dock close/reopen is a narrow development gate, not full M10 packaging acceptance.",
+          "Clean-user install/permissions, notarization, release updates, URI and autostart lifecycle remain separate gates."
+        ]
       },
       "linux": {
         "status": "not_started",
