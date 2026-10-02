@@ -1,0 +1,11 @@
+{
+  "hosts": [
+    {
+      "activationPolicy": "accessory",
+      "onScreenNormalWindows": 0,
+      "pid": 7735,
+      "terminated": false
+    }
+  ],
+  "schemaVersion": 1
+}

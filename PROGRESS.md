@@ -8,7 +8,9 @@ left-click menu. Installed signed build `2637.461.1-development-m3.5-bb19f77a1f0
 prepared `2637.461.1-native-port-m3.5-274e0bc38555`. Twelve focused JS regressions,
 seven importer tests, exact prepare, build, signature and syntax checks pass.
 Original launch/CmdW background lifecycle checked; physical status-icon clicks
-await user confirmation, not marked verified. Failed first build retained.
+await user confirmation, not marked verified. Failed first build and installation
+retained: first user click tested the old app after a path error; corrected atomic
+install now verifies installed main byte-for-byte against the built payload.
 Evidence: `reports/native/tray-20261002.md`. Next runnable: confirm left/right
 status clicks, then resume microphone/device/lifecycle gates. No media/upload changes.
 
